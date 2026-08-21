@@ -8,11 +8,13 @@ import {
 import Link from "next/link";
 
 import { FileGrid } from "@/components/file-grid";
+import { FilesActions } from "@/components/files-actions";
 import { FileList } from "@/components/file-list";
 import { FilesPagination } from "@/components/files-pagination";
 import { FilesToolbar } from "@/components/files-toolbar";
 import { FolderCard } from "@/components/folder-card";
 import { getImportantFilesBrowser } from "@/lib/files/data";
+import { getMaxUploadBytes } from "@/lib/files/server";
 import type { FileBrowserFilters } from "@/lib/files/types";
 import {
   buildFileQuery,
@@ -30,6 +32,7 @@ export const metadata = {
 
 export default async function FilesPage({ searchParams }: FilesPageProps) {
   const filters = parseFileBrowserFilters(await searchParams);
+  const maxUploadBytes = getMaxUploadBytes();
 
   let result: Awaited<ReturnType<typeof getImportantFilesBrowser>> | null = null;
   let loadError: string | null = null;
@@ -69,9 +72,9 @@ export default async function FilesPage({ searchParams }: FilesPageProps) {
         <section className="overflow-hidden rounded-[28px] border border-[#e1e5ea] bg-white p-6 shadow-sm sm:p-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#e8f0fe] px-3 py-1.5 text-xs font-semibold text-[#1967d2]">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#e6f4ea] px-3 py-1.5 text-xs font-semibold text-[#137333]">
                 <HardDrive className="size-4" aria-hidden="true" />
-                Read-only migration
+                Uploads enabled
               </div>
               <h1 className="text-3xl font-semibold tracking-[-0.03em] text-[#202124] sm:text-4xl">
                 {filters.favorite
@@ -79,18 +82,36 @@ export default async function FilesPage({ searchParams }: FilesPageProps) {
                   : filters.folder.split("/").at(-1) || "Important Files"}
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-[#5f6368] sm:text-base">
-                Browse folders, search metadata, preview supported files, and
-                download private objects without changing the existing data.
+                Browse, preview, and download private files. You can now upload
+                individual files, complete folders, and create empty folders.
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <Summary label="Files" value={result.totalFiles.toLocaleString()} />
-              <Summary label="Folders" value={result.folders.length.toLocaleString()} />
-              <Summary label="Size" value={formatBytes(result.totalBytes)} />
+            <div className="space-y-4">
+              <FilesActions
+                currentFolder={filters.folder}
+                categories={result.categories}
+                maxUploadBytes={maxUploadBytes}
+                folderTableAvailable={result.folderTableAvailable}
+              />
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <Summary label="Files" value={result.totalFiles.toLocaleString()} />
+                <Summary label="Folders" value={result.folders.length.toLocaleString()} />
+                <Summary label="Size" value={formatBytes(result.totalBytes)} />
+              </div>
             </div>
           </div>
         </section>
+
+        {!result.folderTableAvailable ? (
+          <div className="flex items-start gap-3 rounded-[18px] border border-[#f2d6a1] bg-[#fef7e0] p-4 text-sm text-[#8d4e00]">
+            <AlertTriangle className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+            <p>
+              File uploads work, but empty folder creation is disabled until you run{" "}
+              <code>database/phase3a_important_folders.sql</code> in the Supabase SQL Editor.
+            </p>
+          </div>
+        ) : null}
 
         {!filters.favorite ? (
           <nav
@@ -132,9 +153,8 @@ export default async function FilesPage({ searchParams }: FilesPageProps) {
           <div className="flex items-start gap-3 rounded-[18px] border border-[#f2d6a1] bg-[#fef7e0] p-4 text-sm text-[#8d4e00]">
             <AlertTriangle className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
             <p>
-              This read-only migration currently loads the first 5,000 active
-              records. Database-side pagination will replace this temporary
-              snapshot limit during the write-enabled phase.
+              This migration currently loads the first 5,000 active records. Database-side
+              pagination will replace this temporary snapshot limit in a later phase.
             </p>
           </div>
         ) : null}

@@ -17,6 +17,15 @@ export type ImportantFile = {
   updated_at: string | null;
 };
 
+export type ImportantFolder = {
+  id?: number;
+  path: string;
+  name: string;
+  parent_path: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
 export type FolderSummary = {
   name: string;
   path: string;
@@ -71,4 +80,5 @@ export type FileBrowserResult = {
   perPage: number;
   truncated: boolean;
   accessMode: "service-role" | "session";
+  folderTableAvailable: boolean;
 };

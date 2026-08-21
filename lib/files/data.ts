@@ -7,6 +7,7 @@ import type {
   FileBrowserResult,
   FolderSummary,
   ImportantFile,
+  ImportantFolder,
 } from "@/lib/files/types";
 import {
   compareFiles,
@@ -14,6 +15,7 @@ import {
   matchesSearch,
   normalizeFolderPath,
 } from "@/lib/files/utils";
+import { isMissingFolderTableError } from "@/lib/files/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient as createSessionClient } from "@/lib/supabase/server";
 
@@ -66,6 +68,9 @@ export async function getImportantFilesBrowser(
     );
   }
 
+  const { folders: explicitFolders, available: folderTableAvailable } =
+    await getExplicitFolders(client);
+
   const rawFiles = (data ?? []) as unknown as ImportantFile[];
   const truncated = rawFiles.length >= SNAPSHOT_LIMIT;
   const allFiles = rawFiles.slice(0, SNAPSHOT_LIMIT - 1).map((file) => ({
@@ -84,7 +89,12 @@ export async function getImportantFilesBrowser(
     ),
   ).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
 
-  const folders = buildChildFolders(allFiles, filters.folder, filters.q);
+  const folders = buildChildFolders(
+    allFiles,
+    explicitFolders,
+    filters.folder,
+    filters.q,
+  );
   const directFiles = filters.favorite
     ? allFiles
     : allFiles.filter((file) => normalizeFolderPath(file.folder_path) === filters.folder);
@@ -122,6 +132,7 @@ export async function getImportantFilesBrowser(
     perPage: filters.perPage,
     truncated,
     accessMode,
+    folderTableAvailable,
   };
 }
 
@@ -159,6 +170,7 @@ export async function getImportantFileById(
 
 function buildChildFolders(
   files: ImportantFile[],
+  explicitFolders: ImportantFolder[],
   currentFolder: string,
   query: string,
 ): FolderSummary[] {
@@ -198,6 +210,31 @@ function buildChildFolders(
     folders.set(childPath, existing);
   }
 
+  for (const folder of explicitFolders) {
+    const path = normalizeFolderPath(folder.path);
+    const parent = normalizeFolderPath(folder.parent_path);
+    if (!path || parent !== currentFolder) continue;
+
+    const existing = folders.get(path) ?? {
+      name: folder.name || path.split("/").at(-1) || path,
+      path,
+      fileCount: 0,
+      totalBytes: 0,
+      updatedAt: folder.updated_at ?? folder.created_at,
+    };
+
+    const explicitDate = folder.updated_at ?? folder.created_at;
+    if (
+      explicitDate &&
+      (!existing.updatedAt ||
+        new Date(explicitDate).getTime() > new Date(existing.updatedAt).getTime())
+    ) {
+      existing.updatedAt = explicitDate;
+    }
+
+    folders.set(path, existing);
+  }
+
   return Array.from(folders.values())
     .filter(
       (folder) =>
@@ -210,6 +247,31 @@ function buildChildFolders(
         sensitivity: "base",
       }),
     );
+}
+
+
+async function getExplicitFolders(client: SupabaseClient): Promise<{
+  folders: ImportantFolder[];
+  available: boolean;
+}> {
+  const { data, error } = await client
+    .from("important_folders")
+    .select("id,path,name,parent_path,created_at,updated_at")
+    .order("name", { ascending: true })
+    .limit(5000);
+
+  if (!error) {
+    return {
+      folders: (data ?? []) as unknown as ImportantFolder[],
+      available: true,
+    };
+  }
+
+  if (isMissingFolderTableError(error)) {
+    return { folders: [], available: false };
+  }
+
+  throw new Error(error.message);
 }
 
 function buildBreadcrumbs(folder: string) {
