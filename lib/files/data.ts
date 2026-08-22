@@ -8,6 +8,7 @@ import type {
   FolderSummary,
   ImportantFile,
   ImportantFolder,
+  RecycleBinResult,
 } from "@/lib/files/types";
 import {
   compareFiles,
@@ -15,13 +16,17 @@ import {
   matchesSearch,
   normalizeFolderPath,
 } from "@/lib/files/utils";
-import { isMissingFolderTableError } from "@/lib/files/server";
+import {
+  isMissingFolderTableError,
+  isMissingFolderManagementColumns,
+} from "@/lib/files/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient as createSessionClient } from "@/lib/supabase/server";
 
 const SNAPSHOT_LIMIT = 5001;
 const FILE_SELECT = [
   "id",
+  "owner_id",
   "title",
   "description",
   "category",
@@ -37,25 +42,41 @@ const FILE_SELECT = [
   "download_count",
   "created_at",
   "updated_at",
+  "deleted_at",
+  "recycle_batch_id",
 ].join(",");
 
-async function getDataClient(): Promise<{
+async function getDataContext(): Promise<{
   client: SupabaseClient;
+  userId: string;
   accessMode: "service-role" | "session";
 }> {
-  const admin = createAdminClient();
-  if (admin) return { client: admin, accessMode: "service-role" };
+  const sessionClient = await createSessionClient();
+  const {
+    data: { user },
+    error,
+  } = await sessionClient.auth.getUser();
 
-  return { client: await createSessionClient(), accessMode: "session" };
+  if (error || !user) {
+    throw new Error("Authentication required.");
+  }
+
+  const admin = createAdminClient();
+  return {
+    client: admin ?? sessionClient,
+    userId: user.id,
+    accessMode: admin ? "service-role" : "session",
+  };
 }
 
 export async function getImportantFilesBrowser(
   filters: FileBrowserFilters,
 ): Promise<FileBrowserResult> {
-  const { client, accessMode } = await getDataClient();
+  const { client, userId, accessMode } = await getDataContext();
   const { data, error } = await client
     .from("important_files")
     .select(FILE_SELECT)
+    .eq("owner_id", userId)
     .eq("status", "active")
     .order("created_at", { ascending: false })
     .limit(SNAPSHOT_LIMIT);
@@ -63,23 +84,17 @@ export async function getImportantFilesBrowser(
   if (error) {
     throw new Error(
       accessMode === "session"
-        ? `${error.message}. Add the server-only SUPABASE_SERVICE_ROLE_KEY environment variable, or configure authenticated read policies for important_files.`
+        ? `${error.message}. Add the server-only SUPABASE_SERVICE_ROLE_KEY environment variable, or configure authenticated owner policies for important_files.`
         : error.message,
     );
   }
 
   const { folders: explicitFolders, available: folderTableAvailable } =
-    await getExplicitFolders(client);
+    await getExplicitFolders(client, userId, "active");
 
   const rawFiles = (data ?? []) as unknown as ImportantFile[];
   const truncated = rawFiles.length >= SNAPSHOT_LIMIT;
-  const allFiles = rawFiles.slice(0, SNAPSHOT_LIMIT - 1).map((file) => ({
-    ...file,
-    folder_path: normalizeFolderPath(file.folder_path),
-    file_size: Number(file.file_size) || 0,
-    download_count: Number(file.download_count) || 0,
-    is_favorite: Boolean(file.is_favorite),
-  }));
+  const allFiles = rawFiles.slice(0, SNAPSHOT_LIMIT - 1).map(normalizeFile);
 
   const categories = Array.from(
     new Set(
@@ -97,7 +112,9 @@ export async function getImportantFilesBrowser(
   );
   const directFiles = filters.favorite
     ? allFiles
-    : allFiles.filter((file) => normalizeFolderPath(file.folder_path) === filters.folder);
+    : allFiles.filter(
+        (file) => normalizeFolderPath(file.folder_path) === filters.folder,
+      );
 
   const filteredFiles = directFiles
     .filter((file) => matchesSearch(file, filters.q))
@@ -138,33 +155,102 @@ export async function getImportantFilesBrowser(
 
 export async function getImportantFileById(
   id: number,
-): Promise<{ file: ImportantFile | null; accessMode: "service-role" | "session" }> {
-  const { client, accessMode } = await getDataClient();
-  const { data, error } = await client
+  options: { includeDeleted?: boolean } = {},
+): Promise<{
+  file: ImportantFile | null;
+  accessMode: "service-role" | "session";
+}> {
+  const { client, userId, accessMode } = await getDataContext();
+  let query = client
     .from("important_files")
     .select(FILE_SELECT)
     .eq("id", id)
-    .eq("status", "active")
-    .maybeSingle();
+    .eq("owner_id", userId);
 
+  query = options.includeDeleted
+    ? query.in("status", ["active", "deleted"])
+    : query.eq("status", "active");
+
+  const { data, error } = await query.maybeSingle();
   if (error) throw new Error(error.message);
 
   return {
-    file: data
-      ? ({
-          ...(data as unknown as ImportantFile),
-          folder_path: normalizeFolderPath(
-            (data as unknown as ImportantFile).folder_path,
-          ),
-          file_size: Number((data as unknown as ImportantFile).file_size) || 0,
-          download_count:
-            Number((data as unknown as ImportantFile).download_count) || 0,
-          is_favorite: Boolean(
-            (data as unknown as ImportantFile).is_favorite,
-          ),
-        } satisfies ImportantFile)
-      : null,
+    file: data ? normalizeFile(data as unknown as ImportantFile) : null,
     accessMode,
+  };
+}
+
+export async function getImportantFilesRecycleBin(): Promise<RecycleBinResult> {
+  const { client, userId, accessMode } = await getDataContext();
+  const { data, error } = await client
+    .from("important_files")
+    .select(FILE_SELECT)
+    .eq("owner_id", userId)
+    .eq("status", "deleted")
+    .order("deleted_at", { ascending: false })
+    .limit(SNAPSHOT_LIMIT);
+
+  if (error) throw new Error(error.message);
+
+  const { folders: deletedFolders, available: folderTableAvailable } =
+    await getExplicitFolders(client, userId, "deleted");
+  const files = ((data ?? []) as unknown as ImportantFile[]).map(normalizeFile);
+
+  const folderByPath = new Map(
+    deletedFolders.map((folder) => [normalizeFolderPath(folder.path), folder]),
+  );
+  const rootFolders = deletedFolders
+    .filter((folder) => {
+      const parent = normalizeFolderPath(folder.parent_path);
+      if (!parent) return true;
+      const parentFolder = folderByPath.get(parent);
+      return !parentFolder || parentFolder.recycle_batch_id !== folder.recycle_batch_id;
+    })
+    .map<FolderSummary>((folder) => {
+      const path = normalizeFolderPath(folder.path);
+      const folderFiles = files.filter(
+        (file) =>
+          normalizeFolderPath(file.folder_path) === path ||
+          normalizeFolderPath(file.folder_path).startsWith(`${path}/`),
+      );
+      return {
+        name: folder.name || path.split("/").at(-1) || path,
+        path,
+        fileCount: folderFiles.length,
+        totalBytes: folderFiles.reduce((sum, file) => sum + file.file_size, 0),
+        updatedAt: folder.updated_at ?? folder.created_at,
+        deletedAt: folder.deleted_at ?? null,
+        recycleBatchId: folder.recycle_batch_id ?? null,
+      };
+    })
+    .sort((a, b) =>
+      String(b.deletedAt ?? "").localeCompare(String(a.deletedAt ?? "")),
+    );
+
+  const folderBatches = new Set(
+    rootFolders.map((folder) => folder.recycleBatchId).filter(Boolean),
+  );
+  const standaloneFiles = files.filter(
+    (file) => !file.recycle_batch_id || !folderBatches.has(file.recycle_batch_id),
+  );
+
+  return {
+    files: standaloneFiles,
+    folders: rootFolders,
+    totalBytes: files.reduce((sum, file) => sum + file.file_size, 0),
+    accessMode,
+    folderTableAvailable,
+  };
+}
+
+function normalizeFile(file: ImportantFile): ImportantFile {
+  return {
+    ...file,
+    folder_path: normalizeFolderPath(file.folder_path),
+    file_size: Number(file.file_size) || 0,
+    download_count: Number(file.download_count) || 0,
+    is_favorite: Boolean(file.is_favorite),
+    deleted_at: file.deleted_at ?? null,
   };
 }
 
@@ -202,7 +288,8 @@ function buildChildFolders(
     if (
       candidateDate &&
       (!existing.updatedAt ||
-        new Date(candidateDate).getTime() > new Date(existing.updatedAt).getTime())
+        new Date(candidateDate).getTime() >
+          new Date(existing.updatedAt).getTime())
     ) {
       existing.updatedAt = candidateDate;
     }
@@ -227,7 +314,8 @@ function buildChildFolders(
     if (
       explicitDate &&
       (!existing.updatedAt ||
-        new Date(explicitDate).getTime() > new Date(existing.updatedAt).getTime())
+        new Date(explicitDate).getTime() >
+          new Date(existing.updatedAt).getTime())
     ) {
       existing.updatedAt = explicitDate;
     }
@@ -249,14 +337,18 @@ function buildChildFolders(
     );
 }
 
-
-async function getExplicitFolders(client: SupabaseClient): Promise<{
-  folders: ImportantFolder[];
-  available: boolean;
-}> {
+async function getExplicitFolders(
+  client: SupabaseClient,
+  userId: string,
+  status: "active" | "deleted",
+): Promise<{ folders: ImportantFolder[]; available: boolean }> {
   const { data, error } = await client
     .from("important_folders")
-    .select("id,path,name,parent_path,created_at,updated_at")
+    .select(
+      "id,owner_id,path,name,parent_path,status,created_at,updated_at,deleted_at,recycle_batch_id",
+    )
+    .eq("owner_id", userId)
+    .eq("status", status)
     .order("name", { ascending: true })
     .limit(5000);
 
@@ -267,7 +359,7 @@ async function getExplicitFolders(client: SupabaseClient): Promise<{
     };
   }
 
-  if (isMissingFolderTableError(error)) {
+  if (isMissingFolderTableError(error) || isMissingFolderManagementColumns(error)) {
     return { folders: [], available: false };
   }
 

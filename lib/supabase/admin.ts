@@ -5,6 +5,7 @@ import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 export function createAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key =
+    process.env.SUPABASE_SECRET_KEY ??
     process.env.SUPABASE_SERVICE_ROLE_KEY ??
     process.env.SUPABASE_SERVICE_KEY;
 
@@ -23,4 +24,8 @@ export function getFilesBucket(): string {
   return (
     process.env.SUPABASE_FILES_BUCKET?.trim() || "important-files"
   );
+}
+
+export function getVideosBucket(): string {
+  return process.env.SUPABASE_VIDEOS_BUCKET?.trim() || "videos";
 }

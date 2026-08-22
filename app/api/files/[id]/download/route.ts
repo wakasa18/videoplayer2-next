@@ -26,8 +26,9 @@ export async function GET(
   const client = createAdminClient() ?? sessionClient;
   const { data: file, error: fileError } = await client
     .from("important_files")
-    .select("id,file_path,original_filename,status")
+    .select("id,file_path,original_filename,status,download_count")
     .eq("id", id)
+    .eq("owner_id", user.id)
     .eq("status", "active")
     .maybeSingle();
 
@@ -55,6 +56,15 @@ export async function GET(
       { status: 500 },
     );
   }
+
+  await client
+    .from("important_files")
+    .update({
+      download_count: Number(file.download_count ?? 0) + 1,
+      last_downloaded_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .eq("owner_id", user.id);
 
   return NextResponse.redirect(data.signedUrl, {
     status: 307,

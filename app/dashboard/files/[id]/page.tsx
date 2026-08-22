@@ -10,6 +10,7 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { FileItemActions } from "@/components/file-item-actions";
 import { FilePreview } from "@/components/file-preview";
 import { FileTypeIcon } from "@/components/file-type-icon";
 import { getImportantFileById } from "@/lib/files/data";
@@ -56,13 +57,16 @@ export default async function FileDetailsPage({ params }: FileDetailsPageProps) 
           <ArrowLeft className="size-4" aria-hidden="true" />
           Back to files
         </Link>
-        <a
-          href={`/api/files/${file.id}/download`}
-          className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#1a73e8] px-5 text-sm font-semibold text-white transition hover:bg-[#1557b0]"
-        >
-          <Download className="size-4" aria-hidden="true" />
-          Download
-        </a>
+        <div className="flex items-center gap-2">
+          <a
+            href={`/api/files/${file.id}/download`}
+            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#1a73e8] px-5 text-sm font-semibold text-white transition hover:bg-[#1557b0]"
+          >
+            <Download className="size-4" aria-hidden="true" />
+            Download
+          </a>
+          <FileItemActions file={file} />
+        </div>
       </div>
 
       <section className="rounded-[28px] border border-[#e1e5ea] bg-white p-5 shadow-sm sm:p-7">

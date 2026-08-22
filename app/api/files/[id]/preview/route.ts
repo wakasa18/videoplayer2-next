@@ -28,6 +28,7 @@ export async function GET(
     .from("important_files")
     .select("id,file_path,status")
     .eq("id", id)
+    .eq("owner_id", user.id)
     .eq("status", "active")
     .maybeSingle();
 

@@ -1,10 +1,13 @@
 export type ImportantFile = {
   id: number;
+  owner_id: string;
   title: string;
   description: string | null;
   category: string | null;
   folder_path: string | null;
+  stored_filename?: string | null;
   original_filename: string;
+  file_path?: string | null;
   file_extension: string | null;
   mime_type: string;
   file_size: number;
@@ -15,15 +18,21 @@ export type ImportantFile = {
   download_count: number;
   created_at: string | null;
   updated_at: string | null;
+  deleted_at: string | null;
+  recycle_batch_id?: string | null;
 };
 
 export type ImportantFolder = {
   id?: number;
+  owner_id?: string | null;
   path: string;
   name: string;
   parent_path: string | null;
+  status?: string;
   created_at: string | null;
   updated_at: string | null;
+  deleted_at?: string | null;
+  recycle_batch_id?: string | null;
 };
 
 export type FolderSummary = {
@@ -32,6 +41,8 @@ export type FolderSummary = {
   fileCount: number;
   totalBytes: number;
   updatedAt: string | null;
+  deletedAt?: string | null;
+  recycleBatchId?: string | null;
 };
 
 export type FileViewMode = "grid" | "list";
@@ -79,6 +90,14 @@ export type FileBrowserResult = {
   page: number;
   perPage: number;
   truncated: boolean;
+  accessMode: "service-role" | "session";
+  folderTableAvailable: boolean;
+};
+
+export type RecycleBinResult = {
+  files: ImportantFile[];
+  folders: FolderSummary[];
+  totalBytes: number;
   accessMode: "service-role" | "session";
   folderTableAvailable: boolean;
 };

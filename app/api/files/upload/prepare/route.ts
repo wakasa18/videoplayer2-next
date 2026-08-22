@@ -63,7 +63,7 @@ export async function POST(request: Request) {
     const documentDate = sanitizeDate(payload.documentDate);
 
     if (folderPath) {
-      await ensureFolderHierarchy(client, folderPath, {
+      await ensureFolderHierarchy(client, folderPath, user.id, {
         tolerateMissingTable: true,
       });
     }

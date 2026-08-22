@@ -5,13 +5,23 @@ import { useEffect, useState } from "react";
 
 import { Sidebar } from "@/components/sidebar";
 import { TopBar } from "@/components/top-bar";
+import type { WorkspaceDefaultModule } from "@/lib/workspace/types";
 
 type AppShellProps = {
   children: ReactNode;
   userEmail: string;
+  displayName?: string | null;
+  quickModule?: WorkspaceDefaultModule;
+  compactMode?: boolean;
 };
 
-export function AppShell({ children, userEmail }: AppShellProps) {
+export function AppShell({
+  children,
+  userEmail,
+  displayName,
+  quickModule = "files",
+  compactMode = false,
+}: AppShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -34,13 +44,20 @@ export function AppShell({ children, userEmail }: AppShellProps) {
     <div className="min-h-screen bg-[#f8f9fa] text-[#202124]">
       <TopBar
         userEmail={userEmail}
+        displayName={displayName}
         onMenuClick={() => setMobileOpen(true)}
       />
 
       <div className="mx-auto flex max-w-[1600px]">
-        <Sidebar />
+        <Sidebar quickModule={quickModule} />
 
-        <div className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">
+        <div
+          className={
+            compactMode
+              ? "min-w-0 flex-1 px-3 py-4 sm:px-4 lg:px-6"
+              : "min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8"
+          }
+        >
           {children}
         </div>
       </div>
@@ -64,7 +81,11 @@ export function AppShell({ children, userEmail }: AppShellProps) {
             mobileOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <Sidebar mobile onNavigate={() => setMobileOpen(false)} />
+          <Sidebar
+            mobile
+            quickModule={quickModule}
+            onNavigate={() => setMobileOpen(false)}
+          />
         </div>
       </div>
     </div>

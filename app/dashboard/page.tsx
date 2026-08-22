@@ -1,21 +1,22 @@
-import { ClipboardCheck, Cloud, FolderOpen, ShieldCheck } from "lucide-react";
+import {
+  Activity,
+  ClipboardCheck,
+  Cloud,
+  Film,
+  FolderOpen,
+  HardDrive,
+  Settings,
+  ShieldCheck,
+} from "lucide-react";
+import Link from "next/link";
 
-import { createClient } from "@/lib/supabase/server";
+import { getWorkspaceSummarySafe } from "@/lib/workspace/data";
+import { formatBytes } from "@/lib/workspace/utils";
+
+export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
-
-  const [filesResult, assignmentsResult] = await Promise.all([
-    supabase
-      .from("important_files")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "active"),
-    supabase
-      .from("assignments")
-      .select("id", { count: "exact", head: true }),
-  ]);
-
-  const connectionReady = !filesResult.error && !assignmentsResult.error;
+  const summary = await getWorkspaceSummarySafe();
 
   return (
     <main className="space-y-6">
@@ -27,72 +28,83 @@ export default async function DashboardPage() {
               Private cloud workspace
             </div>
             <h1 className="text-3xl font-semibold tracking-[-0.03em] text-[#202124] sm:text-4xl">
-              Welcome to your new dashboard
+              Damon&apos;s Archive
             </h1>
             <p className="mt-3 max-w-xl text-sm leading-6 text-[#5f6368] sm:text-base">
-              Your Next.js application is connected to Supabase. Complete the
-              migration one module at a time while the current system remains
-              online.
+              Files, assignments, reminders, shared links, videos, activity history, and account settings are now available in the migrated Next.js workspace.
             </p>
           </div>
 
-          <div
-            className={`inline-flex w-fit items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${
-              connectionReady
-                ? "bg-[#e6f4ea] text-[#137333]"
-                : "bg-[#fef7e0] text-[#a15c00]"
-            }`}
-          >
-            {connectionReady ? (
-              <ShieldCheck className="size-4" aria-hidden="true" />
-            ) : (
-              <Cloud className="size-4" aria-hidden="true" />
-            )}
-            {connectionReady ? "Supabase connected" : "Check RLS permissions"}
+          <div className="inline-flex w-fit items-center gap-2 rounded-full bg-[#e6f4ea] px-4 py-2 text-sm font-semibold text-[#137333]">
+            <ShieldCheck className="size-4" aria-hidden="true" />
+            Phase 7 finalization
           </div>
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <DashboardStat
           icon={FolderOpen}
           label="Important files"
-          value={filesResult.error ? "—" : String(filesResult.count ?? 0)}
-          description={
-            filesResult.error
-              ? "Hidden until table access is configured"
-              : "Active files in Supabase"
-          }
+          value={summary.file_count.toLocaleString()}
+          description="Active private files"
         />
         <DashboardStat
           icon={ClipboardCheck}
           label="Assignments"
-          value={
-            assignmentsResult.error ? "—" : String(assignmentsResult.count ?? 0)
-          }
-          description={
-            assignmentsResult.error
-              ? "Hidden until table access is configured"
-              : "Assignments found in Supabase"
-          }
+          value={summary.assignment_count.toLocaleString()}
+          description="Active and completed work"
+        />
+        <DashboardStat
+          icon={Film}
+          label="Videos"
+          value={summary.video_count.toLocaleString()}
+          description="Active private videos"
+        />
+        <DashboardStat
+          icon={HardDrive}
+          label="Storage used"
+          value={formatBytes(summary.total_bytes)}
+          description="Files and videos, including recycle bins"
         />
         <DashboardStat
           icon={ShieldCheck}
-          label="Migration status"
-          value="Phase 1"
-          description="Authentication and dashboard setup"
+          label="Migration"
+          value="Phase 7"
+          description="Finalization and hardening"
         />
       </section>
 
-      <section className="rounded-[24px] border border-[#e1e5ea] bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold tracking-tight text-[#202124]">
-          Next migration step
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-[#5f6368]">
-          After login, logout, protected routes, and session refresh are tested,
-          begin the read-only Important Files module. Do not enable uploads or
-          deletion yet.
-        </p>
+      <section className="grid gap-4 lg:grid-cols-2">
+        <Link
+          href="/dashboard/activity"
+          className="group rounded-[24px] border border-[#e1e5ea] bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#c6dafc] hover:shadow-md"
+        >
+          <span className="grid size-12 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2]">
+            <Activity className="size-5" aria-hidden="true" />
+          </span>
+          <h2 className="mt-4 text-lg font-semibold text-[#202124]">
+            Review workspace activity
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-[#5f6368]">
+            Search owner-safe file, assignment, video, and account events from one timeline.
+          </p>
+        </Link>
+
+        <Link
+          href="/dashboard/settings"
+          className="group rounded-[24px] border border-[#e1e5ea] bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#c6dafc] hover:shadow-md"
+        >
+          <span className="grid size-12 place-items-center rounded-2xl bg-[#e6f4ea] text-[#137333]">
+            <Settings className="size-5" aria-hidden="true" />
+          </span>
+          <h2 className="mt-4 text-lg font-semibold text-[#202124]">
+            Manage settings and backup
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-[#5f6368]">
+            Update your profile, monitor storage, change your password, and export private metadata.
+          </p>
+        </Link>
       </section>
     </main>
   );
@@ -114,13 +126,13 @@ function DashboardStat({
   return (
     <article className="group rounded-[24px] border border-[#e1e5ea] bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-[#c6dafc] hover:shadow-md">
       <div className="flex items-start justify-between gap-4">
-        <div>
+        <div className="min-w-0">
           <p className="text-sm font-medium text-[#5f6368]">{label}</p>
-          <strong className="mt-2 block text-3xl font-semibold tracking-tight text-[#202124]">
+          <strong className="mt-2 block truncate text-2xl font-semibold tracking-tight text-[#202124]">
             {value}
           </strong>
         </div>
-        <span className="grid size-11 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2] transition-transform duration-200 group-hover:scale-105">
+        <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2] transition-transform duration-200 group-hover:scale-105">
           <Icon className="size-5" aria-hidden="true" />
         </span>
       </div>

@@ -1,15 +1,24 @@
 "use client";
 
 import {
+  Activity,
+  BookOpenCheck,
   ClipboardList,
   FolderOpen,
   Home,
+  Link2,
   Plus,
+  Rocket,
+  Settings,
+  ShieldCheck,
+  Sparkles,
   Video,
   X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
+import type { WorkspaceDefaultModule } from "@/lib/workspace/types";
 
 const links = [
   { href: "/dashboard", label: "Home", icon: Home, exact: true },
@@ -19,20 +28,53 @@ const links = [
     icon: FolderOpen,
   },
   {
+    href: "/dashboard/files/shares",
+    label: "Shared links",
+    icon: Link2,
+  },
+  {
     href: "/dashboard/assignments",
     label: "Assignments",
     icon: ClipboardList,
   },
+  {
+    href: "/dashboard/assignments/productivity",
+    label: "Productivity",
+    icon: Sparkles,
+  },
   { href: "/dashboard/videos", label: "Videos", icon: Video },
+  { href: "/dashboard/activity", label: "Activity", icon: Activity },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings },
+  { href: "/dashboard/deployment", label: "Deployment", icon: Rocket },
+  { href: "/dashboard/system", label: "System Check", icon: ShieldCheck },
 ];
 
 type SidebarProps = {
   mobile?: boolean;
   onNavigate?: () => void;
+  quickModule?: WorkspaceDefaultModule;
 };
 
-export function Sidebar({ mobile = false, onNavigate }: SidebarProps) {
+export function Sidebar({
+  mobile = false,
+  onNavigate,
+  quickModule = "files",
+}: SidebarProps) {
   const pathname = usePathname();
+  const assignmentArea = pathname.startsWith("/dashboard/assignments");
+  const videoArea = pathname.startsWith("/dashboard/videos");
+  const fileArea = pathname.startsWith("/dashboard/files");
+  const preferred = quickActionFor(quickModule);
+  const contextual = assignmentArea
+    ? { href: "/dashboard/assignments", label: "Browse assignments", icon: BookOpenCheck }
+    : videoArea
+      ? { href: "/dashboard/videos", label: "Open video library", icon: Video }
+      : fileArea
+        ? { href: "/dashboard/files", label: "Open files", icon: Plus }
+        : preferred;
+  const quickHref = contextual.href;
+  const QuickIcon = contextual.icon;
+  const quickLabel = contextual.label;
 
   return (
     <aside
@@ -58,18 +100,30 @@ export function Sidebar({ mobile = false, onNavigate }: SidebarProps) {
 
       <div className="p-3">
         <Link
-          href="/dashboard/files"
+          href={quickHref}
           onClick={onNavigate}
           className="flex min-h-14 items-center gap-3 rounded-2xl bg-white px-5 text-sm font-semibold text-[#202124] shadow-[0_1px_2px_rgba(60,64,67,.16),0_1px_3px_1px_rgba(60,64,67,.08)] transition hover:bg-[#f8f9fa] hover:shadow-md"
         >
-          <Plus className="size-5 text-[#1967d2]" aria-hidden="true" />
-          Open files
+          <QuickIcon className="size-5 text-[#1967d2]" aria-hidden="true" />
+          {quickLabel}
         </Link>
       </div>
 
-      <nav className="space-y-1 px-3 py-2" aria-label="Dashboard navigation">
+      <nav
+        className="space-y-1 overflow-y-auto px-3 py-2"
+        aria-label="Dashboard navigation"
+      >
         {links.map(({ href, label, icon: Icon, exact }) => {
-          const active = exact ? pathname === href : pathname.startsWith(href);
+          const active =
+            href === "/dashboard/files"
+              ? pathname.startsWith(href) &&
+                !pathname.startsWith("/dashboard/files/shares")
+              : href === "/dashboard/assignments"
+                ? pathname.startsWith(href) &&
+                  !pathname.startsWith("/dashboard/assignments/productivity")
+                : exact
+                  ? pathname === href
+                  : pathname.startsWith(href);
 
           return (
             <Link
@@ -91,8 +145,24 @@ export function Sidebar({ mobile = false, onNavigate }: SidebarProps) {
       </nav>
 
       <div className="mt-auto px-5 pb-5 pt-4 text-xs leading-5 text-[#80868b]">
-        Next.js migration workspace
+        Next.js production workspace · Phase 9
       </div>
     </aside>
   );
+}
+
+function quickActionFor(module: WorkspaceDefaultModule) {
+  if (module === "home") {
+    return { href: "/dashboard", label: "Open dashboard", icon: Home };
+  }
+  if (module === "assignments") {
+    return { href: "/dashboard/assignments", label: "Open assignments", icon: ClipboardList };
+  }
+  if (module === "videos") {
+    return { href: "/dashboard/videos", label: "Open video library", icon: Video };
+  }
+  if (module === "activity") {
+    return { href: "/dashboard/activity", label: "Review activity", icon: Activity };
+  }
+  return { href: "/dashboard/files", label: "Open files", icon: FolderOpen };
 }

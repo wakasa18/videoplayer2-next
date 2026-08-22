@@ -146,7 +146,13 @@ export async function writeFileAudit(
   fileId: number | null = null,
 ): Promise<void> {
   try {
+    const ownerId =
+      typeof details.user_id === "string" && details.user_id.trim()
+        ? details.user_id.trim()
+        : null;
+
     await client.from("important_file_audits").insert({
+      owner_id: ownerId,
       file_id: fileId,
       action: action.slice(0, 80),
       details,
@@ -167,6 +173,21 @@ export function isMissingFolderTableError(error: {
     error.code === "PGRST205" ||
     (message.includes("important_folders") &&
       (message.includes("does not exist") || message.includes("schema cache")))
+  );
+}
+
+export function isMissingFolderManagementColumns(error: {
+  code?: string | null;
+  message?: string | null;
+}): boolean {
+  const message = String(error.message ?? "").toLowerCase();
+  return (
+    error.code === "42703" ||
+    error.code === "PGRST204" ||
+    (message.includes("important_folders") &&
+      (message.includes("owner_id") ||
+        message.includes("status") ||
+        message.includes("recycle_batch_id")))
   );
 }
 

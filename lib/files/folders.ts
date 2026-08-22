@@ -3,19 +3,25 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { normalizeFolderPath } from "@/lib/files/utils";
-import { isMissingFolderTableError } from "@/lib/files/server";
+import {
+  isMissingFolderManagementColumns,
+  isMissingFolderTableError,
+} from "@/lib/files/server";
 
 export type FolderRow = {
+  owner_id: string;
   path: string;
   name: string;
   parent_path: string | null;
-  created_at: string | null;
-  updated_at: string | null;
+  status: "active";
+  created_at: string;
+  updated_at: string;
 };
 
 export async function ensureFolderHierarchy(
   client: SupabaseClient,
   folderPath: string,
+  ownerId: string,
   options: { tolerateMissingTable?: boolean } = {},
 ): Promise<boolean> {
   const normalized = normalizeFolderPath(folderPath);
@@ -30,9 +36,11 @@ export async function ensureFolderHierarchy(
     const parent = current || null;
     current = current ? `${current}/${part}` : part;
     rows.push({
+      owner_id: ownerId,
       path: current,
       name: part,
       parent_path: parent,
+      status: "active",
       created_at: now,
       updated_at: now,
     });
@@ -40,10 +48,16 @@ export async function ensureFolderHierarchy(
 
   const { error } = await client
     .from("important_folders")
-    .upsert(rows, { onConflict: "path", ignoreDuplicates: true });
+    .upsert(rows, {
+      onConflict: "owner_id,path",
+      ignoreDuplicates: true,
+    });
 
   if (!error) return true;
-  if (options.tolerateMissingTable && isMissingFolderTableError(error)) {
+  if (
+    options.tolerateMissingTable &&
+    (isMissingFolderTableError(error) || isMissingFolderManagementColumns(error))
+  ) {
     return false;
   }
 

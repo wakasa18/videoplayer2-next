@@ -47,9 +47,18 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
 
+  const isPublicShare =
+    request.nextUrl.pathname.startsWith("/share/") ||
+    request.nextUrl.pathname.startsWith("/api/public-shares/");
+  const isPublicHealth = request.nextUrl.pathname === "/api/health";
+  const isPublicMetadata = request.nextUrl.pathname === "/robots.txt";
+
   if (
     request.nextUrl.pathname !== "/" &&
     !user &&
+    !isPublicShare &&
+    !isPublicHealth &&
+    !isPublicMetadata &&
     !request.nextUrl.pathname.startsWith("/login") &&
     !request.nextUrl.pathname.startsWith("/auth")
   ) {
