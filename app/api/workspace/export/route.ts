@@ -29,6 +29,8 @@ export async function GET(request: Request) {
       deploymentReleasesResult,
       deploymentTestsResult,
       deploymentEventsResult,
+      maintenanceRunsResult,
+      backupVerificationsResult,
     ] = await Promise.all([
       client
         .from("workspace_profiles")
@@ -106,12 +108,24 @@ export async function GET(request: Request) {
         .eq("owner_id", user.id)
         .order("created_at", { ascending: false })
         .limit(1000),
+      client
+        .from("maintenance_runs")
+        .select("id,run_type,status,summary,report,started_at,completed_at,created_at")
+        .eq("owner_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(500),
+      client
+        .from("backup_verifications")
+        .select("filename,schema_name,backup_version,status,counts,warnings,verified_at")
+        .eq("owner_id", user.id)
+        .order("verified_at", { ascending: false })
+        .limit(500),
     ]);
 
     const warnings: string[] = [];
     const backup = {
-      schema: "damons-archive-phase9-metadata-backup",
-      version: 2,
+      schema: "damons-archive-phase10-metadata-backup",
+      version: 3,
       generated_at: new Date().toISOString(),
       account: {
         user_id: user.id,
@@ -130,6 +144,8 @@ export async function GET(request: Request) {
       deployment_releases: collect("deployment_releases", deploymentReleasesResult, warnings),
       deployment_smoke_tests: collect("deployment_smoke_tests", deploymentTestsResult, warnings),
       deployment_events: collect("deployment_events", deploymentEventsResult, warnings),
+      maintenance_runs: collect("maintenance_runs", maintenanceRunsResult, warnings),
+      backup_verifications: collect("backup_verifications", backupVerificationsResult, warnings),
       warnings,
       note: "This backup contains metadata only. Private Storage objects and authentication secrets are not included.",
     };

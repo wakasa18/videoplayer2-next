@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { consumeRateLimit, rateLimitValue } from "@/lib/maintenance/rate-limit";
+
 import {
   buildPublicShareUrl,
   createShareToken,
@@ -34,6 +36,8 @@ type CreateSharePayload = {
 export async function POST(request: Request) {
   try {
     const { client, user } = await requireShareOwnerContext(request);
+    const rateLimit = await consumeRateLimit(client, user.id, "share-create", rateLimitValue("SHARE_CREATE_RATE_LIMIT", 30), 3600);
+    if (!rateLimit.allowed) throw new ShareRequestError(`Too many share links were created. Try again in ${rateLimit.retryAfterSeconds} seconds.`, 429);
     const payload = (await request.json()) as CreateSharePayload;
     const shareType = payload.shareType === "folder" ? "folder" : "file";
     const expiresAt = sanitizeExpiry(payload.expiresAt);

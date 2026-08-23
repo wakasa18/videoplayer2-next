@@ -16,7 +16,7 @@ export default async function SystemPage() {
             <div className="max-w-3xl">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#e8f0fe] px-3 py-1.5 text-xs font-semibold text-[#1967d2]">
                 <Rocket className="size-4" aria-hidden="true" />
-                Phase 9 production operations
+                Phase 10 production operations
               </div>
               <h1 className="text-3xl font-semibold tracking-[-.03em] text-[#202124] sm:text-4xl">
                 System check and deployment
@@ -46,7 +46,7 @@ export default async function SystemPage() {
             {error instanceof Error ? error.message : "System diagnostics could not be loaded."}
           </p>
           <div className="mt-5 rounded-2xl bg-[#f8f9fa] p-4 text-sm leading-6 text-[#3c4043]">
-            Run the Phase 8 and Phase 9 SQL files in order, then refresh this page.
+            Run the Phase 8, Phase 9, and Phase 10 SQL files in order, then refresh this page.
           </div>
         </section>
       </main>

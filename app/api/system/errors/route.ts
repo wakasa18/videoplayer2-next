@@ -4,6 +4,7 @@ import {
   systemErrorResponse,
   SystemRequestError,
 } from "@/lib/system/server";
+import { consumeRateLimit, rateLimitValue } from "@/lib/maintenance/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -11,6 +12,8 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   try {
     const { client, user } = await requireSystemContext(request);
+    const rateLimit = await consumeRateLimit(client, user.id, "system-error-report", rateLimitValue("SYSTEM_ERROR_RATE_LIMIT", 60), 3600);
+    if (!rateLimit.allowed) throw new SystemRequestError(`Too many error reports. Try again in ${rateLimit.retryAfterSeconds} seconds.`, 429);
     const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
     if (!body) throw new SystemRequestError("Invalid error report.");
 

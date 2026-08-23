@@ -3,6 +3,7 @@ import { randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
 
 import { getVideosBucket } from "@/lib/supabase/admin";
+import { consumeRateLimit, rateLimitValue } from "@/lib/maintenance/rate-limit";
 import {
   getMaxVideoUploadBytes,
   hashUploadToken,
@@ -35,6 +36,8 @@ type PrepareVideoPayload = {
 export async function POST(request: Request) {
   try {
     const { client, user, accessMode } = await requireVideoWriteContext(request);
+    const rateLimit = await consumeRateLimit(client, user.id, "video-upload-prepare", rateLimitValue("VIDEO_UPLOAD_RATE_LIMIT", 10), 900);
+    if (!rateLimit.allowed) throw new VideoRequestError(`Too many video upload attempts. Try again in ${rateLimit.retryAfterSeconds} seconds.`, 429);
     const payload = (await request.json()) as PrepareVideoPayload;
     const originalName = sanitizeFilename(payload.originalName);
     const fileSize = Number(payload.fileSize);

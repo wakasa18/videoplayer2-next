@@ -31,6 +31,8 @@ const EXPECTED_TABLES = [
   "deployment_releases",
   "deployment_smoke_tests",
   "deployment_events",
+  "maintenance_runs",
+  "backup_verifications",
 ] as const;
 
 export async function getSystemDiagnosticsData(): Promise<SystemDiagnosticsData> {
@@ -110,7 +112,7 @@ export async function getSystemDiagnosticsData(): Promise<SystemDiagnosticsData>
     label: "Assignment automation",
     status: cronConfigured ? "pass" : "fail",
     summary: cronConfigured
-      ? "CRON_SECRET is configured for the hourly Vercel job."
+      ? "CRON_SECRET is configured for the daily Vercel maintenance job."
       : "CRON_SECRET is missing, so scheduled assignment processing will return 503.",
   });
 

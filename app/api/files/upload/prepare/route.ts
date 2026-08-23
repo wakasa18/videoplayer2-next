@@ -17,6 +17,7 @@ import {
   writeFileAudit,
 } from "@/lib/files/server";
 import { getFilesBucket } from "@/lib/supabase/admin";
+import { consumeRateLimit, rateLimitValue } from "@/lib/maintenance/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -35,6 +36,8 @@ type PreparePayload = {
 export async function POST(request: Request) {
   try {
     const { client, user, accessMode } = await requireFileWriteContext(request);
+    const rateLimit = await consumeRateLimit(client, user.id, "file-upload-prepare", rateLimitValue("FILE_UPLOAD_RATE_LIMIT", 30), 900);
+    if (!rateLimit.allowed) throw new FileRequestError(`Too many upload attempts. Try again in ${rateLimit.retryAfterSeconds} seconds.`, 429);
     const payload = (await request.json()) as PreparePayload;
 
     const originalName = sanitizeOriginalFilename(payload.originalName);

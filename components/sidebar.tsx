@@ -12,6 +12,7 @@ import {
   Settings,
   ShieldCheck,
   Sparkles,
+  Wrench,
   Video,
   X,
 } from "lucide-react";
@@ -47,6 +48,7 @@ const links = [
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
   { href: "/dashboard/deployment", label: "Deployment", icon: Rocket },
   { href: "/dashboard/system", label: "System Check", icon: ShieldCheck },
+  { href: "/dashboard/maintenance", label: "Maintenance", icon: Wrench },
 ];
 
 type SidebarProps = {
@@ -145,7 +147,7 @@ export function Sidebar({
       </nav>
 
       <div className="mt-auto px-5 pb-5 pt-4 text-xs leading-5 text-[#80868b]">
-        Next.js production workspace · Phase 9
+        Next.js production workspace · Phase 10
       </div>
     </aside>
   );

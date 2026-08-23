@@ -7,9 +7,9 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm run lint",
-    "release:check": "node scripts/phase9-release-check.mjs",
+    "release:check": "node scripts/phase10-release-check.mjs",
     "predeploy": "npm run check && npm run release:check && npm run build",
-    "smoke:production": "node scripts/phase9-smoke-test.mjs"
+    "smoke:production": "node scripts/phase10-smoke-test.mjs"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.1",
