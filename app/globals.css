@@ -293,3 +293,152 @@
     animation: none !important;
   }
 }
+
+/* Astronomy theme compatibility layer
+   Converts legacy hard-coded light workspace components into cosmic glass surfaces. */
+@layer utilities {
+  body [class~="bg-white"],
+  body [class*="bg-white/"],
+  body [class~="bg-[#f8f9fa]"],
+  body [class~="bg-[#f1f3f4]"],
+  body [class~="bg-[#f6f8fc]"],
+  body [class~="bg-[#f7f9fc]"] {
+    background-color: rgba(13, 19, 36, 0.82) !important;
+    background-image: linear-gradient(180deg, rgba(19, 27, 49, 0.88), rgba(10, 15, 30, 0.82)) !important;
+    border-color: rgba(148, 163, 184, 0.14) !important;
+    color: rgb(241 245 249) !important;
+    box-shadow:
+      0 18px 42px rgba(2, 6, 23, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+    backdrop-filter: blur(18px);
+  }
+
+  body [class~="bg-[#e8f0fe]"],
+  body [class~="bg-[#d2e3fc]"],
+  body [class~="bg-[#eaf2ff]"] {
+    background-color: rgba(34, 211, 238, 0.12) !important;
+    background-image: linear-gradient(135deg, rgba(34, 211, 238, 0.13), rgba(139, 92, 246, 0.12)) !important;
+    color: rgb(207 250 254) !important;
+    border-color: rgba(103, 232, 249, 0.2) !important;
+  }
+
+  body [class~="text-[#202124]"],
+  body [class~="text-[#3c4043]"],
+  body [class~="text-[#174ea6]"] {
+    color: rgb(248 250 252) !important;
+  }
+
+  body [class~="text-[#5f6368]"],
+  body [class~="text-[#80868b]"],
+  body [class~="text-[#9aa0a6]"],
+  body [class~="text-[#4b6fae]"] {
+    color: rgba(203, 213, 225, 0.78) !important;
+  }
+
+  body [class~="text-[#1967d2]"] {
+    color: rgb(165 243 252) !important;
+  }
+
+  body [class~="border-[#e1e5ea]"],
+  body [class~="border-[#dadce0]"],
+  body [class~="border-[#eef1f3]"],
+  body [class~="border-[#d2e3fc]"],
+  body [class~="border-[#c6dafc]"],
+  body [class~="border-[#bdc1c6]"] {
+    border-color: rgba(148, 163, 184, 0.16) !important;
+  }
+
+  body [class~="hover:bg-[#f1f3f4]"]:hover,
+  body [class~="hover:bg-[#f8f9fa]"]:hover,
+  body [class~="hover:bg-[#e8f0fe]"]:hover {
+    background-color: rgba(255, 255, 255, 0.075) !important;
+  }
+
+  body [class~="focus:ring-[#e8f0fe]"]:focus,
+  body [class~="focus-visible:ring-[#d2e3fc]"]:focus-visible {
+    --tw-ring-color: rgba(103, 232, 249, 0.22) !important;
+  }
+
+  body input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+  body select,
+  body textarea {
+    border-color: rgba(148, 163, 184, 0.18) !important;
+    background: rgba(8, 13, 28, 0.66) !important;
+    color: rgb(241 245 249) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  }
+
+  body input::placeholder,
+  body textarea::placeholder {
+    color: rgba(148, 163, 184, 0.72) !important;
+  }
+
+  body select option {
+    background: #0b1023;
+    color: rgb(241 245 249);
+  }
+
+  body [role="dialog"],
+  body [role="menu"],
+  body [data-radix-menu-content] {
+    color: rgb(241 245 249);
+  }
+
+  body [class~="shadow-sm"],
+  body [class~="shadow-lg"],
+  body [class~="shadow-xl"],
+  body [class~="shadow-2xl"] {
+    --tw-shadow-color: rgba(2, 6, 23, 0.48) !important;
+  }
+
+  body main > section,
+  body main > div > section {
+    transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  }
+
+  body main > section:hover,
+  body main > div > section:hover {
+    border-color: rgba(103, 232, 249, 0.16) !important;
+  }
+
+  body [class~="bg-[#1a73e8]"] {
+    background-image: linear-gradient(135deg, rgb(74 222 128 / 0.95), rgb(34 211 238 / 0.94), rgb(99 102 241 / 0.94)) !important;
+    background-color: transparent !important;
+    color: rgb(2 6 23) !important;
+    box-shadow: 0 10px 26px rgba(34, 211, 238, 0.18) !important;
+  }
+
+  body [class~="bg-[#188038]"] {
+    background-color: rgba(34, 197, 94, 0.9) !important;
+  }
+
+  body [class~="bg-[#fce8e6]"] {
+    background-color: rgba(239, 68, 68, 0.12) !important;
+    color: rgb(254 202 202) !important;
+  }
+
+  body [class~="border-[#f6c7c3]"] {
+    border-color: rgba(248, 113, 113, 0.25) !important;
+  }
+
+  body [class~="text-[#a50e0e]"],
+  body [class~="text-[#c5221f]"] {
+    color: rgb(252 165 165) !important;
+  }
+
+  body table {
+    color: rgb(226 232 240);
+  }
+
+  body thead {
+    background: rgba(255, 255, 255, 0.035);
+  }
+
+  body tbody tr {
+    border-color: rgba(148, 163, 184, 0.12) !important;
+  }
+
+  body tbody tr:hover {
+    background: rgba(255, 255, 255, 0.035);
+  }
+}
