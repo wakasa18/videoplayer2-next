@@ -13,7 +13,11 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { formatBytes, normalizeVideoMimeType } from "@/lib/videos/utils";
+import {
+  formatBytes,
+  isLikelyBrowserPlayableVideo,
+  normalizeVideoMimeType,
+} from "@/lib/videos/utils";
 
 type Status = "ready" | "preparing" | "uploading" | "finalizing" | "complete" | "error" | "cancelled";
 type QueueItem = {
@@ -78,6 +82,13 @@ export function VideoUploadDialog({ open, onOpenChange, categories, maxUploadByt
   const progress = totalBytes ? Math.round((completedBytes / totalBytes) * 100) : 0;
   const completeCount = queue.filter((item) => item.status === "complete").length;
   const failedCount = queue.filter((item) => item.status === "error").length;
+  const limitedPlaybackCount = useMemo(
+    () =>
+      queue.filter(
+        (item) => !isLikelyBrowserPlayableVideo(item.file.type, item.file.name),
+      ).length,
+    [queue],
+  );
 
   async function chooseFiles(files: File[]) {
     setGlobalError("");
@@ -311,6 +322,14 @@ export function VideoUploadDialog({ open, onOpenChange, categories, maxUploadByt
                 </div>
               ) : null}
 
+              {limitedPlaybackCount ? (
+                <div className="mt-4 flex gap-3 rounded-2xl border border-[#f7d794] bg-[#fef7e0] p-4 text-sm leading-6 text-[#7a4d00]">
+                  <AlertCircle className="mt-0.5 size-5 shrink-0" />
+                  <p>
+                    {limitedPlaybackCount} selected video{limitedPlaybackCount === 1 ? " uses" : "s use"} a format such as MKV or AVI. It can be stored and downloaded, but browser playback depends on the codecs and browser. MP4 with H.264/AAC or WebM is recommended for reliable playback.
+                  </p>
+                </div>
+              ) : null}
               {globalError ? <div className="mt-4 flex gap-3 rounded-2xl border border-[#f6c7c3] bg-[#fce8e6] p-4 text-sm text-[#a50e0e]"><AlertCircle className="size-5 shrink-0" /><p>{globalError}</p></div> : null}
             </div>
 

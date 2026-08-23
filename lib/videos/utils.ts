@@ -126,18 +126,29 @@ const VIDEO_MIME_BY_EXTENSION: Record<string, string> = {
   mkv: "video/x-matroska",
 };
 
+const VIDEO_MIME_ALIASES: Record<string, string> = {
+  // Browsers and operating systems disagree on the registered MKV MIME label.
+  // Supabase Storage compares the upload Content-Type against the bucket allowlist,
+  // so normalize both common labels to the canonical value used by this project.
+  "video/matroska": "video/x-matroska",
+  "application/x-matroska": "video/x-matroska",
+  "application/matroska": "video/x-matroska",
+  "video/x-m4v": "video/mp4",
+};
+
 export function normalizeVideoMimeType(mimeType: string, filename: string): string {
   const normalized = String(mimeType || "")
     .split(";", 1)[0]
     .trim()
     .toLowerCase();
   const extensionMime = VIDEO_MIME_BY_EXTENSION[extensionFromFilename(filename)];
+  const aliased = VIDEO_MIME_ALIASES[normalized] || normalized;
 
-  if (!normalized || normalized === "application/octet-stream" || normalized === "binary/octet-stream") {
+  if (!aliased || aliased === "application/octet-stream" || aliased === "binary/octet-stream") {
     return extensionMime || "video/mp4";
   }
-  if (normalized.startsWith("video/")) return normalized;
-  return extensionMime || normalized;
+  if (aliased.startsWith("video/")) return aliased;
+  return extensionMime || aliased;
 }
 
 export function isVideoMimeType(mimeType: string, filename: string): boolean {
