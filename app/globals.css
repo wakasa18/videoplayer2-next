@@ -349,3 +349,36 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Public share high-tech consistency overrides. */
+@layer utilities {
+  body.high-tech-theme .public-share-ui [class*="from-[#f8f9fa]"] {
+    background-image:
+      radial-gradient(circle at 50% 18%, rgba(39, 211, 255, 0.14), transparent 40%),
+      linear-gradient(145deg, #0e1d32 0%, #071321 100%) !important;
+  }
+
+  body.high-tech-theme .public-share-ui [class*="bg-[#e8f0fe]/95"] {
+    background: linear-gradient(135deg, rgba(13, 31, 53, 0.96), rgba(10, 24, 43, 0.96)) !important;
+    color: #eaf4ff !important;
+  }
+
+  body.high-tech-theme .public-share-ui [class*="to-[#eef3fd]"] {
+    --tw-gradient-to: #071321 var(--tw-gradient-to-position) !important;
+  }
+
+  body.high-tech-theme .public-share-ui article,
+  body.high-tech-theme .public-share-ui nav,
+  body.high-tech-theme .public-share-ui section {
+    color: #e8f1fc;
+  }
+
+  body.high-tech-theme .public-share-ui [class~="bg-[#fce8e6]"] {
+    background-color: rgba(127, 29, 29, 0.24) !important;
+    color: #fecaca !important;
+  }
+
+  body.high-tech-theme .public-share-ui iframe {
+    background: #f8fafc;
+  }
+}
