@@ -31,15 +31,6 @@ type VideoRow = {
   created_at: string | null;
 };
 
-type ErrorRow = {
-  id: number;
-  source: string | null;
-  message: string | null;
-  digest: string | null;
-  path: string | null;
-  created_at: string | null;
-};
-
 export async function collectMaintenanceReport(
   client: SupabaseClient,
   ownerId: string,
@@ -69,10 +60,9 @@ export async function collectMaintenanceReport(
   const errorsResult = await timed("Error history", timings, async () =>
     await client
       .from("system_error_logs")
-      .select("id,source,message,digest,path,created_at")
+      .select("id,created_at")
       .eq("owner_id", ownerId)
       .gte("created_at", errors30Cutoff)
-      .order("created_at", { ascending: false })
       .limit(10000),
   );
 
@@ -82,7 +72,7 @@ export async function collectMaintenanceReport(
 
   const files = (filesResult.data ?? []) as FileRow[];
   const videos = (videosResult.data ?? []) as VideoRow[];
-  const errors = (errorsResult.data ?? []) as ErrorRow[];
+  const errors = (errorsResult.data ?? []) as Array<{ id: number; created_at: string | null }>;
   const activeFiles = files.filter((item) => item.status === "active");
   const activeVideos = videos.filter((item) => item.status === "active");
   const pendingFiles = files.filter((item) => item.status === "pending");
@@ -115,33 +105,16 @@ export async function collectMaintenanceReport(
   });
   const rateLimitFunction = !rateLimitCheck.error;
 
-  const errors24Rows = rowsSince(errors, errors24Cutoff);
-  const errors7Rows = rowsSince(errors, errors7Cutoff);
-  const uniqueErrors24 = uniqueErrors(errors24Rows);
-  const uniqueErrors7 = uniqueErrors(errors7Rows);
-  const uniqueErrors30 = uniqueErrors(errors);
-  const errors24h = uniqueErrors24.length;
-  const errors7d = uniqueErrors7.length;
-  const errors30d = uniqueErrors30.length;
-  const recentErrors = uniqueErrors30.slice(0, 8).map((item) => ({
-    id: item.row.id,
-    source: item.row.source || "application",
-    message: item.row.message || "Unknown application error",
-    digest: item.row.digest,
-    path: item.row.path,
-    createdAt: item.row.created_at || new Date().toISOString(),
-    occurrences: item.occurrences,
-  }));
+  const errors24h = countSince(errors, errors24Cutoff);
+  const errors7d = countSince(errors, errors7Cutoff);
+  const errors30d = errors.length;
   const missingFiles = objectAudit.missingFiles;
   const missingVideos = objectAudit.missingVideos;
 
   if (quotaPercent >= 80) warnings.push(`Storage usage is ${quotaPercent.toFixed(1)}% of the configured quota.`);
   if (stalePendingFiles.length || stalePendingVideos.length) warnings.push("Stale pending uploads are ready for cleanup.");
   if (missingFiles || missingVideos) warnings.push("One or more sampled database records point to missing Storage objects.");
-  if (errors24h) {
-    const reportCount = errors24Rows.length;
-    warnings.push(`${errors24h} unique application error${errors24h === 1 ? " was" : "s were"} recorded in the last 24 hours (${reportCount} report${reportCount === 1 ? "" : "s"}).`);
-  }
+  if (errors24h) warnings.push(`${errors24h} application error${errors24h === 1 ? " was" : "s were"} recorded in the last 24 hours.`);
   if (!rateLimitFunction) warnings.push("Phase 10 rate limiting is unavailable until its SQL migration is applied.");
   const slow = timings.filter((item) => item.status === "slow");
   if (slow.length) warnings.push(`${slow.length} maintenance check${slow.length === 1 ? " is" : "s are"} slower than two seconds.`);
@@ -180,11 +153,7 @@ export async function collectMaintenanceReport(
       errors24h,
       errors7d,
       errors30d,
-      errorReports24h: errors24Rows.length,
-      errorReports7d: errors7Rows.length,
-      errorReports30d: errors.length,
     },
-    recentErrors,
     configuration: {
       serverSecret: Boolean(process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY),
       cronSecret: Boolean(process.env.CRON_SECRET?.trim()),
@@ -297,25 +266,8 @@ function sumBytes(rows: Array<{ file_size: number | null }>): number {
   return rows.reduce((total, row) => total + Math.max(0, Number(row.file_size ?? 0) || 0), 0);
 }
 
-function rowsSince<T extends { created_at: string | null }>(rows: T[], cutoff: string): T[] {
-  return rows.filter((row) => String(row.created_at ?? "") >= cutoff);
-}
-
-function uniqueErrors(rows: ErrorRow[]): Array<{ row: ErrorRow; occurrences: number }> {
-  const grouped = new Map<string, { row: ErrorRow; occurrences: number }>();
-  for (const row of rows) {
-    const fingerprint = errorFingerprint(row);
-    const current = grouped.get(fingerprint);
-    if (current) current.occurrences += 1;
-    else grouped.set(fingerprint, { row, occurrences: 1 });
-  }
-  return Array.from(grouped.values()).sort((left, right) =>
-    String(right.row.created_at ?? "").localeCompare(String(left.row.created_at ?? "")),
-  );
-}
-
-function errorFingerprint(row: ErrorRow): string {
-  return String(row.digest || `${row.source ?? "application"}|${row.path ?? ""}|${row.message ?? ""}`).trim();
+function countSince(rows: Array<{ created_at: string | null }>, cutoff: string): number {
+  return rows.filter((row) => String(row.created_at ?? "") >= cutoff).length;
 }
 
 async function timed<T>(label: string, timings: MaintenanceTiming[], task: () => Promise<T>): Promise<T> {

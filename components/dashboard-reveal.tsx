@@ -1,5 +1,14 @@
 "use client";
 
+import {
+  Activity,
+  ClipboardCheck,
+  Film,
+  FolderOpen,
+  HardDrive,
+  Settings,
+  ShieldCheck,
+} from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -13,6 +22,18 @@ const tints = {
 } as const;
 
 type Tint = keyof typeof tints;
+
+const dashboardIcons = {
+  activity: Activity,
+  "clipboard-check": ClipboardCheck,
+  film: Film,
+  "folder-open": FolderOpen,
+  "hard-drive": HardDrive,
+  settings: Settings,
+  "shield-check": ShieldCheck,
+} as const;
+
+type DashboardIconName = keyof typeof dashboardIcons;
 
 export function DashboardReveal({ children, index = 0 }: { children: ReactNode; index?: number }) {
   return (
@@ -28,19 +49,21 @@ export function DashboardReveal({ children, index = 0 }: { children: ReactNode; 
 
 export function DashboardStatCard({
   index,
-  icon: Icon,
+  icon,
   label,
   value,
   description,
   tint,
 }: {
   index: number;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: DashboardIconName;
   label: string;
   value: string;
   description: string;
   tint: Tint;
 }) {
+  const Icon = dashboardIcons[icon];
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 16, scale: 0.97 }}
@@ -67,18 +90,20 @@ export function DashboardStatCard({
 export function DashboardQuickLink({
   index,
   href,
-  icon: Icon,
+  icon,
   tint,
   title,
   description,
 }: {
   index: number;
   href: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: DashboardIconName;
   tint: Tint;
   title: string;
   description: string;
 }) {
+  const Icon = dashboardIcons[icon];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}

@@ -1,13 +1,4 @@
-import {
-  Activity,
-  ClipboardCheck,
-  Cloud,
-  Film,
-  FolderOpen,
-  HardDrive,
-  Settings,
-  ShieldCheck,
-} from "lucide-react";
+import { Cloud } from "lucide-react";
 import { DashboardReveal, DashboardStatCard, DashboardQuickLink } from "@/components/dashboard-reveal";
 import { getWorkspaceSummarySafe } from "@/lib/workspace/data";
 import { formatBytes } from "@/lib/workspace/utils";
@@ -47,7 +38,7 @@ export default async function DashboardPage() {
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <DashboardStatCard
           index={0}
-          icon={FolderOpen}
+          icon="folder-open"
           label="Important files"
           value={summary.file_count.toLocaleString()}
           description="Active private files"
@@ -55,7 +46,7 @@ export default async function DashboardPage() {
         />
         <DashboardStatCard
           index={1}
-          icon={ClipboardCheck}
+          icon="clipboard-check"
           label="Assignments"
           value={summary.assignment_count.toLocaleString()}
           description="Active and completed work"
@@ -63,7 +54,7 @@ export default async function DashboardPage() {
         />
         <DashboardStatCard
           index={2}
-          icon={Film}
+          icon="film"
           label="Videos"
           value={summary.video_count.toLocaleString()}
           description="Active private videos"
@@ -71,7 +62,7 @@ export default async function DashboardPage() {
         />
         <DashboardStatCard
           index={3}
-          icon={HardDrive}
+          icon="hard-drive"
           label="Storage used"
           value={formatBytes(summary.total_bytes)}
           description="Files and videos, including recycle bins"
@@ -79,7 +70,7 @@ export default async function DashboardPage() {
         />
         <DashboardStatCard
           index={4}
-          icon={ShieldCheck}
+          icon="shield-check"
           label="Migration"
           value="Phase 7"
           description="Finalization and hardening"
@@ -91,7 +82,7 @@ export default async function DashboardPage() {
         <DashboardQuickLink
           index={0}
           href="/dashboard/activity"
-          icon={Activity}
+          icon="activity"
           tint="cyan"
           title="Review workspace activity"
           description="Search owner-safe file, assignment, video, and account events from one timeline."
@@ -99,7 +90,7 @@ export default async function DashboardPage() {
         <DashboardQuickLink
           index={1}
           href="/dashboard/settings"
-          icon={Settings}
+          icon="settings"
           tint="emerald"
           title="Manage settings and backup"
           description="Update your profile, monitor storage, change your password, and export private metadata."
