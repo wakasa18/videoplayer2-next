@@ -4,57 +4,53 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --background: 228 45% 8%;
+    --foreground: 220 40% 96%;
+    --card: 231 42% 12%;
+    --card-foreground: 220 40% 96%;
+    --popover: 231 42% 10%;
+    --popover-foreground: 220 40% 96%;
+    --primary: 196 100% 64%;
+    --primary-foreground: 228 55% 10%;
+    --secondary: 239 26% 20%;
+    --secondary-foreground: 220 35% 95%;
+    --muted: 233 25% 18%;
+    --muted-foreground: 222 16% 73%;
+    --accent: 271 92% 65%;
+    --accent-foreground: 220 40% 98%;
+    --destructive: 0 78% 62%;
+    --destructive-foreground: 220 40% 98%;
+    --border: 231 31% 25%;
+    --input: 231 31% 22%;
+    --ring: 196 100% 64%;
+    --chart-1: 196 100% 64%;
+    --chart-2: 271 92% 70%;
+    --chart-3: 159 80% 55%;
+    --chart-4: 32 94% 63%;
+    --chart-5: 335 89% 66%;
+    --radius: 1rem;
   }
+
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --background: 228 45% 8%;
+    --foreground: 220 40% 96%;
+    --card: 231 42% 12%;
+    --card-foreground: 220 40% 96%;
+    --popover: 231 42% 10%;
+    --popover-foreground: 220 40% 96%;
+    --primary: 196 100% 64%;
+    --primary-foreground: 228 55% 10%;
+    --secondary: 239 26% 20%;
+    --secondary-foreground: 220 35% 95%;
+    --muted: 233 25% 18%;
+    --muted-foreground: 222 16% 73%;
+    --accent: 271 92% 65%;
+    --accent-foreground: 220 40% 98%;
+    --destructive: 0 78% 62%;
+    --destructive-foreground: 220 40% 98%;
+    --border: 231 31% 25%;
+    --input: 231 31% 22%;
+    --ring: 196 100% 64%;
   }
 }
 
@@ -62,25 +58,223 @@
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
 
-@layer base {
   html {
     font-family: var(--font-inter), system-ui, sans-serif;
+    color-scheme: dark;
+    scroll-behavior: smooth;
   }
 
   body {
-    background: #f8f9fa;
-    color: #202124;
+    @apply text-foreground antialiased;
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top left, rgba(82, 34, 140, 0.45), transparent 24%),
+      radial-gradient(circle at top right, rgba(22, 117, 255, 0.28), transparent 28%),
+      radial-gradient(circle at bottom center, rgba(0, 224, 214, 0.12), transparent 26%),
+      linear-gradient(160deg, #060816 0%, #0b1023 38%, #141133 64%, #070b18 100%);
+    color: hsl(var(--foreground));
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before,
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  body::before {
+    background-image:
+      radial-gradient(1px 1px at 12% 24%, rgba(255,255,255,0.7), transparent 55%),
+      radial-gradient(1.5px 1.5px at 24% 72%, rgba(120, 214, 255, 0.55), transparent 55%),
+      radial-gradient(1px 1px at 47% 18%, rgba(255,255,255,0.55), transparent 55%),
+      radial-gradient(1.5px 1.5px at 63% 57%, rgba(180, 146, 255, 0.65), transparent 55%),
+      radial-gradient(1px 1px at 82% 31%, rgba(255,255,255,0.6), transparent 55%),
+      radial-gradient(1px 1px at 91% 83%, rgba(111, 255, 241, 0.55), transparent 55%),
+      radial-gradient(2px 2px at 74% 14%, rgba(255,255,255,0.35), transparent 55%);
+    animation: twinkle 10s ease-in-out infinite alternate;
+    opacity: 0.95;
+  }
+
+  body::after {
+    background:
+      radial-gradient(circle at 18% 16%, rgba(76, 139, 255, 0.16), transparent 0 18%),
+      radial-gradient(circle at 76% 24%, rgba(185, 87, 255, 0.12), transparent 0 16%),
+      radial-gradient(circle at 55% 92%, rgba(0, 224, 214, 0.08), transparent 0 18%);
+    filter: blur(34px);
+    animation: nebulaShift 18s ease-in-out infinite alternate;
+    opacity: 0.9;
   }
 
   ::selection {
-    background: #d2e3fc;
-    color: #174ea6;
+    background: rgba(89, 216, 255, 0.28);
+    color: #f6fbff;
   }
+
+  a,
+  button,
+  input,
+  select,
+  textarea {
+    @apply outline-none;
+  }
+
+  a {
+    @apply transition-colors;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(10, 14, 26, 0.85);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(94, 111, 255, 0.7), rgba(72, 223, 255, 0.55));
+    border-radius: 999px;
+    border: 2px solid rgba(10, 14, 26, 0.65);
+  }
+}
+
+@layer components {
+  .astro-shell {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .astro-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent 16%, transparent 86%, rgba(255,255,255,0.03));
+    z-index: -1;
+  }
+
+  .astro-grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: radial-gradient(circle at center, black 42%, transparent 100%);
+    opacity: 0.22;
+  }
+
+  .astro-orb {
+    position: absolute;
+    inset: auto;
+    border-radius: 999px;
+    filter: blur(16px);
+    pointer-events: none;
+    opacity: 0.58;
+    animation: floatOrb 14s ease-in-out infinite;
+  }
+
+  .astro-orb-left {
+    left: -72px;
+    top: 88px;
+    height: 180px;
+    width: 180px;
+    background: radial-gradient(circle at 35% 35%, rgba(94, 235, 255, 0.9), rgba(56, 86, 255, 0.3), transparent 72%);
+  }
+
+  .astro-orb-right {
+    right: -94px;
+    top: 200px;
+    height: 220px;
+    width: 220px;
+    background: radial-gradient(circle at 40% 40%, rgba(194, 121, 255, 0.75), rgba(73, 40, 131, 0.34), transparent 72%);
+    animation-delay: -4s;
+  }
+
+  .astro-panel {
+    background: linear-gradient(180deg, rgba(14, 20, 38, 0.82), rgba(12, 17, 31, 0.72));
+    border: 1px solid rgba(133, 149, 255, 0.18);
+    box-shadow:
+      0 18px 45px rgba(4, 10, 26, 0.42),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(18px);
+  }
+
+  .astro-divider {
+    border-color: rgba(148, 163, 184, 0.14);
+  }
+
+  .astro-soft-text {
+    color: rgba(226, 232, 240, 0.72);
+  }
+
+  .astro-title {
+    background: linear-gradient(120deg, #f8fbff 0%, #8ae7ff 50%, #d1b8ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .astro-chip {
+    background: rgba(19, 27, 49, 0.8);
+    border: 1px solid rgba(128, 146, 255, 0.18);
+    color: rgba(232, 238, 255, 0.86);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+
+  .astro-link {
+    color: rgba(123, 224, 255, 0.95);
+  }
+
+  .astro-link:hover {
+    color: #c7f4ff;
+  }
+
+  .aurora-border {
+    position: relative;
+  }
+
+  .aurora-border::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(130deg, rgba(82, 191, 255, 0.55), rgba(164, 93, 255, 0.4), rgba(48, 220, 201, 0.5));
+    opacity: 0.62;
+    filter: blur(10px);
+  }
+
+  .starlight-hover {
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  }
+
+  .starlight-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 36px rgba(7, 16, 39, 0.45), 0 0 0 1px rgba(117, 211, 255, 0.12) inset;
+    border-color: rgba(115, 211, 255, 0.24);
+  }
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.82; transform: translateY(0px) scale(1); }
+  100% { opacity: 1; transform: translateY(-6px) scale(1.015); }
+}
+
+@keyframes nebulaShift {
+  0% { transform: scale(1) translate3d(0, 0, 0); }
+  100% { transform: scale(1.08) translate3d(0, -16px, 0); }
+}
+
+@keyframes floatOrb {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(0, -18px, 0) scale(1.05); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -91,5 +285,11 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  body::before,
+  body::after,
+  .astro-orb {
+    animation: none !important;
   }
 }

@@ -264,10 +264,10 @@ export function PublicShareBrowser({
   const hasFilters = Boolean(normalizedQuery) || typeFilter !== "all";
 
   return (
-    <div className="min-h-screen bg-[#f1f3f4] text-[#202124]">
-      <header className="sticky top-0 z-40 border-b border-[#dadce0] bg-white/90 backdrop-blur-xl">
+    <div className="astro-shell min-h-screen text-slate-100">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#070b18]/76 backdrop-blur-xl">
         <div className="mx-auto flex min-h-16 max-w-[1580px] items-center gap-3 px-4 sm:px-6">
-          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#1a73e8] to-[#5e97f6] text-white shadow-sm">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[linear-gradient(135deg,rgba(76,224,255,1),rgba(137,92,255,0.96))] text-slate-950 shadow-[0_10px_25px_rgba(56,189,248,0.25)]">
             <LockKeyhole className="size-5" />
           </span>
           <div className="min-w-0 flex-1">
@@ -281,14 +281,14 @@ export function PublicShareBrowser({
           <button
             type="button"
             onClick={() => setShowReport(true)}
-            className="hidden min-h-10 items-center gap-2 rounded-full border border-[#dadce0] bg-white px-4 text-sm font-semibold text-[#3c4043] transition hover:bg-[#f8f9fa] md:inline-flex"
+            className="hidden min-h-10 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 text-sm font-semibold text-slate-100 transition hover:bg-white/10 md:inline-flex"
           >
             <CircleHelp className="size-4" /> Report issue
           </button>
           <button
             type="button"
             onClick={() => void copyPageLink()}
-            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#dadce0] bg-white px-4 text-sm font-semibold text-[#3c4043] transition hover:bg-[#f8f9fa]"
+            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
           >
             {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
             <span className="hidden sm:inline">{copied ? "Copied" : "Copy link"}</span>
@@ -296,7 +296,7 @@ export function PublicShareBrowser({
           <button
             type="button"
             onClick={() => setShowQr(true)}
-            className="grid size-10 place-items-center rounded-full border border-[#dadce0] bg-white text-[#3c4043] transition hover:bg-[#f8f9fa]"
+            className="grid size-10 place-items-center rounded-full border border-white/10 bg-white/5 text-slate-100 transition hover:bg-white/10"
             aria-label="Show QR code"
           >
             <QrCode className="size-5" />
@@ -307,7 +307,7 @@ export function PublicShareBrowser({
       <main
         className={`mx-auto max-w-[1580px] space-y-5 px-4 py-6 sm:px-6 sm:py-8 ${isFolder && allowDownloads ? "pb-32 sm:pb-8" : ""}`}
       >
-        <section className="overflow-hidden rounded-[28px] border border-[#e1e5ea] bg-white p-6 shadow-sm sm:p-8">
+        <section className="astro-panel overflow-hidden rounded-[28px] p-6 sm:p-8">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
@@ -319,16 +319,16 @@ export function PublicShareBrowser({
                 {result.targetName}
               </h1>
               {result.share.display_name ? (
-                <p className="mt-2 text-sm font-medium text-[#5f6368]">
+                <p className="mt-2 text-sm font-medium text-slate-300/70">
                   Shared by {result.share.display_name}
                 </p>
               ) : null}
               {result.share.share_message ? (
-                <p className="mt-4 max-w-3xl whitespace-pre-wrap rounded-2xl bg-[#f8f9fa] p-4 text-sm leading-6 text-[#5f6368]">
+                <p className="mt-4 max-w-3xl whitespace-pre-wrap rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-6 text-slate-300/80">
                   {result.share.share_message}
                 </p>
               ) : null}
-              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#5f6368]">
+              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-300/70">
                 <MetaItem icon={<CalendarDays className="size-4" />} label={`Last updated ${formatDate(result.lastUpdatedAt)}`} />
                 <MetaItem icon={<Clock3 className="size-4" />} label={`Expires ${result.share.expires_at ? formatDateTime(result.share.expires_at) : "never"}`} />
                 <MetaItem icon={<Eye className="size-4" />} label={`${result.share.view_count.toLocaleString()} view${result.share.view_count === 1 ? "" : "s"}`} />
@@ -346,22 +346,22 @@ export function PublicShareBrowser({
 
         {isFolder ? (
           <nav
-            className="flex items-center gap-1 overflow-x-auto rounded-[18px] border border-[#e1e5ea] bg-white px-3 py-2 shadow-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="flex items-center gap-1 overflow-x-auto astro-panel rounded-[18px] px-3 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             aria-label="Shared folder breadcrumb"
           >
-            <span className="inline-flex shrink-0 items-center gap-2 px-2 text-sm font-semibold text-[#5f6368]">
-              <Folder className="size-4 text-[#1967d2]" /> Shared folder
+            <span className="inline-flex shrink-0 items-center gap-2 px-2 text-sm font-semibold text-slate-300/70">
+              <Folder className="size-4 text-cyan-200" /> Shared folder
             </span>
             {result.breadcrumbs.map((crumb, index) => (
               <span key={crumb.path} className="flex items-center gap-1">
-                <ChevronRight className="size-4 shrink-0 text-[#9aa0a6]" />
+                <ChevronRight className="size-4 shrink-0 text-slate-400" />
                 <Link
                   href={sharePath(token, crumb.path)}
                   aria-current={index === result.breadcrumbs.length - 1 ? "page" : undefined}
                   className={`whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition ${
                     index === result.breadcrumbs.length - 1
-                      ? "bg-[#e8f0fe] text-[#1967d2]"
-                      : "text-[#5f6368] hover:bg-[#f1f3f4]"
+                      ? "bg-cyan-400/15 text-cyan-200"
+                      : "text-slate-300/70 hover:bg-white/5"
                   }`}
                 >
                   {crumb.label}
@@ -378,9 +378,9 @@ export function PublicShareBrowser({
         ) : null}
 
         {isFolder && allowDownloads ? (
-          <section className="fixed inset-x-3 bottom-3 z-50 flex flex-col gap-3 rounded-[20px] border border-[#d2e3fc] bg-[#e8f0fe]/95 p-4 shadow-2xl backdrop-blur-xl sm:sticky sm:inset-x-auto sm:top-20 sm:z-30 sm:flex-row sm:items-center sm:justify-between sm:shadow-sm">
+          <section className="fixed inset-x-3 bottom-3 z-50 flex flex-col gap-3 rounded-[20px] border border-[#d2e3fc] bg-[rgba(34,211,238,0.14)] p-4 shadow-2xl backdrop-blur-xl sm:sticky sm:inset-x-auto sm:top-20 sm:z-30 sm:flex-row sm:items-center sm:justify-between sm:shadow-sm">
             <div className="flex min-w-0 items-center gap-3">
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white text-[#1967d2]">
+              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white text-cyan-200">
                 <FileCheck2 className="size-5" />
               </span>
               <div className="min-w-0">
@@ -403,7 +403,7 @@ export function PublicShareBrowser({
                 <button
                   type="button"
                   onClick={() => setSelected(new Set())}
-                  className="min-h-10 rounded-full border border-[#8ab4f8] bg-white px-4 text-sm font-semibold text-[#1967d2]"
+                  className="min-h-10 rounded-full border border-[#8ab4f8] bg-white px-4 text-sm font-semibold text-cyan-200"
                 >
                   Clear
                 </button>
@@ -435,7 +435,7 @@ export function PublicShareBrowser({
                   })
                 }
                 title={!folderArchiveAllowed ? "This folder exceeds the ZIP limit. Open a smaller folder or select fewer files." : undefined}
-                className="col-span-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-[#8ab4f8] bg-white px-4 text-sm font-semibold text-[#1967d2] transition hover:bg-[#f8fbff] disabled:cursor-not-allowed disabled:opacity-50 sm:col-span-1"
+                className="col-span-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-[#8ab4f8] bg-white px-4 text-sm font-semibold text-cyan-200 transition hover:bg-[#f8fbff] disabled:cursor-not-allowed disabled:opacity-50 sm:col-span-1"
               >
                 <Download className="size-4" /> Download folder
               </button>
@@ -454,13 +454,13 @@ export function PublicShareBrowser({
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: Math.min(index, 12) * 0.035 }}
-                    className="rounded-[22px] border border-[#e1e5ea] bg-white shadow-sm transition hover:border-[#c6dafc] hover:shadow-md"
+                    className="rounded-[22px] border border-white/10 bg-white shadow-sm transition hover:border-[#c6dafc] hover:shadow-md"
                   >
                     <Link
                       href={sharePath(token, folder.path)}
                       className="group flex min-h-28 items-center gap-4 p-4"
                     >
-                      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2] transition group-hover:scale-105">
+                      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-cyan-400/15 text-cyan-200 transition group-hover:scale-105">
                         <Folder className="size-6 fill-current" />
                       </span>
                       <span className="min-w-0 flex-1">
@@ -471,7 +471,7 @@ export function PublicShareBrowser({
                           {folder.fileCount.toLocaleString()} file{folder.fileCount === 1 ? "" : "s"} · {formatBytes(folder.totalBytes)}
                         </small>
                       </span>
-                      <ChevronRight className="size-5 text-[#9aa0a6] transition group-hover:translate-x-0.5 group-hover:text-[#1967d2]" />
+                      <ChevronRight className="size-5 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-cyan-200" />
                     </Link>
                   </motion.article>
                 ))}
@@ -494,7 +494,7 @@ export function PublicShareBrowser({
               </p>
             </div>
             {isFolder && allowDownloads && result.files.length ? (
-              <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-full border border-[#dadce0] bg-white px-4 text-sm font-semibold text-[#3c4043] hover:bg-[#f8f9fa]">
+              <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white px-4 text-sm font-semibold text-slate-100 hover:bg-white/5">
                 <input
                   type="checkbox"
                   checked={allVisibleSelected}
@@ -507,7 +507,7 @@ export function PublicShareBrowser({
           </div>
 
           {result.files.length || result.folders.length ? (
-            <div className="rounded-[22px] border border-[#e1e5ea] bg-white p-3 shadow-sm sm:p-4">
+            <div className="rounded-[22px] border border-white/10 bg-white p-3 shadow-sm sm:p-4">
               <div className="grid gap-3 lg:grid-cols-[minmax(240px,1fr)_180px_190px_auto]">
                 <label className="relative block">
                   <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#80868b]" />
@@ -515,7 +515,7 @@ export function PublicShareBrowser({
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
                     placeholder="Search files and folders"
-                    className="min-h-11 w-full rounded-xl border border-[#dadce0] bg-[#f8f9fa] pl-10 pr-3 text-sm outline-none transition focus:border-[#8ab4f8] focus:bg-white focus:ring-4 focus:ring-[#e8f0fe]"
+                    className="min-h-11 w-full rounded-xl border border-white/10 bg-white/5 pl-10 pr-3 text-sm outline-none transition focus:border-[#8ab4f8] focus:bg-white focus:ring-4 focus:ring-[#e8f0fe]"
                   />
                 </label>
                 <label className="relative">
@@ -523,7 +523,7 @@ export function PublicShareBrowser({
                   <select
                     value={typeFilter}
                     onChange={(event) => setTypeFilter(event.target.value as FileFilter)}
-                    className="min-h-11 w-full appearance-none rounded-xl border border-[#dadce0] bg-white pl-10 pr-8 text-sm font-medium outline-none focus:border-[#8ab4f8] focus:ring-4 focus:ring-[#e8f0fe]"
+                    className="min-h-11 w-full appearance-none rounded-xl border border-white/10 bg-white pl-10 pr-8 text-sm font-medium outline-none focus:border-[#8ab4f8] focus:ring-4 focus:ring-[#e8f0fe]"
                   >
                     <option value="all">All file types</option>
                     <option value="documents">Documents</option>
@@ -537,7 +537,7 @@ export function PublicShareBrowser({
                 <select
                   value={sort}
                   onChange={(event) => setSort(event.target.value as FileSort)}
-                  className="min-h-11 w-full rounded-xl border border-[#dadce0] bg-white px-3 text-sm font-medium outline-none focus:border-[#8ab4f8] focus:ring-4 focus:ring-[#e8f0fe]"
+                  className="min-h-11 w-full rounded-xl border border-white/10 bg-white px-3 text-sm font-medium outline-none focus:border-[#8ab4f8] focus:ring-4 focus:ring-[#e8f0fe]"
                   aria-label="Sort files"
                 >
                   <option value="name-asc">Name A–Z</option>
@@ -555,16 +555,16 @@ export function PublicShareBrowser({
                         setQuery("");
                         setTypeFilter("all");
                       }}
-                      className="min-h-11 flex-1 rounded-xl border border-[#dadce0] px-3 text-sm font-semibold text-[#5f6368] hover:bg-[#f8f9fa] lg:flex-none"
+                      className="min-h-11 flex-1 rounded-xl border border-white/10 px-3 text-sm font-semibold text-slate-300/70 hover:bg-white/5 lg:flex-none"
                     >
                       Clear filters
                     </button>
                   ) : null}
-                  <div className="ml-auto inline-flex rounded-xl border border-[#dadce0] bg-[#f8f9fa] p-1">
+                  <div className="ml-auto inline-flex rounded-xl border border-white/10 bg-white/5 p-1">
                     <button
                       type="button"
                       onClick={() => setView("grid")}
-                      className={`grid size-9 place-items-center rounded-lg transition ${view === "grid" ? "bg-white text-[#1967d2] shadow-sm" : "text-[#5f6368] hover:bg-white"}`}
+                      className={`grid size-9 place-items-center rounded-lg transition ${view === "grid" ? "bg-white text-cyan-200 shadow-sm" : "text-slate-300/70 hover:bg-white"}`}
                       aria-label="Grid view"
                     >
                       <Grid2X2 className="size-4" />
@@ -572,7 +572,7 @@ export function PublicShareBrowser({
                     <button
                       type="button"
                       onClick={() => setView("list")}
-                      className={`grid size-9 place-items-center rounded-lg transition ${view === "list" ? "bg-white text-[#1967d2] shadow-sm" : "text-[#5f6368] hover:bg-white"}`}
+                      className={`grid size-9 place-items-center rounded-lg transition ${view === "list" ? "bg-white text-cyan-200 shadow-sm" : "text-slate-300/70 hover:bg-white"}`}
                       aria-label="List view"
                     >
                       <List className="size-4" />
@@ -616,9 +616,9 @@ export function PublicShareBrowser({
           ) : (
             <div className="grid min-h-60 place-items-center rounded-[24px] border border-dashed border-[#c6dafc] bg-white p-8 text-center">
               <div>
-                <Folder className="mx-auto size-10 text-[#1967d2]" />
+                <Folder className="mx-auto size-10 text-cyan-200" />
                 <h3 className="mt-4 font-semibold">This folder is empty</h3>
-                <p className="mt-2 text-sm text-[#5f6368]">
+                <p className="mt-2 text-sm text-slate-300/70">
                   There are no shared files in this location.
                 </p>
               </div>
@@ -631,7 +631,7 @@ export function PublicShareBrowser({
             <ShieldCheck className="size-4" /> Files are served through temporary private Storage URLs.
           </span>
           <span className="hidden sm:inline">•</span>
-          <button type="button" onClick={() => setShowReport(true)} className="font-semibold text-[#1967d2] hover:underline">
+          <button type="button" onClick={() => setShowReport(true)} className="font-semibold text-cyan-200 hover:underline">
             Report a problem with this share
           </button>
         </footer>
@@ -713,11 +713,11 @@ function SharedFileCard({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: Math.min(index, 18) * 0.02 }}
-        className={`relative flex flex-col gap-3 rounded-[20px] border bg-white p-3 shadow-sm transition hover:border-[#c6dafc] hover:shadow-md sm:flex-row sm:items-center ${selected ? "border-[#8ab4f8] ring-4 ring-[#e8f0fe]" : "border-[#e1e5ea]"}`}
+        className={`relative flex flex-col gap-3 rounded-[20px] border bg-white p-3 shadow-sm transition hover:border-[#c6dafc] hover:shadow-md sm:flex-row sm:items-center ${selected ? "border-[#8ab4f8] ring-4 ring-[#e8f0fe]" : "border-white/10"}`}
       >
         <div className="flex min-w-0 flex-1 items-center gap-3">
           {selectionEnabled ? (
-            <label className="grid size-9 shrink-0 cursor-pointer place-items-center rounded-full border border-[#dadce0] bg-white">
+            <label className="grid size-9 shrink-0 cursor-pointer place-items-center rounded-full border border-white/10 bg-white">
               <input
                 type="checkbox"
                 checked={selected}
@@ -738,11 +738,11 @@ function SharedFileCard({
         </div>
         <div className="flex flex-wrap items-center gap-2 sm:justify-end">
           {previewable ? (
-            <button type="button" onClick={onPreview} className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-full border border-[#dadce0] px-3 text-xs font-semibold text-[#3c4043] hover:bg-[#f8f9fa] sm:flex-none">
+            <button type="button" onClick={onPreview} className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-full border border-white/10 px-3 text-xs font-semibold text-slate-100 hover:bg-white/5 sm:flex-none">
               <Eye className="size-3.5" /> Preview
             </button>
           ) : (
-            <span className="inline-flex min-h-9 items-center rounded-full bg-[#f1f3f4] px-3 text-xs font-medium text-[#80868b]">
+            <span className="inline-flex min-h-9 items-center rounded-full bg-white/5 px-3 text-xs font-medium text-[#80868b]">
               Preview unavailable
             </span>
           )}
@@ -762,10 +762,10 @@ function SharedFileCard({
       initial={{ opacity: 0, y: 14, scale: 0.985 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ delay: Math.min(index, 18) * 0.03 }}
-      className={`relative flex min-h-[330px] flex-col overflow-hidden rounded-[22px] border bg-white shadow-sm transition hover:border-[#c6dafc] hover:shadow-md ${selected ? "border-[#8ab4f8] ring-4 ring-[#e8f0fe]" : "border-[#e1e5ea]"}`}
+      className={`relative flex min-h-[330px] flex-col overflow-hidden rounded-[22px] border bg-white shadow-sm transition hover:border-[#c6dafc] hover:shadow-md ${selected ? "border-[#8ab4f8] ring-4 ring-[#e8f0fe]" : "border-white/10"}`}
     >
       {selectionEnabled ? (
-        <label className="absolute left-3 top-3 z-10 grid size-9 cursor-pointer place-items-center rounded-full border border-[#e1e5ea] bg-white shadow-md">
+        <label className="absolute left-3 top-3 z-10 grid size-9 cursor-pointer place-items-center rounded-full border border-white/10 bg-white shadow-md">
           <input type="checkbox" checked={selected} onChange={onToggle} className="size-4 accent-[#1a73e8]" aria-label={`Select ${file.title}`} />
         </label>
       ) : null}
@@ -783,11 +783,11 @@ function SharedFileCard({
         <p className="mt-1 truncate text-xs text-[#80868b]">
           {formatBytes(file.file_size)} · {formatDate(file.updated_at ?? file.created_at)}
         </p>
-        {file.category ? <span className="mt-2 w-fit max-w-full truncate rounded-full bg-[#f1f3f4] px-2.5 py-1 text-[10px] font-semibold text-[#5f6368]">{file.category}</span> : null}
+        {file.category ? <span className="mt-2 w-fit max-w-full truncate rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-slate-300/70">{file.category}</span> : null}
         {!previewable ? <p className="mt-3 text-xs text-[#80868b]">Preview is not available for this file type.</p> : null}
         <div className="mt-auto flex flex-wrap gap-2 pt-4">
           {previewable ? (
-            <button type="button" onClick={onPreview} className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-full border border-[#dadce0] px-3 text-xs font-semibold text-[#3c4043] hover:bg-[#f8f9fa]">
+            <button type="button" onClick={onPreview} className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-full border border-white/10 px-3 text-xs font-semibold text-slate-100 hover:bg-white/5">
               <Eye className="size-3.5" /> Preview
             </button>
           ) : null}
@@ -823,12 +823,12 @@ function FileMenu({
 }) {
   return (
     <details className="group relative">
-      <summary className="grid size-9 cursor-pointer list-none place-items-center rounded-full border border-[#dadce0] bg-white text-[#5f6368] shadow-sm transition hover:bg-[#f8f9fa] [&::-webkit-details-marker]:hidden" aria-label="File actions">
+      <summary className="grid size-9 cursor-pointer list-none place-items-center rounded-full border border-white/10 bg-white text-slate-300/70 shadow-sm transition hover:bg-white/5 [&::-webkit-details-marker]:hidden" aria-label="File actions">
         <MoreVertical className="size-4" />
       </summary>
-      <div className="absolute right-0 top-11 z-40 w-52 overflow-hidden rounded-2xl border border-[#e1e5ea] bg-white p-1.5 shadow-xl">
-        {previewable ? <MenuButton icon={<Eye className="size-4" />} label="Preview" onClick={onPreview} /> : <div className="px-3 py-2 text-xs text-[#9aa0a6]">Preview unavailable</div>}
-        {allowDownloads ? <a href={downloadUrl} onClick={onDownload} className="flex min-h-10 items-center gap-3 rounded-xl px-3 text-sm font-medium text-[#3c4043] hover:bg-[#f1f3f4]"><Download className="size-4" /> Download</a> : null}
+      <div className="absolute right-0 top-11 z-40 w-52 overflow-hidden rounded-2xl border border-white/10 bg-white p-1.5 shadow-xl">
+        {previewable ? <MenuButton icon={<Eye className="size-4" />} label="Preview" onClick={onPreview} /> : <div className="px-3 py-2 text-xs text-slate-400">Preview unavailable</div>}
+        {allowDownloads ? <a href={downloadUrl} onClick={onDownload} className="flex min-h-10 items-center gap-3 rounded-xl px-3 text-sm font-medium text-slate-100 hover:bg-white/5"><Download className="size-4" /> Download</a> : null}
         <MenuButton icon={copied ? <Check className="size-4" /> : <Link2 className="size-4" />} label={copied ? "Link copied" : "Copy direct link"} onClick={onCopy} />
         <MenuButton icon={<Info className="size-4" />} label="File information" onClick={onInfo} />
       </div>
@@ -837,7 +837,7 @@ function FileMenu({
 }
 
 function MenuButton({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
-  return <button type="button" onClick={onClick} className="flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium text-[#3c4043] hover:bg-[#f1f3f4]">{icon}{label}</button>;
+  return <button type="button" onClick={onClick} className="flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium text-slate-100 hover:bg-white/5">{icon}{label}</button>;
 }
 
 function PublicPreview({ token, file, allowDownloads, onClose }: { token: string; file: PublicShareFile | null; allowDownloads: boolean; onClose: () => void }) {
@@ -849,8 +849,8 @@ function PublicPreview({ token, file, allowDownloads, onClose }: { token: string
       {file && full ? (
         <motion.div className="fixed inset-0 z-[100] grid place-items-center bg-[#202124]/55 p-3 backdrop-blur-sm sm:p-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.currentTarget === event.target) onClose(); }}>
           <motion.section className="flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-[24px] border border-white/20 bg-white shadow-2xl" initial={{ opacity: 0, y: 24, scale: 0.975 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 18, scale: 0.98 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
-            <header className="flex items-center gap-3 border-b border-[#e1e5ea] px-4 py-3 sm:px-5"><FileTypeIcon file={full} className="size-10 rounded-xl" iconClassName="size-5" /><div className="min-w-0 flex-1"><h2 className="truncate text-sm font-semibold sm:text-base">{file.title}</h2><p className="truncate text-xs text-[#80868b]">{file.original_filename} · {formatBytes(file.file_size)}</p></div>{allowDownloads ? <a href={`/api/public-shares/${encodeURIComponent(token)}/files/${file.id}/download`} className="grid size-10 place-items-center rounded-full text-[#5f6368] hover:bg-[#f1f3f4]" aria-label="Download file"><Download className="size-5" /></a> : null}<button type="button" onClick={onClose} className="grid size-10 place-items-center rounded-full text-[#5f6368] hover:bg-[#f1f3f4]" aria-label="Close preview"><X className="size-5" /></button></header>
-            <div className="min-h-0 flex-1 bg-[#f1f3f4] p-2 sm:p-4">{renderPreview(type, previewUrl, file)}</div>
+            <header className="flex items-center gap-3 border-b border-white/10 px-4 py-3 sm:px-5"><FileTypeIcon file={full} className="size-10 rounded-xl" iconClassName="size-5" /><div className="min-w-0 flex-1"><h2 className="truncate text-sm font-semibold sm:text-base">{file.title}</h2><p className="truncate text-xs text-[#80868b]">{file.original_filename} · {formatBytes(file.file_size)}</p></div>{allowDownloads ? <a href={`/api/public-shares/${encodeURIComponent(token)}/files/${file.id}/download`} className="grid size-10 place-items-center rounded-full text-slate-300/70 hover:bg-white/5" aria-label="Download file"><Download className="size-5" /></a> : null}<button type="button" onClick={onClose} className="grid size-10 place-items-center rounded-full text-slate-300/70 hover:bg-white/5" aria-label="Close preview"><X className="size-5" /></button></header>
+            <div className="min-h-0 flex-1 bg-white/5 p-2 sm:p-4">{renderPreview(type, previewUrl, file)}</div>
           </motion.section>
         </motion.div>
       ) : null}
@@ -864,7 +864,7 @@ function FileInfoModal({ file, onClose }: { file: PublicShareFile | null; onClos
     <AnimatePresence>
       {file && full ? (
         <ModalShell onClose={onClose} maxWidth="max-w-lg">
-          <header className="flex items-center gap-3 border-b border-[#e1e5ea] p-5">
+          <header className="flex items-center gap-3 border-b border-white/10 p-5">
             <FileTypeIcon file={full} className="size-12 rounded-2xl" iconClassName="size-6" />
             <div className="min-w-0 flex-1"><h2 className="truncate text-lg font-semibold">File information</h2><p className="truncate text-xs text-[#80868b]">{file.title}</p></div>
             <CloseButton onClick={onClose} />
@@ -890,12 +890,12 @@ function QrModal({ open, qrUrl, publicUrl, host, copied, onCopy, onDownload, onC
     <AnimatePresence>
       {open ? (
         <ModalShell onClose={onClose} maxWidth="max-w-md">
-          <header className="flex items-center gap-3 border-b border-[#e1e5ea] p-5"><span className="grid size-11 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2]"><QrCode className="size-5" /></span><div className="min-w-0 flex-1"><h2 className="font-semibold">Share QR code</h2><p className="truncate text-xs text-[#80868b]">{host}</p></div><CloseButton onClick={onClose} /></header>
+          <header className="flex items-center gap-3 border-b border-white/10 p-5"><span className="grid size-11 place-items-center rounded-2xl bg-cyan-400/15 text-cyan-200"><QrCode className="size-5" /></span><div className="min-w-0 flex-1"><h2 className="font-semibold">Share QR code</h2><p className="truncate text-xs text-[#80868b]">{host}</p></div><CloseButton onClick={onClose} /></header>
           <div className="p-5 text-center">
-            {qrUrl ? <div className="mx-auto w-fit rounded-[24px] border border-[#e1e5ea] bg-white p-3 shadow-sm"><Image unoptimized src={qrUrl} width={300} height={300} alt="QR code for this shared link" className="rounded-xl" /></div> : null}
+            {qrUrl ? <div className="mx-auto w-fit rounded-[24px] border border-white/10 bg-white p-3 shadow-sm"><Image unoptimized src={qrUrl} width={300} height={300} alt="QR code for this shared link" className="rounded-xl" /></div> : null}
             <p className="mx-auto mt-4 max-w-sm break-all text-xs leading-5 text-[#80868b]">{publicUrl}</p>
-            <div className="mt-5 grid gap-2 sm:grid-cols-2"><button type="button" onClick={onCopy} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#dadce0] font-semibold text-[#3c4043] hover:bg-[#f8f9fa]">{copied ? <Check className="size-4" /> : <Copy className="size-4" />}{copied ? "Copied" : "Copy link"}</button><button type="button" onClick={onDownload} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#1a73e8] font-semibold text-white hover:bg-[#1557b0]"><Download className="size-4" /> Download QR</button></div>
-            <p className="mt-4 text-[11px] text-[#9aa0a6]">QR image rendering uses api.qrserver.com.</p>
+            <div className="mt-5 grid gap-2 sm:grid-cols-2"><button type="button" onClick={onCopy} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 font-semibold text-slate-100 hover:bg-white/5">{copied ? <Check className="size-4" /> : <Copy className="size-4" />}{copied ? "Copied" : "Copy link"}</button><button type="button" onClick={onDownload} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#1a73e8] font-semibold text-white hover:bg-[#1557b0]"><Download className="size-4" /> Download QR</button></div>
+            <p className="mt-4 text-[11px] text-slate-400">QR image rendering uses api.qrserver.com.</p>
           </div>
         </ModalShell>
       ) : null}
@@ -908,8 +908,8 @@ function DownloadConfirmation({ plan, limits, downloading, onConfirm, onClose }:
     <AnimatePresence>
       {plan ? (
         <ModalShell onClose={onClose} maxWidth="max-w-md">
-          <header className="flex items-center gap-3 border-b border-[#e1e5ea] p-5"><span className="grid size-11 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2]"><Download className="size-5" /></span><div className="min-w-0 flex-1"><h2 className="font-semibold">Prepare ZIP download?</h2><p className="text-xs text-[#80868b]">The archive is created securely on demand.</p></div><CloseButton onClick={onClose} disabled={downloading} /></header>
-          <div className="p-5"><div className="grid grid-cols-2 gap-3"><Stat label="Files" value={plan.count.toLocaleString()} /><Stat label="Total size" value={formatBytes(plan.bytes)} /></div><p className="mt-4 text-sm leading-6 text-[#5f6368]">This {plan.kind === "folder" ? "folder" : "selection"} will be prepared as one ZIP file. The maximum is {limits.maxFiles} files and {formatBytes(limits.maxBytes)}.</p><div className="mt-5 grid gap-2 sm:grid-cols-2"><button type="button" disabled={downloading} onClick={onClose} className="min-h-11 rounded-full border border-[#dadce0] font-semibold text-[#3c4043] hover:bg-[#f8f9fa] disabled:opacity-50">Cancel</button><button type="button" disabled={downloading} onClick={onConfirm} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#1a73e8] font-semibold text-white hover:bg-[#1557b0] disabled:opacity-50"><ArrowDownToLine className="size-4" /> {downloading ? "Preparing…" : "Prepare download"}</button></div></div>
+          <header className="flex items-center gap-3 border-b border-white/10 p-5"><span className="grid size-11 place-items-center rounded-2xl bg-cyan-400/15 text-cyan-200"><Download className="size-5" /></span><div className="min-w-0 flex-1"><h2 className="font-semibold">Prepare ZIP download?</h2><p className="text-xs text-[#80868b]">The archive is created securely on demand.</p></div><CloseButton onClick={onClose} disabled={downloading} /></header>
+          <div className="p-5"><div className="grid grid-cols-2 gap-3"><Stat label="Files" value={plan.count.toLocaleString()} /><Stat label="Total size" value={formatBytes(plan.bytes)} /></div><p className="mt-4 text-sm leading-6 text-slate-300/70">This {plan.kind === "folder" ? "folder" : "selection"} will be prepared as one ZIP file. The maximum is {limits.maxFiles} files and {formatBytes(limits.maxBytes)}.</p><div className="mt-5 grid gap-2 sm:grid-cols-2"><button type="button" disabled={downloading} onClick={onClose} className="min-h-11 rounded-full border border-white/10 font-semibold text-slate-100 hover:bg-white/5 disabled:opacity-50">Cancel</button><button type="button" disabled={downloading} onClick={onConfirm} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#1a73e8] font-semibold text-white hover:bg-[#1557b0] disabled:opacity-50"><ArrowDownToLine className="size-4" /> {downloading ? "Preparing…" : "Prepare download"}</button></div></div>
         </ModalShell>
       ) : null}
     </AnimatePresence>
@@ -922,8 +922,8 @@ function ReportModal({ open, supportEmail, publicUrl, shareName, onClose }: { op
     <AnimatePresence>
       {open ? (
         <ModalShell onClose={onClose} maxWidth="max-w-md">
-          <header className="flex items-center gap-3 border-b border-[#e1e5ea] p-5"><span className="grid size-11 place-items-center rounded-2xl bg-[#fef7e0] text-[#b06000]"><CircleHelp className="size-5" /></span><div className="min-w-0 flex-1"><h2 className="font-semibold">Report a share problem</h2><p className="text-xs text-[#80868b]">Broken file, unexpected content, or access issue</p></div><CloseButton onClick={onClose} /></header>
-          <div className="p-5"><p className="text-sm leading-6 text-[#5f6368]">{supportEmail ? "Send the share URL and a short description to the support contact." : "Contact the person who sent you this link and include the share URL plus a short description of the problem."}</p><div className="mt-4 rounded-2xl bg-[#f8f9fa] p-3 text-xs text-[#5f6368]"><span className="block font-semibold">Share URL</span><span className="mt-1 block break-all">{publicUrl}</span></div><div className="mt-5 grid gap-2 sm:grid-cols-2"><button type="button" onClick={() => void copyText(publicUrl)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#dadce0] font-semibold text-[#3c4043] hover:bg-[#f8f9fa]"><Copy className="size-4" /> Copy URL</button>{mailto ? <a href={mailto} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#1a73e8] font-semibold text-white hover:bg-[#1557b0]"><Mail className="size-4" /> Email support</a> : <button type="button" onClick={onClose} className="min-h-11 rounded-full bg-[#1a73e8] font-semibold text-white hover:bg-[#1557b0]">Done</button>}</div></div>
+          <header className="flex items-center gap-3 border-b border-white/10 p-5"><span className="grid size-11 place-items-center rounded-2xl bg-[#fef7e0] text-[#b06000]"><CircleHelp className="size-5" /></span><div className="min-w-0 flex-1"><h2 className="font-semibold">Report a share problem</h2><p className="text-xs text-[#80868b]">Broken file, unexpected content, or access issue</p></div><CloseButton onClick={onClose} /></header>
+          <div className="p-5"><p className="text-sm leading-6 text-slate-300/70">{supportEmail ? "Send the share URL and a short description to the support contact." : "Contact the person who sent you this link and include the share URL plus a short description of the problem."}</p><div className="mt-4 rounded-2xl bg-white/5 p-3 text-xs text-slate-300/70"><span className="block font-semibold">Share URL</span><span className="mt-1 block break-all">{publicUrl}</span></div><div className="mt-5 grid gap-2 sm:grid-cols-2"><button type="button" onClick={() => void copyText(publicUrl)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 font-semibold text-slate-100 hover:bg-white/5"><Copy className="size-4" /> Copy URL</button>{mailto ? <a href={mailto} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#1a73e8] font-semibold text-white hover:bg-[#1557b0]"><Mail className="size-4" /> Email support</a> : <button type="button" onClick={onClose} className="min-h-11 rounded-full bg-[#1a73e8] font-semibold text-white hover:bg-[#1557b0]">Done</button>}</div></div>
         </ModalShell>
       ) : null}
     </AnimatePresence>
@@ -935,11 +935,11 @@ function ModalShell({ children, onClose, maxWidth }: { children: React.ReactNode
 }
 
 function CloseButton({ onClick, disabled = false }: { onClick: () => void; disabled?: boolean }) {
-  return <button type="button" disabled={disabled} onClick={onClick} className="grid size-10 place-items-center rounded-full text-[#5f6368] hover:bg-[#f1f3f4] disabled:opacity-50" aria-label="Close"><X className="size-5" /></button>;
+  return <button type="button" disabled={disabled} onClick={onClick} className="grid size-10 place-items-center rounded-full text-slate-300/70 hover:bg-white/5 disabled:opacity-50" aria-label="Close"><X className="size-5" /></button>;
 }
 
 function InfoRow({ label, value, wide = false }: { label: string; value: string; wide?: boolean }) {
-  return <div className={`rounded-2xl bg-[#f8f9fa] p-3 ${wide ? "sm:col-span-2" : ""}`}><span className="block text-[11px] font-medium uppercase tracking-wide text-[#80868b]">{label}</span><strong className="mt-1 block break-words text-sm font-semibold text-[#3c4043]">{value}</strong></div>;
+  return <div className={`rounded-2xl bg-white/5 p-3 ${wide ? "sm:col-span-2" : ""}`}><span className="block text-[11px] font-medium uppercase tracking-wide text-[#80868b]">{label}</span><strong className="mt-1 block break-words text-sm font-semibold text-slate-100">{value}</strong></div>;
 }
 
 function renderPreview(type: ReturnType<typeof getFileType>, url: string, file: PublicShareFile) {
@@ -947,8 +947,8 @@ function renderPreview(type: ReturnType<typeof getFileType>, url: string, file: 
   if (type === "image") return <div className={`grid ${frame} place-items-center overflow-auto rounded-2xl bg-[#eef1f5] p-4`}><Image unoptimized src={url} alt={file.title} width={1600} height={1200} className="h-auto max-h-full max-w-full rounded-xl bg-white object-contain shadow-lg" /></div>;
   if (type === "video") return <div className={`grid ${frame} place-items-center overflow-hidden rounded-2xl bg-black p-2`}><video controls preload="metadata" className="max-h-full max-w-full rounded-xl" src={url}>Your browser cannot play this video.</video></div>;
   if (type === "audio") return <div className={`grid ${frame} place-items-center rounded-2xl bg-white p-8`}><audio controls preload="metadata" className="w-full max-w-xl" src={url}>Your browser cannot play this audio file.</audio></div>;
-  if (type === "pdf" || type === "text") return <iframe title={`Preview ${file.title}`} src={url} className={`w-full ${frame} rounded-2xl border border-[#dadce0] bg-white`} />;
-  return <div className={`grid ${frame} place-items-center rounded-2xl bg-white p-8 text-center`}><p className="text-sm text-[#5f6368]">Preview is not available for this file type.</p></div>;
+  if (type === "pdf" || type === "text") return <iframe title={`Preview ${file.title}`} src={url} className={`w-full ${frame} rounded-2xl border border-white/10 bg-white`} />;
+  return <div className={`grid ${frame} place-items-center rounded-2xl bg-white p-8 text-center`}><p className="text-sm text-slate-300/70">Preview is not available for this file type.</p></div>;
 }
 
 function asImportantFile(file: PublicShareFile): ImportantFile {
@@ -991,15 +991,15 @@ function decodeFilename(disposition: string): string | null {
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-2xl border border-[#e1e5ea] bg-[#f8f9fa] px-4 py-3"><span className="block text-xs font-medium text-[#80868b]">{label}</span><strong className="mt-1 block truncate text-sm font-semibold text-[#202124] sm:text-base" title={value}>{value}</strong></div>;
+  return <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3"><span className="block text-xs font-medium text-[#80868b]">{label}</span><strong className="mt-1 block truncate text-sm font-semibold text-slate-50 sm:text-base" title={value}>{value}</strong></div>;
 }
 
 function SectionTitle({ title, count }: { title: string; count: number }) {
-  return <div className="flex items-center gap-3"><h2 className="text-lg font-semibold">{title}</h2><span className="rounded-full bg-[#e8eaed] px-3 py-1.5 text-xs font-semibold text-[#5f6368]">{count.toLocaleString()}</span></div>;
+  return <div className="flex items-center gap-3"><h2 className="text-lg font-semibold">{title}</h2><span className="rounded-full bg-[#e8eaed] px-3 py-1.5 text-xs font-semibold text-slate-300/70">{count.toLocaleString()}</span></div>;
 }
 
 function TrustBadge({ icon, label, tone = "blue" }: { icon: React.ReactNode; label: string; tone?: "blue" | "green" }) {
-  return <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${tone === "green" ? "bg-[#e6f4ea] text-[#137333]" : "bg-[#e8f0fe] text-[#1967d2]"}`}>{icon}{label}</span>;
+  return <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${tone === "green" ? "bg-[#e6f4ea] text-[#137333]" : "bg-cyan-400/15 text-cyan-200"}`}>{icon}{label}</span>;
 }
 
 function MetaItem({ icon, label }: { icon: React.ReactNode; label: string }) {
@@ -1007,7 +1007,7 @@ function MetaItem({ icon, label }: { icon: React.ReactNode; label: string }) {
 }
 
 function EmptySearch({ kind }: { kind: "file" | "folder" }) {
-  return <div className="grid min-h-44 place-items-center rounded-[22px] border border-dashed border-[#c6dafc] bg-white p-6 text-center"><div><Search className="mx-auto size-8 text-[#1967d2]" /><h3 className="mt-3 font-semibold">No matching {kind}s</h3><p className="mt-1 text-sm text-[#5f6368]">Try a different search or file-type filter.</p></div></div>;
+  return <div className="grid min-h-44 place-items-center rounded-[22px] border border-dashed border-[#c6dafc] bg-white p-6 text-center"><div><Search className="mx-auto size-8 text-cyan-200" /><h3 className="mt-3 font-semibold">No matching {kind}s</h3><p className="mt-1 text-sm text-slate-300/70">Try a different search or file-type filter.</p></div></div>;
 }
 
 function formatDateTime(value: string | null): string {

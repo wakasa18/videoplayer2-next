@@ -41,25 +41,29 @@ export function AppShell({
   }, [mobileOpen]);
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] text-[#202124]">
+    <div className="astro-shell min-h-screen text-slate-100">
       <TopBar
         userEmail={userEmail}
         displayName={displayName}
         onMenuClick={() => setMobileOpen(true)}
       />
 
-      <div className="mx-auto flex max-w-[1600px]">
+      <div className="relative mx-auto flex max-w-[1680px] gap-5 px-3 pb-8 pt-5 sm:px-5 lg:px-6">
+        <div className="astro-grid" aria-hidden="true" />
+        <div className="astro-orb astro-orb-left" aria-hidden="true" />
+        <div className="astro-orb astro-orb-right" aria-hidden="true" />
+
         <Sidebar quickModule={quickModule} />
 
-        <div
+        <main
           className={
             compactMode
-              ? "min-w-0 flex-1 px-3 py-4 sm:px-4 lg:px-6"
-              : "min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8"
+              ? "relative min-w-0 flex-1 px-1 py-2 sm:px-2"
+              : "relative min-w-0 flex-1 px-1 py-2 sm:px-2"
           }
         >
           {children}
-        </div>
+        </main>
       </div>
 
       <div
@@ -71,13 +75,13 @@ export function AppShell({
         <button
           type="button"
           aria-label="Close navigation"
-          className={`absolute inset-0 bg-black/30 backdrop-blur-[2px] transition-opacity duration-200 ${
+          className={`absolute inset-0 bg-[#020617]/72 backdrop-blur-md transition-opacity duration-200 ${
             mobileOpen ? "opacity-100" : "opacity-0"
           }`}
           onClick={() => setMobileOpen(false)}
         />
         <div
-          className={`relative h-full w-[min(86vw,320px)] bg-white shadow-2xl transition-transform duration-300 ease-out ${
+          className={`relative h-full w-[min(88vw,340px)] p-3 transition-transform duration-300 ease-out ${
             mobileOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >

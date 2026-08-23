@@ -7,6 +7,7 @@ import {
   FolderOpen,
   Home,
   Link2,
+  Orbit,
   Plus,
   Rocket,
   Settings,
@@ -82,37 +83,51 @@ export function Sidebar({
     <aside
       className={
         mobile
-          ? "flex h-full w-full flex-col bg-white"
-          : "sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 flex-col border-r border-[#e1e5ea] bg-white px-3 py-5 lg:flex"
+          ? "flex h-full w-full flex-col bg-[#090d1d]/95 text-slate-100"
+          : "astro-panel sticky top-20 hidden h-[calc(100vh-5rem)] w-72 shrink-0 flex-col rounded-[1.75rem] px-4 py-5 lg:flex"
       }
     >
       {mobile && (
-        <div className="flex h-16 items-center justify-between border-b border-[#e1e5ea] px-4">
-          <strong className="text-base font-semibold">Damon&apos;s Archive</strong>
+        <div className="flex h-16 items-center justify-between border-b border-white/10 px-4">
+          <div>
+            <strong className="astro-title text-base font-semibold">Damon&apos;s Archive</strong>
+            <p className="astro-soft-text text-xs">Astronomy workspace</p>
+          </div>
           <button
             type="button"
             aria-label="Close navigation"
             onClick={onNavigate}
-            className="grid size-10 place-items-center rounded-full text-[#5f6368] transition hover:bg-[#f1f3f4]"
+            className="grid size-10 place-items-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10"
           >
             <X className="size-5" aria-hidden="true" />
           </button>
         </div>
       )}
 
-      <div className="p-3">
-        <Link
-          href={quickHref}
-          onClick={onNavigate}
-          className="flex min-h-14 items-center gap-3 rounded-2xl bg-white px-5 text-sm font-semibold text-[#202124] shadow-[0_1px_2px_rgba(60,64,67,.16),0_1px_3px_1px_rgba(60,64,67,.08)] transition hover:bg-[#f8f9fa] hover:shadow-md"
-        >
-          <QuickIcon className="size-5 text-[#1967d2]" aria-hidden="true" />
-          {quickLabel}
-        </Link>
+      <div className="mb-4 px-2">
+        <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-4 shadow-[0_10px_30px_rgba(2,6,23,0.25)]">
+          <div className="mb-3 flex items-center gap-3">
+            <span className="grid size-11 place-items-center rounded-2xl bg-[linear-gradient(135deg,rgba(83,223,255,0.9),rgba(144,101,255,0.95))] text-slate-950 shadow-[0_10px_24px_rgba(56,189,248,0.2)]">
+              <Orbit className="size-5" aria-hidden="true" />
+            </span>
+            <div>
+              <p className="astro-title text-sm font-semibold">Astral Launch</p>
+              <p className="text-xs text-slate-300/70">Explore your galaxy of content</p>
+            </div>
+          </div>
+          <Link
+            href={quickHref}
+            onClick={onNavigate}
+            className="starlight-hover flex min-h-14 items-center gap-3 rounded-2xl border border-cyan-300/20 bg-[linear-gradient(135deg,rgba(99,223,255,0.16),rgba(122,92,255,0.16))] px-4 text-sm font-semibold text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+          >
+            <QuickIcon className="size-5 text-cyan-200" aria-hidden="true" />
+            {quickLabel}
+          </Link>
+        </div>
       </div>
 
       <nav
-        className="space-y-1 overflow-y-auto px-3 py-2"
+        className="space-y-1 overflow-y-auto px-2 py-1"
         aria-label="Dashboard navigation"
       >
         {links.map(({ href, label, icon: Icon, exact }) => {
@@ -133,21 +148,26 @@ export function Sidebar({
               href={href}
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
-              className={`flex items-center gap-3 rounded-full px-4 py-3 text-sm font-medium transition-colors ${
+              className={`group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all ${
                 active
-                  ? "bg-[#e8f0fe] text-[#1967d2]"
-                  : "text-[#3c4043] hover:bg-[#f1f3f4]"
+                  ? "border border-cyan-300/20 bg-[linear-gradient(135deg,rgba(74,222,255,0.16),rgba(168,85,247,0.14))] text-cyan-100 shadow-[0_10px_24px_rgba(14,165,233,0.12)]"
+                  : "border border-transparent text-slate-300 hover:border-white/10 hover:bg-white/5 hover:text-white"
               }`}
             >
-              <Icon className="size-5" aria-hidden="true" />
+              <Icon className={`size-5 ${active ? "text-cyan-200" : "text-slate-400 group-hover:text-cyan-200"}`} aria-hidden="true" />
               <span>{label}</span>
             </Link>
           );
         })}
       </nav>
 
-      <div className="mt-auto px-5 pb-5 pt-4 text-xs leading-5 text-[#80868b]">
-        Next.js production workspace · Phase 10
+      <div className="mt-auto px-4 pb-2 pt-5 text-xs leading-5 text-slate-400/80">
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
+          <div className="astro-title text-xs font-semibold uppercase tracking-[0.24em]">
+            Space status
+          </div>
+          <p className="mt-2 text-slate-300/70">Next.js production workspace · Phase 10</p>
+        </div>
       </div>
     </aside>
   );
