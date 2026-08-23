@@ -71,4 +71,7 @@ export type PublicShareResult = {
   files: PublicShareFile[];
   totalFiles: number;
   totalBytes: number;
+  currentTotalFiles: number;
+  currentTotalBytes: number;
+  lastUpdatedAt: string | null;
 };

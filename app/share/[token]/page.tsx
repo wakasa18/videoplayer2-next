@@ -2,6 +2,7 @@ import { AlertTriangle, Link2, ShieldX } from "lucide-react";
 import { headers } from "next/headers";
 
 import { PublicShareBrowser } from "@/components/public-share-browser";
+import { getShareArchiveLimits } from "@/lib/shares/archive-limits";
 import { getPublicShare, registerPublicShareOpen } from "@/lib/shares/data";
 import { ShareRequestError } from "@/lib/shares/server";
 import type { PublicShareResult } from "@/lib/shares/types";
@@ -45,7 +46,16 @@ export default async function PublicSharePage({ params, searchParams }: PageProp
   }
 
   if (result) {
-    return <PublicShareBrowser token={token} result={result} publicUrl={publicUrl} />;
+    const limits = getShareArchiveLimits();
+    return (
+      <PublicShareBrowser
+        token={token}
+        result={result}
+        publicUrl={publicUrl}
+        archiveLimits={{ maxFiles: limits.maxFiles, maxBytes: limits.maxBytes }}
+        supportEmail={process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() || null}
+      />
+    );
   }
 
   const message = failure instanceof Error ? failure.message : "This shared link is unavailable.";

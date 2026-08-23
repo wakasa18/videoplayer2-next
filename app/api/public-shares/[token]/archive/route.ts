@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { consumeRateLimit } from "@/lib/maintenance/rate-limit";
+import { getShareArchiveLimits } from "@/lib/shares/archive-limits";
 import {
   consumeShareDownload,
   listFolderArchiveFiles,
@@ -7,12 +9,11 @@ import {
 import {
   recordShareEvent,
   requestSessionHash,
-  shareErrorResponse,
   ShareRequestError,
+  shareErrorResponse,
 } from "@/lib/shares/server";
 import { createZipBuffer } from "@/lib/shares/zip";
 import { getFilesBucket } from "@/lib/supabase/admin";
-import { consumeRateLimit, rateLimitValue } from "@/lib/maintenance/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -53,12 +54,18 @@ export async function POST(
 ) {
   try {
     const body = (await request.json()) as { path?: unknown; fileIds?: unknown };
+    const limits = getShareArchiveLimits();
     const fileIds = Array.isArray(body.fileIds)
       ? body.fileIds
           .map((value) => Number.parseInt(String(value), 10))
           .filter((value) => Number.isInteger(value) && value > 0)
-          .slice(0, 100)
       : [];
+    if (fileIds.length > limits.maxFiles) {
+      throw new ShareRequestError(
+        `Select no more than ${limits.maxFiles} files for one ZIP download.`,
+        413,
+      );
+    }
     return createArchive(
       request,
       (await context.params).token,
@@ -82,16 +89,17 @@ async function createArchive(
       path,
       fileIds,
     );
-    const archiveRate = await consumeRateLimit(
+    const limits = getShareArchiveLimits();
+    const rateLimit = await consumeRateLimit(
       admin,
-      `${share.id}:${requestSessionHash(request)}`,
-      "public-share-archive",
-      rateLimitValue("SHARE_ARCHIVE_RATE_LIMIT", 5),
+      requestSessionHash(request),
+      `public-share-archive:${share.id}`,
+      limits.rateLimit,
       3600,
     );
-    if (!archiveRate.allowed) {
+    if (!rateLimit.allowed) {
       throw new ShareRequestError(
-        `Too many ZIP requests. Try again in ${archiveRate.retryAfterSeconds} seconds.`,
+        `Too many ZIP requests. Try again in about ${Math.max(1, Math.ceil(rateLimit.retryAfterSeconds / 60))} minute(s).`,
         429,
       );
     }

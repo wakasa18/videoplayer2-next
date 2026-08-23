@@ -3,6 +3,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { normalizeFolderPath } from "@/lib/files/utils";
+import { getShareArchiveLimits } from "@/lib/shares/archive-limits";
 import {
   assertShareCanDownload,
   assertShareCanOpen,
@@ -173,6 +174,9 @@ export async function getPublicShare(
       files: [publicFile],
       totalFiles: 1,
       totalBytes: publicFile.file_size,
+      currentTotalFiles: 1,
+      currentTotalBytes: publicFile.file_size,
+      lastUpdatedAt: publicFile.updated_at ?? publicFile.created_at,
     };
   }
 
@@ -196,7 +200,17 @@ export async function getPublicShare(
   const directFiles = allFiles.filter(
     (file) => normalizeFolderPath(file.folder_path) === current,
   );
+  const currentFiles = allFiles.filter((file) => {
+    const folder = normalizeFolderPath(file.folder_path);
+    return folder === current || folder.startsWith(`${current}/`);
+  });
   const folders = buildPublicChildFolders(allFiles, current);
+  const lastUpdatedAt = allFiles.reduce<string | null>((latest, file) => {
+    const candidate = file.updated_at ?? file.created_at;
+    if (!candidate) return latest;
+    if (!latest) return candidate;
+    return new Date(candidate).getTime() > new Date(latest).getTime() ? candidate : latest;
+  }, null);
 
   return {
     share,
@@ -208,6 +222,9 @@ export async function getPublicShare(
     files: directFiles,
     totalFiles: allFiles.length,
     totalBytes: allFiles.reduce((sum, file) => sum + file.file_size, 0),
+    currentTotalFiles: currentFiles.length,
+    currentTotalBytes: currentFiles.reduce((sum, file) => sum + file.file_size, 0),
+    lastUpdatedAt,
   };
 }
 
@@ -342,41 +359,26 @@ export async function listFolderArchiveFiles(
 
   const root = normalizeFolderPath(share.folder_path);
   const path = normalizeRelativePublicPath(root, requestedPath);
-  const maxFiles = boundedPositiveInteger(
-    process.env.SHARE_ARCHIVE_MAX_FILES,
-    25,
-    1,
-    100,
-  );
-  const maxBytes = boundedPositiveInteger(
-    process.env.SHARE_ARCHIVE_MAX_BYTES,
-    64 * 1024 * 1024,
-    1024 * 1024,
-    250 * 1024 * 1024,
-  );
-
+  const limits = getShareArchiveLimits();
   let query = admin
     .from("important_files")
     .select("id,file_path,original_filename,file_size,folder_path")
     .eq("owner_id", share.owner_id)
     .eq("status", "active")
     .or(`folder_path.eq.${escapePostgrestValue(path)},folder_path.like.${escapePostgrestValue(`${path}/%`)}`)
-    .limit(maxFiles + 1);
+    .limit(limits.maxFiles + 1);
   if (selectedIds.length) query = query.in("id", selectedIds);
 
   const { data, error } = await query;
   if (error) throw new ShareRequestError(error.message, 500);
-  const availableFiles = (data ?? []).filter((file) => Boolean(file.file_path));
-  if (availableFiles.length > maxFiles) {
+  const available = (data ?? []).filter((file) => Boolean(file.file_path));
+  if (available.length > limits.maxFiles) {
     throw new ShareRequestError(
-      `Select ${maxFiles} files or fewer for one ZIP download.`,
+      `This ZIP contains more than ${limits.maxFiles} files. Select fewer files or open a smaller folder.`,
       413,
     );
   }
-
-  const files = availableFiles
-    .slice(0, maxFiles)
-    .map((file) => ({
+  const files = available.map((file) => ({
       id: Number(file.id),
       file_path: String(file.file_path),
       original_filename: String(file.original_filename),
@@ -386,9 +388,9 @@ export async function listFolderArchiveFiles(
   if (!files.length) throw new ShareRequestError("No files were selected.", 404);
 
   const totalBytes = files.reduce((sum, file) => sum + file.file_size, 0);
-  if (totalBytes > maxBytes) {
+  if (totalBytes > limits.maxBytes) {
     throw new ShareRequestError(
-      `The ZIP selection is larger than ${formatByteLimit(maxBytes)}. Download fewer files at a time.`,
+      `The ZIP selection is larger than ${formatArchiveBytes(limits.maxBytes)}. Download fewer files at a time.`,
       413,
     );
   }
@@ -399,6 +401,11 @@ export async function listFolderArchiveFiles(
     files,
     archiveName: `${path.split("/").at(-1) || "shared-folder"}.zip`,
   };
+}
+
+function formatArchiveBytes(bytes: number): string {
+  const mb = bytes / (1024 * 1024);
+  return `${Number.isInteger(mb) ? mb.toFixed(0) : mb.toFixed(1)} MB`;
 }
 
 async function resolveShareToken(token: string): Promise<{
@@ -485,24 +492,6 @@ function buildPublicBreadcrumbs(
     });
   }
   return crumbs;
-}
-
-function boundedPositiveInteger(
-  value: string | undefined,
-  fallback: number,
-  minimum: number,
-  maximum: number,
-): number {
-  const parsed = Number.parseInt(String(value ?? ""), 10);
-  if (!Number.isSafeInteger(parsed)) return fallback;
-  return Math.min(maximum, Math.max(minimum, parsed));
-}
-
-function formatByteLimit(bytes: number): string {
-  const megabytes = bytes / 1024 / 1024;
-  return megabytes >= 1024
-    ? `${(megabytes / 1024).toFixed(1)} GB`
-    : `${Math.round(megabytes)} MB`;
 }
 
 function escapePostgrestValue(value: string): string {
