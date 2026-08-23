@@ -71,7 +71,7 @@ export function Sidebar({
       className={
         mobile
           ? "flex h-full w-full flex-col bg-[#07101d]/98 text-slate-100"
-          : "tech-panel sticky top-[5.7rem] hidden h-[calc(100vh-6.6rem)] w-[17rem] shrink-0 flex-col rounded-[1.35rem] px-3 py-4 lg:flex"
+          : "tech-sidebar-enter tech-panel sticky top-[5.7rem] hidden h-[calc(100vh-6.6rem)] w-[17rem] shrink-0 flex-col rounded-[1.35rem] px-3 py-4 lg:flex"
       }
     >
       {mobile ? (
@@ -116,7 +116,7 @@ export function Sidebar({
         </div>
       </div>
 
-      <nav className="space-y-1 overflow-y-auto px-1 py-1" aria-label="Dashboard navigation">
+      <nav className="tech-nav-stagger space-y-1 overflow-y-auto px-1 py-1" aria-label="Dashboard navigation">
         {links.map(({ href, label, icon: Icon, exact }) => {
           const active =
             href === "/dashboard/files"
@@ -141,7 +141,7 @@ export function Sidebar({
               }`}
             >
               {active ? (
-                <span className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(63,224,255,0.8)]" />
+                <span className="tech-active-pulse absolute inset-y-2 left-0 w-0.5 rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(63,224,255,0.8)]" />
               ) : null}
               <Icon
                 className={`size-4.5 ${active ? "text-cyan-200" : "text-slate-500 group-hover:text-cyan-200"}`}
