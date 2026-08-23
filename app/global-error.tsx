@@ -26,7 +26,7 @@ export default function GlobalError({
 
   return (
     <html lang="en">
-      <body className="m-0 bg-[#f8f9fa] font-sans text-[#202124]">
+      <body className="high-tech-theme m-0 min-h-screen bg-[#07101d] font-sans text-slate-100">
         <main className="grid min-h-screen place-items-center p-6">
           <section className="w-full max-w-xl rounded-[28px] border border-[#f3c7c3] bg-white p-8 text-center shadow-sm">
             <div className="mx-auto grid size-16 place-items-center rounded-full bg-[#fce8e6] text-3xl text-[#b3261e]">!</div>
