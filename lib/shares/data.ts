@@ -342,20 +342,40 @@ export async function listFolderArchiveFiles(
 
   const root = normalizeFolderPath(share.folder_path);
   const path = normalizeRelativePublicPath(root, requestedPath);
+  const maxFiles = boundedPositiveInteger(
+    process.env.SHARE_ARCHIVE_MAX_FILES,
+    25,
+    1,
+    100,
+  );
+  const maxBytes = boundedPositiveInteger(
+    process.env.SHARE_ARCHIVE_MAX_BYTES,
+    64 * 1024 * 1024,
+    1024 * 1024,
+    250 * 1024 * 1024,
+  );
+
   let query = admin
     .from("important_files")
     .select("id,file_path,original_filename,file_size,folder_path")
     .eq("owner_id", share.owner_id)
     .eq("status", "active")
     .or(`folder_path.eq.${escapePostgrestValue(path)},folder_path.like.${escapePostgrestValue(`${path}/%`)}`)
-    .limit(101);
+    .limit(maxFiles + 1);
   if (selectedIds.length) query = query.in("id", selectedIds);
 
   const { data, error } = await query;
   if (error) throw new ShareRequestError(error.message, 500);
-  const files = (data ?? [])
-    .filter((file) => Boolean(file.file_path))
-    .slice(0, 100)
+  const availableFiles = (data ?? []).filter((file) => Boolean(file.file_path));
+  if (availableFiles.length > maxFiles) {
+    throw new ShareRequestError(
+      `Select ${maxFiles} files or fewer for one ZIP download.`,
+      413,
+    );
+  }
+
+  const files = availableFiles
+    .slice(0, maxFiles)
     .map((file) => ({
       id: Number(file.id),
       file_path: String(file.file_path),
@@ -366,9 +386,9 @@ export async function listFolderArchiveFiles(
   if (!files.length) throw new ShareRequestError("No files were selected.", 404);
 
   const totalBytes = files.reduce((sum, file) => sum + file.file_size, 0);
-  if (totalBytes > 250 * 1024 * 1024) {
+  if (totalBytes > maxBytes) {
     throw new ShareRequestError(
-      "The ZIP selection is larger than 250 MB. Download fewer files at a time.",
+      `The ZIP selection is larger than ${formatByteLimit(maxBytes)}. Download fewer files at a time.`,
       413,
     );
   }
@@ -465,6 +485,24 @@ function buildPublicBreadcrumbs(
     });
   }
   return crumbs;
+}
+
+function boundedPositiveInteger(
+  value: string | undefined,
+  fallback: number,
+  minimum: number,
+  maximum: number,
+): number {
+  const parsed = Number.parseInt(String(value ?? ""), 10);
+  if (!Number.isSafeInteger(parsed)) return fallback;
+  return Math.min(maximum, Math.max(minimum, parsed));
+}
+
+function formatByteLimit(bytes: number): string {
+  const megabytes = bytes / 1024 / 1024;
+  return megabytes >= 1024
+    ? `${(megabytes / 1024).toFixed(1)} GB`
+    : `${Math.round(megabytes)} MB`;
 }
 
 function escapePostgrestValue(value: string): string {

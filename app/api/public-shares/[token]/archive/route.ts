@@ -4,12 +4,19 @@ import {
   consumeShareDownload,
   listFolderArchiveFiles,
 } from "@/lib/shares/data";
-import { recordShareEvent, shareErrorResponse } from "@/lib/shares/server";
+import {
+  recordShareEvent,
+  requestSessionHash,
+  shareErrorResponse,
+  ShareRequestError,
+} from "@/lib/shares/server";
 import { createZipBuffer } from "@/lib/shares/zip";
 import { getFilesBucket } from "@/lib/supabase/admin";
+import { consumeRateLimit, rateLimitValue } from "@/lib/maintenance/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 export async function GET(
   request: Request,
@@ -75,6 +82,19 @@ async function createArchive(
       path,
       fileIds,
     );
+    const archiveRate = await consumeRateLimit(
+      admin,
+      `${share.id}:${requestSessionHash(request)}`,
+      "public-share-archive",
+      rateLimitValue("SHARE_ARCHIVE_RATE_LIMIT", 5),
+      3600,
+    );
+    if (!archiveRate.allowed) {
+      throw new ShareRequestError(
+        `Too many ZIP requests. Try again in ${archiveRate.retryAfterSeconds} seconds.`,
+        429,
+      );
+    }
     const rootPrefix = path ? `${path.replace(/\/$/, "")}/` : "";
     const entries = [];
     const usedNames = new Set<string>();

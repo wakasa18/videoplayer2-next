@@ -47,6 +47,7 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
 
+  const isApiRequest = request.nextUrl.pathname.startsWith("/api/");
   const isPublicShare =
     request.nextUrl.pathname.startsWith("/share/") ||
     request.nextUrl.pathname.startsWith("/api/public-shares/");
@@ -56,6 +57,7 @@ export async function updateSession(request: NextRequest) {
   if (
     request.nextUrl.pathname !== "/" &&
     !user &&
+    !isApiRequest &&
     !isPublicShare &&
     !isPublicHealth &&
     !isPublicMetadata &&
