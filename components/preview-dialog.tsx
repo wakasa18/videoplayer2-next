@@ -37,7 +37,7 @@ export function PreviewDialog({ file, open, onClose }: PreviewDialogProps) {
     <AnimatePresence>
       {open ? (
         <motion.div
-          className="fixed inset-0 z-[100] grid place-items-center bg-[#050814]/70 p-3 backdrop-blur-md sm:p-6"
+          className="fixed inset-0 z-[100] grid place-items-center bg-[#020611]/76 p-3 backdrop-blur-md sm:p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -49,18 +49,14 @@ export function PreviewDialog({ file, open, onClose }: PreviewDialogProps) {
             role="dialog"
             aria-modal="true"
             aria-label={`Preview ${file.title}`}
-            className="astro-panel aurora-border flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-[28px]"
-            initial={{ opacity: 0, y: 24, scale: 0.975 }}
+            className="tech-panel flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-[1.4rem]"
+            initial={{ opacity: 0, y: 18, scale: 0.985 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 18, scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 320, damping: 30 }}
+            exit={{ opacity: 0, y: 14, scale: 0.988 }}
+            transition={{ type: "spring", stiffness: 340, damping: 30 }}
           >
             <header className="flex items-center gap-3 border-b border-white/10 px-4 py-3 sm:px-5">
-              <FileTypeIcon
-                file={file}
-                className="size-10 rounded-xl"
-                iconClassName="size-5"
-              />
+              <FileTypeIcon file={file} className="size-10 rounded-xl" iconClassName="size-5" />
               <div className="min-w-0 flex-1">
                 <h2 className="truncate text-sm font-semibold text-slate-50 sm:text-base">
                   {file.title}
@@ -71,21 +67,21 @@ export function PreviewDialog({ file, open, onClose }: PreviewDialogProps) {
               </div>
               <Link
                 href={`/dashboard/files/${file.id}`}
-                className="hidden size-10 place-items-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 sm:grid"
+                className="tech-interactive hidden size-10 place-items-center rounded-xl border border-white/10 bg-white/[0.045] text-slate-300 hover:bg-white/[0.075] sm:grid"
                 aria-label="Open file details"
               >
                 <ExternalLink className="size-5" aria-hidden="true" />
               </Link>
               <a
                 href={`/api/files/${file.id}/download`}
-                className="grid size-10 place-items-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10"
+                className="tech-interactive grid size-10 place-items-center rounded-xl border border-white/10 bg-white/[0.045] text-slate-300 hover:bg-white/[0.075]"
                 aria-label="Download file"
               >
                 <Download className="size-5" aria-hidden="true" />
               </a>
               <button
                 type="button"
-                className="grid size-10 place-items-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10"
+                className="tech-interactive grid size-10 place-items-center rounded-xl border border-white/10 bg-white/[0.045] text-slate-300 hover:bg-white/[0.075]"
                 onClick={onClose}
                 aria-label="Close preview"
               >
@@ -93,7 +89,7 @@ export function PreviewDialog({ file, open, onClose }: PreviewDialogProps) {
               </button>
             </header>
 
-            <div className="min-h-0 flex-1 bg-[#08101f]/85 p-2 sm:p-4">
+            <div className="min-h-0 flex-1 bg-[#050b15]/86 p-2 sm:p-4">
               <FilePreview file={file} compact />
             </div>
           </motion.section>

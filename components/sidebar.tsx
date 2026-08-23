@@ -7,8 +7,8 @@ import {
   FolderOpen,
   Home,
   Link2,
-  Orbit,
   Plus,
+  RadioTower,
   Rocket,
   Settings,
   ShieldCheck,
@@ -16,6 +16,7 @@ import {
   Wrench,
   Video,
   X,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,21 +25,9 @@ import type { WorkspaceDefaultModule } from "@/lib/workspace/types";
 
 const links = [
   { href: "/dashboard", label: "Home", icon: Home, exact: true },
-  {
-    href: "/dashboard/files",
-    label: "Important Files",
-    icon: FolderOpen,
-  },
-  {
-    href: "/dashboard/files/shares",
-    label: "Shared links",
-    icon: Link2,
-  },
-  {
-    href: "/dashboard/assignments",
-    label: "Assignments",
-    icon: ClipboardList,
-  },
+  { href: "/dashboard/files", label: "Important Files", icon: FolderOpen },
+  { href: "/dashboard/files/shares", label: "Shared links", icon: Link2 },
+  { href: "/dashboard/assignments", label: "Assignments", icon: ClipboardList },
   {
     href: "/dashboard/assignments/productivity",
     label: "Productivity",
@@ -75,66 +64,63 @@ export function Sidebar({
       : fileArea
         ? { href: "/dashboard/files", label: "Open files", icon: Plus }
         : preferred;
-  const quickHref = contextual.href;
   const QuickIcon = contextual.icon;
-  const quickLabel = contextual.label;
 
   return (
     <aside
       className={
         mobile
-          ? "flex h-full w-full flex-col bg-[#090d1d]/95 text-slate-100"
-          : "astro-panel sticky top-20 hidden h-[calc(100vh-5rem)] w-72 shrink-0 flex-col rounded-[1.75rem] px-4 py-5 lg:flex"
+          ? "flex h-full w-full flex-col bg-[#07101d]/98 text-slate-100"
+          : "tech-panel sticky top-[5.7rem] hidden h-[calc(100vh-6.6rem)] w-[17rem] shrink-0 flex-col rounded-[1.35rem] px-3 py-4 lg:flex"
       }
     >
-      {mobile && (
+      {mobile ? (
         <div className="flex h-16 items-center justify-between border-b border-white/10 px-4">
           <div>
-            <strong className="astro-title text-base font-semibold">Damon&apos;s Archive</strong>
-            <p className="astro-soft-text text-xs">Astronomy workspace</p>
+            <strong className="tech-title text-base font-semibold">Damon&apos;s Archive</strong>
+            <p className="mt-0.5 text-[10px] uppercase tracking-[0.15em] text-cyan-200/55">
+              Command navigation
+            </p>
           </div>
           <button
             type="button"
             aria-label="Close navigation"
             onClick={onNavigate}
-            className="grid size-10 place-items-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10"
+            className="tech-interactive grid size-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10"
           >
             <X className="size-5" aria-hidden="true" />
           </button>
         </div>
-      )}
+      ) : null}
 
-      <div className="mb-4 px-2">
-        <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-4 shadow-[0_10px_30px_rgba(2,6,23,0.25)]">
-          <div className="mb-3 flex items-center gap-3">
-            <span className="grid size-11 place-items-center rounded-2xl bg-[linear-gradient(135deg,rgba(83,223,255,0.9),rgba(144,101,255,0.95))] text-slate-950 shadow-[0_10px_24px_rgba(56,189,248,0.2)]">
-              <Orbit className="size-5" aria-hidden="true" />
+      <div className="px-1 pb-3">
+        <div className="relative overflow-hidden rounded-[1.15rem] border border-cyan-300/15 bg-[linear-gradient(140deg,rgba(25,55,88,0.8),rgba(19,28,49,0.75))] p-3.5 shadow-[0_12px_28px_rgba(0,9,25,0.25)]">
+          <div className="tech-scanline" aria-hidden="true" />
+          <div className="relative flex items-center gap-3">
+            <span className="grid size-10 place-items-center rounded-xl border border-cyan-200/20 bg-cyan-300/10 text-cyan-200">
+              <RadioTower className="size-5" aria-hidden="true" />
             </span>
-            <div>
-              <p className="astro-title text-sm font-semibold">Astral Launch</p>
-              <p className="text-xs text-slate-300/70">Explore your galaxy of content</p>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-slate-100">Quick command</p>
+              <p className="truncate text-xs text-slate-400">Open your active workspace</p>
             </div>
           </div>
           <Link
-            href={quickHref}
+            href={contextual.href}
             onClick={onNavigate}
-            className="starlight-hover flex min-h-14 items-center gap-3 rounded-2xl border border-cyan-300/20 bg-[linear-gradient(135deg,rgba(99,223,255,0.16),rgba(122,92,255,0.16))] px-4 text-sm font-semibold text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+            className="tech-interactive relative mt-3 flex min-h-12 items-center gap-3 rounded-xl border border-cyan-300/20 bg-cyan-300/[0.08] px-3.5 text-sm font-semibold text-cyan-100 hover:bg-cyan-300/[0.12]"
           >
-            <QuickIcon className="size-5 text-cyan-200" aria-hidden="true" />
-            {quickLabel}
+            <QuickIcon className="size-4.5 text-cyan-200" aria-hidden="true" />
+            {contextual.label}
           </Link>
         </div>
       </div>
 
-      <nav
-        className="space-y-1 overflow-y-auto px-2 py-1"
-        aria-label="Dashboard navigation"
-      >
+      <nav className="space-y-1 overflow-y-auto px-1 py-1" aria-label="Dashboard navigation">
         {links.map(({ href, label, icon: Icon, exact }) => {
           const active =
             href === "/dashboard/files"
-              ? pathname.startsWith(href) &&
-                !pathname.startsWith("/dashboard/files/shares")
+              ? pathname.startsWith(href) && !pathname.startsWith("/dashboard/files/shares")
               : href === "/dashboard/assignments"
                 ? pathname.startsWith(href) &&
                   !pathname.startsWith("/dashboard/assignments/productivity")
@@ -148,25 +134,34 @@ export function Sidebar({
               href={href}
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
-              className={`group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all ${
+              className={`group relative flex items-center gap-3 rounded-xl border px-3.5 py-2.5 text-sm font-medium transition-all ${
                 active
-                  ? "border border-cyan-300/20 bg-[linear-gradient(135deg,rgba(74,222,255,0.16),rgba(168,85,247,0.14))] text-cyan-100 shadow-[0_10px_24px_rgba(14,165,233,0.12)]"
-                  : "border border-transparent text-slate-300 hover:border-white/10 hover:bg-white/5 hover:text-white"
+                  ? "border-cyan-300/20 bg-[linear-gradient(90deg,rgba(38,210,255,0.15),rgba(81,101,255,0.11))] text-cyan-50 shadow-[0_8px_20px_rgba(0,120,255,0.1)]"
+                  : "border-transparent text-slate-300 hover:border-white/10 hover:bg-white/[0.045] hover:text-white"
               }`}
             >
-              <Icon className={`size-5 ${active ? "text-cyan-200" : "text-slate-400 group-hover:text-cyan-200"}`} aria-hidden="true" />
+              {active ? (
+                <span className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(63,224,255,0.8)]" />
+              ) : null}
+              <Icon
+                className={`size-4.5 ${active ? "text-cyan-200" : "text-slate-500 group-hover:text-cyan-200"}`}
+                aria-hidden="true"
+              />
               <span>{label}</span>
             </Link>
           );
         })}
       </nav>
 
-      <div className="mt-auto px-4 pb-2 pt-5 text-xs leading-5 text-slate-400/80">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-          <div className="astro-title text-xs font-semibold uppercase tracking-[0.24em]">
-            Space status
+      <div className="mt-auto px-1 pt-4">
+        <div className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+            <span className="tech-status-dot size-2 rounded-full bg-emerald-400" />
+            System online
           </div>
-          <p className="mt-2 text-slate-300/70">Next.js production workspace · Phase 10</p>
+          <div className="mt-2 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-slate-500">
+            <Zap className="size-3 text-cyan-300" /> Phase 10 production
+          </div>
         </div>
       </div>
     </aside>
@@ -174,17 +169,11 @@ export function Sidebar({
 }
 
 function quickActionFor(module: WorkspaceDefaultModule) {
-  if (module === "home") {
-    return { href: "/dashboard", label: "Open dashboard", icon: Home };
-  }
+  if (module === "home") return { href: "/dashboard", label: "Open dashboard", icon: Home };
   if (module === "assignments") {
     return { href: "/dashboard/assignments", label: "Open assignments", icon: ClipboardList };
   }
-  if (module === "videos") {
-    return { href: "/dashboard/videos", label: "Open video library", icon: Video };
-  }
-  if (module === "activity") {
-    return { href: "/dashboard/activity", label: "Review activity", icon: Activity };
-  }
+  if (module === "videos") return { href: "/dashboard/videos", label: "Open video library", icon: Video };
+  if (module === "activity") return { href: "/dashboard/activity", label: "Review activity", icon: Activity };
   return { href: "/dashboard/files", label: "Open files", icon: FolderOpen };
 }
