@@ -28,16 +28,16 @@ export default function GlobalError({
     <html lang="en">
       <body className="high-tech-theme m-0 min-h-screen bg-[#07101d] font-sans text-slate-100">
         <main className="grid min-h-screen place-items-center p-6">
-          <section className="w-full max-w-xl rounded-[28px] border border-[#f3c7c3] bg-white p-8 text-center shadow-sm">
-            <div className="mx-auto grid size-16 place-items-center rounded-full bg-[#fce8e6] text-3xl text-[#b3261e]">!</div>
+          <section className="w-full max-w-xl rounded-[28px] border border-red-300/25 bg-white/[0.045] p-8 text-center shadow-sm">
+            <div className="mx-auto grid size-16 place-items-center rounded-full bg-red-400/10 text-3xl text-red-300">!</div>
             <h1 className="mt-5 text-2xl font-semibold">Something went wrong</h1>
-            <p className="mt-3 text-sm leading-6 text-[#5f6368]">
+            <p className="mt-3 text-sm leading-6 text-slate-400">
               The error was reported to the private production system log. Retry the page, or open System Check after signing in.
             </p>
             <button
               type="button"
               onClick={reset}
-              className="mt-6 rounded-full bg-[#1a73e8] px-6 py-3 text-sm font-semibold text-white"
+              className="mt-6 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-6 py-3 text-sm font-semibold text-white"
             >
               Try again
             </button>

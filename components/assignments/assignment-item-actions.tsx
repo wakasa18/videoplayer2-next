@@ -57,14 +57,14 @@ export function AssignmentItemActions({
             event.stopPropagation();
             setOpen((value) => !value);
           }}
-          className="grid size-10 place-items-center rounded-full text-[#5f6368] transition hover:bg-[#f1f3f4]"
+          className="grid size-10 place-items-center rounded-full text-slate-400 transition hover:bg-white/[0.06]"
           aria-label={`Actions for ${assignment.title}`}
           aria-expanded={open}
         >
           <MoreVertical className="size-5" />
         </button>
         {open ? (
-          <div className="absolute right-0 top-11 z-30 w-52 rounded-2xl border border-[#e1e5ea] bg-white p-2 shadow-xl">
+          <div className="absolute right-0 top-11 z-30 w-52 rounded-2xl border border-white/10 bg-white/[0.045] p-2 shadow-xl">
             <MenuButton icon={Pencil} label="Edit" onClick={() => { setEditing(true); setOpen(false); }} />
             <MenuButton icon={CircleDot} label="Mark in progress" onClick={() => run("status", "in_progress")} disabled={busy} />
             <MenuButton icon={CheckCircle2} label="Mark done" onClick={() => run("status", "done")} disabled={busy} />
@@ -96,7 +96,7 @@ function MenuButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium transition hover:bg-[#f1f3f4] disabled:opacity-50 ${danger ? "text-[#c5221f]" : "text-[#3c4043]"}`}
+      className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium transition hover:bg-white/[0.06] disabled:opacity-50 ${danger ? "text-red-300" : "text-slate-200"}`}
     >
       <Icon className="size-4" />
       {label}

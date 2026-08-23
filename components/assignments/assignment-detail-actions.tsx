@@ -55,13 +55,13 @@ export function AssignmentDetailActions({ assignment, subjects }: { assignment: 
 
   return <>
     <div className="flex flex-wrap items-center gap-2">
-      <button type="button" onClick={() => setEditing(true)} className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#1a73e8] px-4 text-sm font-semibold text-white hover:bg-[#1557b0]"><Pencil className="size-4" />Edit</button>
-      <button type="button" onClick={() => run("status", "in_progress")} disabled={busy} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#dadce0] bg-white px-4 text-sm font-semibold text-[#3c4043] hover:bg-[#f8f9fa]"><CircleDot className="size-4" />In progress</button>
-      <button type="button" onClick={() => run("status", "done")} disabled={busy} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#cee9d4] bg-white px-4 text-sm font-semibold text-[#137333] hover:bg-[#e6f4ea]"><CheckCircle2 className="size-4" />Done</button>
-      <button type="button" onClick={() => snooze(60)} disabled={busy || assignment.status === "done" || assignment.status === "submitted"} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#d2e3fc] bg-white px-4 text-sm font-semibold text-[#1967d2] hover:bg-[#e8f0fe] disabled:opacity-50"><AlarmClock className="size-4" />Snooze 1 hour</button>
-      <button type="button" onClick={() => run("archive")} disabled={busy} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#dadce0] bg-white px-4 text-sm font-semibold text-[#3c4043] hover:bg-[#f8f9fa]"><Archive className="size-4" />Archive</button>
-      <button type="button" onClick={() => run("trash")} disabled={busy} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#f6c7c3] bg-white px-4 text-sm font-semibold text-[#c5221f] hover:bg-[#fce8e6]"><Trash2 className="size-4" />Recycle</button>
-      {busy ? <Loader2 className="size-4 animate-spin text-[#1967d2]" /> : null}
+      <button type="button" onClick={() => setEditing(true)} className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-4 text-sm font-semibold text-white hover:brightness-110"><Pencil className="size-4" />Edit</button>
+      <button type="button" onClick={() => run("status", "in_progress")} disabled={busy} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 text-sm font-semibold text-slate-200 hover:bg-white/[0.06]"><CircleDot className="size-4" />In progress</button>
+      <button type="button" onClick={() => run("status", "done")} disabled={busy} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-emerald-300/20 bg-white/[0.045] px-4 text-sm font-semibold text-emerald-300 hover:bg-emerald-400/10"><CheckCircle2 className="size-4" />Done</button>
+      <button type="button" onClick={() => snooze(60)} disabled={busy || assignment.status === "done" || assignment.status === "submitted"} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-cyan-300/20 bg-white/[0.045] px-4 text-sm font-semibold text-cyan-300 hover:bg-cyan-400/10 disabled:opacity-50"><AlarmClock className="size-4" />Snooze 1 hour</button>
+      <button type="button" onClick={() => run("archive")} disabled={busy} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 text-sm font-semibold text-slate-200 hover:bg-white/[0.06]"><Archive className="size-4" />Archive</button>
+      <button type="button" onClick={() => run("trash")} disabled={busy} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-red-300/25 bg-white/[0.045] px-4 text-sm font-semibold text-red-300 hover:bg-red-400/10"><Trash2 className="size-4" />Recycle</button>
+      {busy ? <Loader2 className="size-4 animate-spin text-cyan-300" /> : null}
     </div>
     <AssignmentEditorDialog open={editing} assignment={assignment} subjects={subjects} onClose={() => setEditing(false)} />
   </>;

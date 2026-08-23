@@ -316,7 +316,7 @@ export function UploadDialog({
     <AnimatePresence>
       {open ? (
         <motion.div
-          className="fixed inset-0 z-[100] grid place-items-center bg-[#202124]/45 p-3 backdrop-blur-[3px] sm:p-5"
+          className="fixed inset-0 z-[100] grid place-items-center bg-[#020611]/75 p-3 backdrop-blur-[3px] sm:p-5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -328,16 +328,16 @@ export function UploadDialog({
             role="dialog"
             aria-modal="true"
             aria-labelledby="upload-dialog-title"
-            className="flex max-h-[94vh] w-full max-w-3xl flex-col overflow-hidden rounded-[30px] border border-[#dadce0] bg-white shadow-[0_20px_60px_rgba(32,33,36,.28)]"
+            className="flex max-h-[94vh] w-full max-w-3xl flex-col overflow-hidden rounded-[30px] border border-white/10 bg-[#0b1220]/95 shadow-[0_24px_70px_rgba(0,4,14,0.6)] backdrop-blur-2xl"
             initial={{ opacity: 0, y: 22, scale: 0.965 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 14, scale: 0.975 }}
             transition={{ type: "spring", stiffness: 320, damping: 28 }}
           >
-            <header className="flex items-start justify-between gap-4 border-b border-[#eef1f3] px-5 py-4 sm:px-6">
+            <header className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-4 sm:px-6">
               <div className="flex min-w-0 items-center gap-3">
                 <motion.span
-                  className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2]"
+                  className="grid size-11 shrink-0 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300"
                   animate={uploading ? { y: [0, -2, 0] } : { y: 0 }}
                   transition={{ repeat: uploading ? Infinity : 0, duration: 1.5 }}
                 >
@@ -348,17 +348,17 @@ export function UploadDialog({
                   )}
                 </motion.span>
                 <div className="min-w-0">
-                  <h2 id="upload-dialog-title" className="text-lg font-semibold text-[#202124]">
+                  <h2 id="upload-dialog-title" className="text-lg font-semibold text-slate-100">
                     {mode === "folder" ? "Upload a folder" : "Upload files"}
                   </h2>
-                  <p className="mt-1 truncate text-xs text-[#80868b]">
+                  <p className="mt-1 truncate text-xs text-slate-400">
                     Destination: {currentFolder || "Important Files"}
                   </p>
                 </div>
               </div>
               <button
                 type="button"
-                className="grid size-10 shrink-0 place-items-center rounded-full text-[#5f6368] transition hover:bg-[#f1f3f4] disabled:opacity-40"
+                className="grid size-10 shrink-0 place-items-center rounded-full text-slate-400 transition hover:bg-white/[0.06] disabled:opacity-40"
                 aria-label="Close"
                 disabled={uploading}
                 onClick={closeDialog}
@@ -398,25 +398,25 @@ export function UploadDialog({
                   }}
                   className={`group grid min-h-64 w-full place-items-center rounded-[26px] border-2 border-dashed p-8 text-center transition duration-200 ${
                     dragging
-                      ? "scale-[1.01] border-[#1a73e8] bg-[#e8f0fe]"
-                      : "border-[#c6dafc] bg-[#f8fbff] hover:border-[#8ab4f8] hover:bg-[#f4f8ff]"
+                      ? "scale-[1.01] border-cyan-300/40 bg-cyan-400/10"
+                      : "border-cyan-300/20 bg-white/[0.04] hover:border-cyan-300/40 hover:bg-white/[0.04]"
                   }`}
                   animate={dragging ? { scale: 1.01 } : { scale: 1 }}
                 >
                   <span>
-                    <span className="mx-auto grid size-16 place-items-center rounded-[22px] bg-white text-[#1967d2] shadow-sm transition duration-200 group-hover:-translate-y-1 group-hover:shadow-md">
+                    <span className="mx-auto grid size-16 place-items-center rounded-[22px] bg-white/[0.045] text-cyan-300 shadow-sm transition duration-200 group-hover:-translate-y-1 group-hover:shadow-md">
                       {mode === "folder" ? (
                         <FolderUp className="size-7" aria-hidden="true" />
                       ) : (
                         <Upload className="size-7" aria-hidden="true" />
                       )}
                     </span>
-                    <strong className="mt-5 block text-base font-semibold text-[#202124]">
+                    <strong className="mt-5 block text-base font-semibold text-slate-100">
                       {mode === "folder"
                         ? "Choose a folder to upload"
                         : "Choose files or drag them here"}
                     </strong>
-                    <span className="mt-2 block text-sm leading-6 text-[#5f6368]">
+                    <span className="mt-2 block text-sm leading-6 text-slate-400">
                       Up to {MAX_BATCH_FILES} files per batch · {formatBytes(maxUploadBytes)} per file
                     </span>
                   </span>
@@ -424,7 +424,7 @@ export function UploadDialog({
               ) : (
                 <>
                   <div className="grid gap-4 sm:grid-cols-3">
-                    <label className="grid gap-2 text-xs font-semibold text-[#5f6368]">
+                    <label className="grid gap-2 text-xs font-semibold text-slate-400">
                       Category
                       <input
                         list="upload-category-options"
@@ -433,7 +433,7 @@ export function UploadDialog({
                         disabled={uploading}
                         onChange={(event) => setCategory(event.target.value)}
                         placeholder="Optional"
-                        className="min-h-11 rounded-xl border border-[#dadce0] px-3 text-sm font-medium text-[#202124] outline-none transition focus:border-[#8ab4f8] focus:ring-4 focus:ring-[#e8f0fe] disabled:bg-[#f8f9fa]"
+                        className="min-h-11 rounded-xl border border-white/10 px-3 text-sm font-medium text-slate-100 outline-none transition focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15 disabled:bg-white/[0.035]"
                       />
                       <datalist id="upload-category-options">
                         {categories.map((item) => (
@@ -441,17 +441,17 @@ export function UploadDialog({
                         ))}
                       </datalist>
                     </label>
-                    <label className="grid gap-2 text-xs font-semibold text-[#5f6368]">
+                    <label className="grid gap-2 text-xs font-semibold text-slate-400">
                       Document date
                       <input
                         type="date"
                         value={documentDate}
                         disabled={uploading}
                         onChange={(event) => setDocumentDate(event.target.value)}
-                        className="min-h-11 rounded-xl border border-[#dadce0] px-3 text-sm font-medium text-[#202124] outline-none transition focus:border-[#8ab4f8] focus:ring-4 focus:ring-[#e8f0fe] disabled:bg-[#f8f9fa]"
+                        className="min-h-11 rounded-xl border border-white/10 px-3 text-sm font-medium text-slate-100 outline-none transition focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15 disabled:bg-white/[0.035]"
                       />
                     </label>
-                    <label className="grid gap-2 text-xs font-semibold text-[#5f6368] sm:col-span-1">
+                    <label className="grid gap-2 text-xs font-semibold text-slate-400 sm:col-span-1">
                       Description
                       <input
                         maxLength={5000}
@@ -459,18 +459,18 @@ export function UploadDialog({
                         disabled={uploading}
                         onChange={(event) => setDescription(event.target.value)}
                         placeholder="Applied to all files"
-                        className="min-h-11 rounded-xl border border-[#dadce0] px-3 text-sm font-medium text-[#202124] outline-none transition focus:border-[#8ab4f8] focus:ring-4 focus:ring-[#e8f0fe] disabled:bg-[#f8f9fa]"
+                        className="min-h-11 rounded-xl border border-white/10 px-3 text-sm font-medium text-slate-100 outline-none transition focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15 disabled:bg-white/[0.035]"
                       />
                     </label>
                   </div>
 
-                  <div className="mt-5 overflow-hidden rounded-[22px] border border-[#e1e5ea]">
-                    <div className="flex items-center justify-between gap-3 bg-[#f8f9fa] px-4 py-3">
+                  <div className="mt-5 overflow-hidden rounded-[22px] border border-white/10">
+                    <div className="flex items-center justify-between gap-3 bg-white/[0.035] px-4 py-3">
                       <div>
-                        <strong className="text-sm font-semibold text-[#202124]">
+                        <strong className="text-sm font-semibold text-slate-100">
                           {queue.length} file{queue.length === 1 ? "" : "s"}
                         </strong>
-                        <span className="ml-2 text-xs text-[#80868b]">
+                        <span className="ml-2 text-xs text-slate-400">
                           {formatBytes(totalBytes)}
                         </span>
                       </div>
@@ -478,14 +478,14 @@ export function UploadDialog({
                         <button
                           type="button"
                           onClick={() => inputRef.current?.click()}
-                          className="rounded-full px-3 py-1.5 text-xs font-semibold text-[#1967d2] transition hover:bg-[#e8f0fe]"
+                          className="rounded-full px-3 py-1.5 text-xs font-semibold text-cyan-300 transition hover:bg-cyan-400/10"
                         >
                           Replace selection
                         </button>
                       ) : null}
                     </div>
 
-                    <div className="max-h-72 divide-y divide-[#eef1f3] overflow-y-auto">
+                    <div className="max-h-72 divide-y divide-white/10 overflow-y-auto">
                       <AnimatePresence initial={false}>
                         {queue.map((item) => (
                           <QueueRow key={item.id} item={item} />
@@ -495,20 +495,20 @@ export function UploadDialog({
                   </div>
 
                   {uploading || completeCount || failedCount ? (
-                    <div className="mt-5 rounded-[20px] border border-[#d2e3fc] bg-[#f8fbff] p-4">
+                    <div className="mt-5 rounded-[20px] border border-cyan-300/20 bg-white/[0.04] p-4">
                       <div className="flex items-center justify-between gap-3 text-sm">
-                        <strong className="text-[#202124]">
+                        <strong className="text-slate-100">
                           {uploading
                             ? `Uploading ${completeCount + 1} of ${queue.length}`
                             : `${completeCount} completed${failedCount ? ` · ${failedCount} failed` : ""}`}
                         </strong>
-                        <span className="font-semibold text-[#1967d2]">
+                        <span className="font-semibold text-cyan-300">
                           {overallProgress}%
                         </span>
                       </div>
-                      <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#dfe7f5]">
+                      <div className="mt-3 h-2 overflow-hidden rounded-full bg-cyan-400/10">
                         <motion.span
-                          className="block h-full rounded-full bg-[#1a73e8]"
+                          className="block h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]"
                           animate={{ width: `${overallProgress}%` }}
                           transition={{ type: "spring", stiffness: 150, damping: 24 }}
                         />
@@ -522,15 +522,15 @@ export function UploadDialog({
                 <motion.p
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mt-4 rounded-2xl border border-[#f6c7c3] bg-[#fce8e6] px-4 py-3 text-sm text-[#a50e0e]"
+                  className="mt-4 rounded-2xl border border-red-300/25 bg-red-400/10 px-4 py-3 text-sm text-red-300"
                 >
                   {globalError}
                 </motion.p>
               ) : null}
             </div>
 
-            <footer className="flex flex-col-reverse gap-2 border-t border-[#eef1f3] bg-[#fafbfc] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-              <p className="text-xs leading-5 text-[#80868b]">
+            <footer className="flex flex-col-reverse gap-2 border-t border-white/10 bg-white/[0.04] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+              <p className="text-xs leading-5 text-slate-400">
                 Duplicate names are kept as separate files with private unique storage paths.
               </p>
               <div className="flex shrink-0 justify-end gap-2">
@@ -538,7 +538,7 @@ export function UploadDialog({
                   <button
                     type="button"
                     onClick={retryFailed}
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#dadce0] bg-white px-4 text-sm font-semibold text-[#3c4043] transition hover:bg-[#f8f9fa]"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06]"
                   >
                     <RotateCcw className="size-4" aria-hidden="true" />
                     Retry failed
@@ -547,7 +547,7 @@ export function UploadDialog({
                 <button
                   type="button"
                   onClick={uploading ? cancelUpload : closeDialog}
-                  className="min-h-11 rounded-full border border-[#dadce0] bg-white px-5 text-sm font-semibold text-[#3c4043] transition hover:bg-[#f8f9fa]"
+                  className="min-h-11 rounded-full border border-white/10 bg-white/[0.045] px-5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06]"
                 >
                   {uploading ? "Cancel upload" : completeCount ? "Close" : "Cancel"}
                 </button>
@@ -556,14 +556,14 @@ export function UploadDialog({
                     type="button"
                     onClick={startUpload}
                     disabled={!queue.length}
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#1a73e8] px-5 text-sm font-semibold text-white transition hover:bg-[#1557b0] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <Upload className="size-4" aria-hidden="true" />
                     Upload {queue.length > 1 ? `${queue.length} files` : "file"}
                   </button>
                 ) : null}
                 {uploading ? (
-                  <span className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#e8f0fe] px-5 text-sm font-semibold text-[#1967d2]">
+                  <span className="inline-flex min-h-11 items-center gap-2 rounded-full bg-cyan-400/10 px-5 text-sm font-semibold text-cyan-300">
                     <Loader2 className="size-4 animate-spin" aria-hidden="true" />
                     Working
                   </span>
@@ -591,15 +591,15 @@ function QueueRow({ item }: { item: QueueItem }) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -12 }}
-      className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 bg-white px-4 py-3"
+      className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 bg-white/[0.045] px-4 py-3"
     >
       <span
         className={`grid size-10 place-items-center rounded-xl ${
           item.status === "complete"
-            ? "bg-[#e6f4ea] text-[#188038]"
+            ? "bg-emerald-400/10 text-emerald-300"
             : item.status === "error" || item.status === "cancelled"
-              ? "bg-[#fce8e6] text-[#d93025]"
-              : "bg-[#e8f0fe] text-[#1967d2]"
+              ? "bg-red-400/10 text-red-300"
+              : "bg-cyan-400/10 text-cyan-300"
         }`}
       >
         {item.status === "complete" ? (
@@ -614,32 +614,32 @@ function QueueRow({ item }: { item: QueueItem }) {
       </span>
       <div className="min-w-0">
         <div className="flex min-w-0 items-center gap-2">
-          <strong className="truncate text-sm font-semibold text-[#202124]">
+          <strong className="truncate text-sm font-semibold text-slate-100">
             {item.relativePath}
           </strong>
           {item.duplicate ? (
-            <span className="shrink-0 rounded-full bg-[#fef7e0] px-2 py-0.5 text-[10px] font-bold text-[#a15a00]">
+            <span className="shrink-0 rounded-full bg-amber-400/10 px-2 py-0.5 text-[10px] font-bold text-amber-300">
               Copy
             </span>
           ) : null}
         </div>
         <p
           className={`mt-1 truncate text-xs ${
-            item.error ? "text-[#c5221f]" : "text-[#80868b]"
+            item.error ? "text-red-300" : "text-slate-400"
           }`}
         >
           {item.error || `${formatBytes(item.file.size)} · ${status}`}
         </p>
         {item.status === "uploading" || item.status === "finalizing" ? (
-          <div className="mt-2 h-1 overflow-hidden rounded-full bg-[#e8eaed]">
+          <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/[0.08]">
             <motion.span
-              className="block h-full rounded-full bg-[#1a73e8]"
+              className="block h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]"
               animate={{ width: `${item.progress}%` }}
             />
           </div>
         ) : null}
       </div>
-      <span className="text-xs font-semibold text-[#5f6368]">
+      <span className="text-xs font-semibold text-slate-400">
         {item.status === "uploading" || item.status === "finalizing"
           ? `${item.progress}%`
           : status}

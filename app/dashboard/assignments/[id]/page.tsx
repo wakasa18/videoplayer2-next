@@ -59,14 +59,14 @@ export default async function AssignmentDetailsPage({ params }: AssignmentDetail
     <main className="space-y-5">
       <Link
         href="/dashboard/assignments"
-        className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-[#1967d2] transition hover:bg-[#e8f0fe]"
+        className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-cyan-300 transition hover:bg-cyan-400/10"
       >
         <ArrowLeft className="size-4" aria-hidden="true" />
         Back to assignments
       </Link>
 
       <section
-        className="overflow-hidden rounded-[28px] border border-[#e1e5ea] bg-white p-6 shadow-sm sm:p-8"
+        className="overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.045] p-6 shadow-sm sm:p-8"
         style={{ borderTopWidth: 5, borderTopColor: assignment.subject_color }}
       >
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -90,15 +90,15 @@ export default async function AssignmentDetailsPage({ params }: AssignmentDetail
                 {priorityLabel(assignment.priority)} priority
               </Badge>
             </div>
-            <h1 className="mt-5 text-3xl font-semibold tracking-[-.04em] text-[#202124] sm:text-4xl">
+            <h1 className="mt-5 text-3xl font-semibold tracking-[-.04em] text-slate-100 sm:text-4xl">
               {assignment.title}
             </h1>
             {assignment.description ? (
-              <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-[#5f6368] sm:text-base">
+              <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-slate-400 sm:text-base">
                 {assignment.description}
               </p>
             ) : (
-              <p className="mt-4 text-sm italic text-[#80868b]">No description provided.</p>
+              <p className="mt-4 text-sm italic text-slate-400">No description provided.</p>
             )}
             <div className="mt-5">
               <AssignmentDetailActions assignment={assignment} subjects={subjects} />
@@ -107,14 +107,14 @@ export default async function AssignmentDetailsPage({ params }: AssignmentDetail
           <div
             className={`min-w-[230px] rounded-[22px] border p-4 ${
               overdue
-                ? "border-[#f6c7c3] bg-[#fff7f6]"
-                : "border-[#d2e3fc] bg-[#f8fbff]"
+                ? "border-red-300/25 bg-red-400/10"
+                : "border-cyan-300/20 bg-white/[0.04]"
             }`}
           >
             <div className="flex items-center gap-3">
               <span
                 className={`grid size-11 place-items-center rounded-2xl ${
-                  overdue ? "bg-[#fce8e6] text-[#c5221f]" : "bg-[#e8f0fe] text-[#1967d2]"
+                  overdue ? "bg-red-400/10 text-red-300" : "bg-cyan-400/10 text-cyan-300"
                 }`}
               >
                 {assignment.due_time ? (
@@ -124,10 +124,10 @@ export default async function AssignmentDetailsPage({ params }: AssignmentDetail
                 )}
               </span>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[.08em] text-[#80868b]">
+                <p className="text-xs font-semibold uppercase tracking-[.08em] text-slate-400">
                   {overdue ? "Overdue" : "Deadline"}
                 </p>
-                <strong className={`mt-1 block text-sm ${overdue ? "text-[#c5221f]" : "text-[#202124]"}`}>
+                <strong className={`mt-1 block text-sm ${overdue ? "text-red-300" : "text-slate-100"}`}>
                   {formatAssignmentDue(assignment.due_date, assignment.due_time)}
                 </strong>
               </div>
@@ -136,13 +136,13 @@ export default async function AssignmentDetailsPage({ params }: AssignmentDetail
         </div>
 
         {assignment.subtask_total > 0 ? (
-          <div className="mt-7 border-t border-[#eef1f3] pt-5">
-            <div className="mb-2 flex items-center justify-between text-sm font-semibold text-[#5f6368]">
+          <div className="mt-7 border-t border-white/10 pt-5">
+            <div className="mb-2 flex items-center justify-between text-sm font-semibold text-slate-400">
               <span>{assignment.subtask_done} of {assignment.subtask_total} subtasks completed</span>
               <span>{progress}%</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-[#e8eaed]">
-              <span className="block h-full rounded-full bg-[#1a73e8]" style={{ width: `${progress}%` }} />
+            <div className="h-2 overflow-hidden rounded-full bg-white/[0.08]">
+              <span className="block h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]" style={{ width: `${progress}%` }} />
             </div>
           </div>
         ) : null}
@@ -196,7 +196,7 @@ export default async function AssignmentDetailsPage({ params }: AssignmentDetail
                 href={externalUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-[#d2e3fc] bg-[#e8f0fe] p-3.5 text-sm font-semibold text-[#1967d2] transition hover:bg-[#dbe8fd]"
+                className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-3.5 text-sm font-semibold text-cyan-300 transition hover:bg-cyan-400/10"
               >
                 <span className="inline-flex min-w-0 items-center gap-2">
                   <Link2 className="size-4 shrink-0" aria-hidden="true" />
@@ -224,16 +224,16 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[24px] border border-[#e1e5ea] bg-white p-5 shadow-sm">
+    <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm">
       <header className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="grid size-10 place-items-center rounded-2xl bg-[#f1f3f4] text-[#5f6368]">
+          <span className="grid size-10 place-items-center rounded-2xl bg-white/[0.05] text-slate-400">
             <Icon className="size-5" aria-hidden="true" />
           </span>
-          <h2 className="text-base font-semibold text-[#202124]">{title}</h2>
+          <h2 className="text-base font-semibold text-slate-100">{title}</h2>
         </div>
         {typeof count === "number" ? (
-          <span className="rounded-full bg-[#f1f3f4] px-3 py-1 text-xs font-semibold text-[#5f6368]">{count}</span>
+          <span className="rounded-full bg-white/[0.05] px-3 py-1 text-xs font-semibold text-slate-400">{count}</span>
         ) : null}
       </header>
       {children}
@@ -251,12 +251,12 @@ function InfoRow({
   icon?: typeof UserRound;
 }) {
   return (
-    <div className="rounded-2xl border border-[#e1e5ea] bg-[#f8f9fa] px-3.5 py-3">
-      <dt className="flex items-center gap-1.5 text-xs font-medium text-[#80868b]">
+    <div className="rounded-2xl border border-white/10 bg-white/[0.035] px-3.5 py-3">
+      <dt className="flex items-center gap-1.5 text-xs font-medium text-slate-400">
         {Icon ? <Icon className="size-3.5" aria-hidden="true" /> : null}
         {label}
       </dt>
-      <dd className="mt-1.5 break-words text-sm font-semibold text-[#3c4043]">{value}</dd>
+      <dd className="mt-1.5 break-words text-sm font-semibold text-slate-200">{value}</dd>
     </div>
   );
 }
@@ -269,11 +269,11 @@ function Badge({
   children: React.ReactNode;
 }) {
   const classes = {
-    blue: "bg-[#e8f0fe] text-[#1967d2]",
-    green: "bg-[#e6f4ea] text-[#137333]",
-    red: "bg-[#fce8e6] text-[#c5221f]",
-    amber: "bg-[#fef7e0] text-[#9a5b00]",
-    gray: "bg-[#f1f3f4] text-[#5f6368]",
+    blue: "bg-cyan-400/10 text-cyan-300",
+    green: "bg-emerald-400/10 text-emerald-300",
+    red: "bg-red-400/10 text-red-300",
+    amber: "bg-amber-400/10 text-amber-300",
+    gray: "bg-white/[0.05] text-slate-400",
   };
   return <span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${classes[tone]}`}>{children}</span>;
 }

@@ -98,7 +98,7 @@ export function AssignmentEditorDialog({
     <AnimatePresence>
       {open ? (
         <motion.div
-          className="fixed inset-0 z-[100] grid place-items-center bg-[#202124]/45 p-4 backdrop-blur-[2px]"
+          className="fixed inset-0 z-[100] grid place-items-center bg-[#020611]/75 p-4 backdrop-blur-[2px]"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           onMouseDown={(event) => {
             if (event.currentTarget === event.target && !submitting) onClose();
@@ -106,16 +106,16 @@ export function AssignmentEditorDialog({
         >
           <motion.form
             onSubmit={submit}
-            className="max-h-[94vh] w-full max-w-3xl overflow-auto rounded-[28px] border border-[#e1e5ea] bg-white shadow-2xl"
+            className="max-h-[94vh] w-full max-w-3xl overflow-auto rounded-[28px] border border-white/10 bg-white/[0.045] shadow-2xl"
             initial={{ opacity: 0, y: 18, scale: .97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: .98 }}
             transition={{ type: "spring", stiffness: 330, damping: 28 }}
           >
-            <header className="sticky top-0 z-10 flex items-start gap-4 border-b border-[#eef1f3] bg-white/95 p-5 backdrop-blur sm:p-6">
-              <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2]"><ClipboardPlus className="size-5" /></span>
-              <div className="min-w-0 flex-1"><h2 className="text-lg font-semibold text-[#202124]">{assignment ? "Edit assignment" : "New assignment"}</h2><p className="mt-1 text-sm text-[#80868b]">Manage the task, deadline, recurrence, subject, and reminder.</p></div>
-              <button type="button" onClick={onClose} disabled={submitting} className="grid size-10 place-items-center rounded-full text-[#5f6368] hover:bg-[#f1f3f4]"><X className="size-5" /><span className="sr-only">Close</span></button>
+            <header className="sticky top-0 z-10 flex items-start gap-4 border-b border-white/10 bg-[#0b1220]/95 p-5 backdrop-blur sm:p-6">
+              <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300"><ClipboardPlus className="size-5" /></span>
+              <div className="min-w-0 flex-1"><h2 className="text-lg font-semibold text-slate-100">{assignment ? "Edit assignment" : "New assignment"}</h2><p className="mt-1 text-sm text-slate-400">Manage the task, deadline, recurrence, subject, and reminder.</p></div>
+              <button type="button" onClick={onClose} disabled={submitting} className="grid size-10 place-items-center rounded-full text-slate-400 hover:bg-white/[0.06]"><X className="size-5" /><span className="sr-only">Close</span></button>
             </header>
 
             <div className="grid gap-4 p-5 sm:p-6 md:grid-cols-2">
@@ -129,14 +129,14 @@ export function AssignmentEditorDialog({
               <Field label="Reminder"><select value={reminderMinutes} onChange={(e) => setReminderMinutes(e.target.value)} className={inputClass}><option value="0">At deadline</option><option value="60">1 hour before</option><option value="180">3 hours before</option><option value="1440">1 day before</option><option value="2880">2 days before</option><option value="10080">1 week before</option></select></Field>
               <Field label="Custom reminder"><input type="datetime-local" value={customReminderAt} onChange={(e) => setCustomReminderAt(e.target.value)} className={inputClass} /></Field>
               <Field label="Repeat schedule"><select value={recurrence} onChange={(e) => setRecurrence(e.target.value)} className={inputClass}><option value="">Does not repeat</option><option value="daily">Daily</option><option value="weekdays">Every weekday</option><option value="weekly">Weekly</option><option value="biweekly">Every 2 weeks</option><option value="monthly">Monthly</option></select></Field>
-              <Field label="Repeat until"><input type="date" value={recurrenceUntil} onChange={(e) => setRecurrenceUntil(e.target.value)} disabled={!recurrence} className={`${inputClass} disabled:bg-[#f1f3f4] disabled:text-[#9aa0a6]`} /></Field>
+              <Field label="Repeat until"><input type="date" value={recurrenceUntil} onChange={(e) => setRecurrenceUntil(e.target.value)} disabled={!recurrence} className={`${inputClass} disabled:bg-white/[0.05] disabled:text-slate-500`} /></Field>
               <Field label="Reference link" className="md:col-span-2"><input type="url" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="https://..." maxLength={500} className={inputClass} /></Field>
-              {error ? <div role="alert" className="md:col-span-2 rounded-2xl border border-[#f6c7c3] bg-[#fce8e6] px-4 py-3 text-sm text-[#a50e0e]">{error}</div> : null}
+              {error ? <div role="alert" className="md:col-span-2 rounded-2xl border border-red-300/25 bg-red-400/10 px-4 py-3 text-sm text-red-300">{error}</div> : null}
             </div>
 
-            <footer className="sticky bottom-0 flex flex-col-reverse gap-2 border-t border-[#eef1f3] bg-white/95 p-5 backdrop-blur sm:flex-row sm:justify-end">
-              <button type="button" onClick={onClose} disabled={submitting} className="min-h-11 rounded-full border border-[#dadce0] px-5 text-sm font-semibold text-[#3c4043] hover:bg-[#f8f9fa]">Cancel</button>
-              <button type="submit" disabled={submitting} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#1a73e8] px-5 text-sm font-semibold text-white hover:bg-[#1557b0] disabled:opacity-60">{submitting ? <Loader2 className="size-4 animate-spin" /> : null}{assignment ? "Save changes" : "Create assignment"}</button>
+            <footer className="sticky bottom-0 flex flex-col-reverse gap-2 border-t border-white/10 bg-[#0b1220]/95 p-5 backdrop-blur sm:flex-row sm:justify-end">
+              <button type="button" onClick={onClose} disabled={submitting} className="min-h-11 rounded-full border border-white/10 px-5 text-sm font-semibold text-slate-200 hover:bg-white/[0.06]">Cancel</button>
+              <button type="submit" disabled={submitting} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-60">{submitting ? <Loader2 className="size-4 animate-spin" /> : null}{assignment ? "Save changes" : "Create assignment"}</button>
             </footer>
           </motion.form>
         </motion.div>
@@ -146,7 +146,7 @@ export function AssignmentEditorDialog({
 }
 
 function Field({ label, className = "", children }: { label: string; className?: string; children: React.ReactNode }) {
-  return <label className={`block ${className}`}><span className="mb-2 block text-xs font-semibold text-[#5f6368]">{label}</span>{children}</label>;
+  return <label className={`block ${className}`}><span className="mb-2 block text-xs font-semibold text-slate-400">{label}</span>{children}</label>;
 }
 
 function toLocalDateTime(value: string | null): string {
@@ -157,4 +157,4 @@ function toLocalDateTime(value: string | null): string {
   return new Date(date.getTime() - offset * 60_000).toISOString().slice(0, 16);
 }
 
-const inputClass = "min-h-11 w-full rounded-2xl border border-[#dadce0] bg-white px-4 text-sm text-[#202124] outline-none transition focus:border-[#8ab4f8] focus:ring-4 focus:ring-[#e8f0fe]";
+const inputClass = "min-h-11 w-full rounded-2xl border border-white/10 bg-white/[0.045] px-4 text-sm text-slate-100 outline-none transition focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15";

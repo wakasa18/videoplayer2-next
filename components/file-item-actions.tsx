@@ -52,21 +52,21 @@ export function FileItemActions({ file, onPreview }: FileItemActionsProps) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button type="button" className="grid size-9 place-items-center rounded-full text-[#5f6368] transition hover:bg-[#f1f3f4] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#e8f0fe]" aria-label={`Actions for ${file.title}`}>
+          <button type="button" className="grid size-9 place-items-center rounded-full text-slate-400 transition hover:bg-white/10 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/40" aria-label={`Actions for ${file.title}`}>
             <MoreVertical className="size-5" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56 rounded-2xl border-[#e1e5ea] bg-white p-2 shadow-xl">
+        <DropdownMenuContent align="end" className="w-56 rounded-2xl border-white/10 bg-[#0b1220]/95 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl">
           {onPreview ? <DropdownMenuItem onSelect={onPreview} className={itemClass}><Eye /> Preview</DropdownMenuItem> : null}
           <DropdownMenuItem asChild className={itemClass}><Link href={`/dashboard/files/${file.id}`}><Info /> Details</Link></DropdownMenuItem>
           <DropdownMenuItem asChild className={itemClass}><a href={`/api/files/${file.id}/download`}><Download /> Download</a></DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setShareOpen(true)} className={itemClass}><Share2 /> Share</DropdownMenuItem>
-          <DropdownMenuSeparator className="bg-[#eef1f3]" />
+          <DropdownMenuSeparator className="bg-white/10" />
           <DropdownMenuItem onSelect={() => setMode("edit")} className={itemClass}><FilePenLine /> Edit details</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setMode("move")} className={itemClass}><FolderInput /> Move</DropdownMenuItem>
-          <DropdownMenuItem disabled={busy} onSelect={() => void toggleFavorite()} className={itemClass}><Star className={file.is_favorite ? "fill-[#f9ab00] text-[#f9ab00]" : ""} /> {file.is_favorite ? "Remove from starred" : "Add to starred"}</DropdownMenuItem>
-          <DropdownMenuSeparator className="bg-[#eef1f3]" />
-          <DropdownMenuItem onSelect={() => setMode("trash")} className={`${itemClass} text-[#c5221f] focus:bg-[#fce8e6] focus:text-[#c5221f]`}><Trash2 /> Move to Recycle Bin</DropdownMenuItem>
+          <DropdownMenuItem disabled={busy} onSelect={() => void toggleFavorite()} className={itemClass}><Star className={file.is_favorite ? "fill-amber-300 text-amber-300" : ""} /> {file.is_favorite ? "Remove from starred" : "Add to starred"}</DropdownMenuItem>
+          <DropdownMenuSeparator className="bg-white/10" />
+          <DropdownMenuItem onSelect={() => setMode("trash")} className={`${itemClass} text-red-300 focus:bg-red-400/10 focus:text-red-200`}><Trash2 /> Move to Recycle Bin</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <FileManagementDialog file={file} mode={mode} onClose={() => setMode(null)} />
@@ -75,4 +75,4 @@ export function FileItemActions({ file, onPreview }: FileItemActionsProps) {
   );
 }
 
-const itemClass = "min-h-10 cursor-pointer rounded-xl px-3 text-sm text-[#3c4043] focus:bg-[#f1f3f4] focus:text-[#202124]";
+const itemClass = "min-h-10 cursor-pointer rounded-xl px-3 text-sm text-slate-300 transition-colors focus:bg-white/[0.07] focus:text-slate-100 [&_svg]:size-4 [&_svg]:text-slate-400 focus:[&_svg]:text-cyan-200";

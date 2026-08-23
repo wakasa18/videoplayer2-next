@@ -8,6 +8,7 @@ import {
   PlayCircle,
   RotateCcw,
 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState } from "react";
 
 import { normalizeVideoMimeType } from "@/lib/videos/utils";
@@ -249,19 +250,26 @@ export function VideoPlayer({
 
   if (error) {
     return (
-      <div className="grid min-h-[420px] place-items-center rounded-[24px] border border-[#f6c7c3] bg-[#fce8e6] p-6 text-center sm:p-8">
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        className="grid min-h-[420px] place-items-center rounded-[24px] border border-red-300/20 bg-[radial-gradient(circle_at_50%_0%,rgba(239,68,68,0.1),transparent_45%),linear-gradient(160deg,#1a0e10_0%,#0b0810_60%,#081321_100%)] p-6 text-center sm:p-8"
+      >
         <div className="max-w-2xl">
-          <AlertCircle className="mx-auto size-10 text-[#c5221f]" />
-          <h2 className="mt-4 font-semibold text-[#202124]">
+          <span className="mx-auto grid size-16 place-items-center rounded-full border border-red-300/25 bg-red-400/10">
+            <AlertCircle className="size-8 text-red-300" />
+          </span>
+          <h2 className="mt-4 font-semibold text-slate-100">
             {missingObject ? "Video file is missing" : "Video could not be played"}
           </h2>
-          <p className="mt-2 text-sm leading-6 text-[#5f6368]">{error}</p>
-          <p className="mt-2 break-all text-xs text-[#80868b]">
+          <p className="mt-2 text-sm leading-6 text-slate-400">{error}</p>
+          <p className="mt-2 break-all text-xs text-slate-500">
             {filename} · {mimeType || "unknown MIME type"}
           </p>
 
           {probe && !missingObject ? (
-            <div className="mx-auto mt-4 grid max-w-xl grid-cols-2 gap-2 rounded-2xl border border-[#f1b8b3] bg-white/70 p-3 text-left text-xs text-[#5f6368] sm:grid-cols-4">
+            <div className="mx-auto mt-4 grid max-w-xl grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-left text-xs text-slate-400 sm:grid-cols-4">
               <ProbeValue label="Container" value={probe.container} />
               <ProbeValue label="Video codec" value={probe.videoCodec} />
               <ProbeValue label="Audio codec" value={probe.audioCodec} />
@@ -279,7 +287,7 @@ export function VideoPlayer({
           ) : null}
 
           {missingObject ? (
-            <div className="mx-auto mt-4 max-w-xl rounded-2xl border border-[#f1b8b3] bg-white/75 p-4 text-left text-sm leading-6 text-[#5f6368]">
+            <div className="mx-auto mt-4 max-w-xl rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left text-sm leading-6 text-slate-400">
               The database information was migrated, but the actual video bytes are not in the
               configured Supabase Storage bucket. Select the original video from your computer to
               reconnect this record. Its title, category, favorite state, views, and other metadata
@@ -288,21 +296,22 @@ export function VideoPlayer({
           ) : null}
 
           {repairError ? (
-            <p className="mx-auto mt-3 max-w-xl rounded-xl bg-white/80 px-3 py-2 text-sm text-[#a50e0e]">
+            <p className="mx-auto mt-3 max-w-xl rounded-xl border border-red-300/20 bg-red-400/10 px-3 py-2 text-sm text-red-200">
               {repairError}
             </p>
           ) : null}
 
           {repairing ? (
             <div className="mx-auto mt-4 max-w-md">
-              <div className="flex items-center justify-between text-xs font-semibold text-[#5f6368]">
+              <div className="flex items-center justify-between text-xs font-semibold text-slate-400">
                 <span>Restoring video file…</span>
                 <span>{repairProgress}%</span>
               </div>
-              <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/80">
-                <span
-                  className="block h-full rounded-full bg-[#1a73e8] transition-[width]"
-                  style={{ width: `${repairProgress}%` }}
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/[0.06]">
+                <motion.span
+                  className="block h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]"
+                  animate={{ width: `${repairProgress}%` }}
+                  transition={{ ease: [0.22, 1, 0.36, 1] }}
                 />
               </div>
             </div>
@@ -315,7 +324,7 @@ export function VideoPlayer({
                   type="button"
                   onClick={() => repairInput.current?.click()}
                   disabled={repairing}
-                  className="inline-flex h-10 items-center gap-2 rounded-full bg-[#1a73e8] px-4 text-sm font-semibold text-white hover:bg-[#1557b0] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex h-10 items-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-4 text-sm font-semibold text-white hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {repairing ? (
                     <Loader2 className="size-4 animate-spin" />
@@ -340,7 +349,7 @@ export function VideoPlayer({
               <button
                 type="button"
                 onClick={retry}
-                className="inline-flex h-10 items-center gap-2 rounded-full bg-[#1a73e8] px-4 text-sm font-semibold text-white hover:bg-[#1557b0]"
+                className="inline-flex h-10 items-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-4 text-sm font-semibold text-white hover:brightness-110"
               >
                 <RotateCcw className="size-4" />Retry both methods
               </button>
@@ -348,7 +357,7 @@ export function VideoPlayer({
             {!missingObject ? (
               <a
                 href={`/api/videos/${id}/download`}
-                className="inline-flex h-10 items-center gap-2 rounded-full border border-[#dadce0] bg-white px-4 text-sm font-semibold text-[#3c4043] hover:bg-[#f8f9fa]"
+                className="inline-flex h-10 items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 text-sm font-semibold text-slate-200 hover:bg-white/[0.06]"
               >
                 <Download className="size-4" />Download
               </a>
@@ -356,18 +365,18 @@ export function VideoPlayer({
           </div>
 
           {!missingObject ? (
-            <p className="mt-4 text-xs leading-5 text-[#80868b]">
+            <p className="mt-4 text-xs leading-5 text-slate-400">
               MP4 is only a container. For the widest browser support, use H.264/AVC video
               with AAC audio, or WebM.
             </p>
           ) : null}
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="relative overflow-hidden rounded-[24px] bg-black shadow-sm">
+    <div className="tech-panel group relative overflow-hidden rounded-[24px] bg-black">
       <video
         key={`${attempt}-${sourceMode}`}
         controls
@@ -401,17 +410,25 @@ export function VideoPlayer({
       >
         Your browser does not support HTML video playback.
       </video>
-      {loading ? (
-        <span className="pointer-events-none absolute inset-0 grid place-items-center bg-black/30 px-4 text-center text-white">
-          <span className="rounded-2xl bg-black/60 px-5 py-4 backdrop-blur">
-            <Loader2 className="mx-auto size-6 animate-spin" />
-            <span className="mt-2 block text-xs font-medium">
-              {status || "Loading video…"}
+      <AnimatePresence>
+        {loading ? (
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="pointer-events-none absolute inset-0 grid place-items-center bg-black/40 px-4 text-center text-white backdrop-blur-[2px]"
+          >
+            <span className="rounded-2xl border border-white/10 bg-black/60 px-5 py-4 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur">
+              <Loader2 className="mx-auto size-6 animate-spin text-cyan-300" />
+              <span className="mt-2 block text-xs font-medium">
+                {status || "Loading video…"}
+              </span>
             </span>
-          </span>
-        </span>
-      ) : null}
-      <span className="pointer-events-none absolute left-4 top-4 grid size-9 place-items-center rounded-full bg-black/45 text-white backdrop-blur">
+          </motion.span>
+        ) : null}
+      </AnimatePresence>
+      <span className="pointer-events-none absolute left-4 top-4 grid size-9 place-items-center rounded-full border border-white/10 bg-black/45 text-white opacity-0 backdrop-blur transition-opacity duration-300 group-hover:opacity-100">
         <PlayCircle className="size-5" />
       </span>
     </div>
@@ -421,10 +438,10 @@ export function VideoPlayer({
 function ProbeValue({ label, value }: { label: string; value: string | undefined }) {
   return (
     <span className="min-w-0">
-      <span className="block text-[10px] uppercase tracking-wide text-[#9aa0a6]">
+      <span className="block text-[10px] uppercase tracking-wide text-slate-500">
         {label}
       </span>
-      <strong className="mt-0.5 block truncate font-semibold text-[#3c4043]">
+      <strong className="mt-0.5 block truncate font-semibold text-slate-200">
         {value || "unknown"}
       </strong>
     </span>

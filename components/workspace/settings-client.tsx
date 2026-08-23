@@ -135,16 +135,16 @@ export function WorkspaceSettingsClient({ data }: { data: WorkspaceSettingsData 
       <div className="space-y-5">
         <form
           onSubmit={saveProfile}
-          className="rounded-[24px] border border-[#e1e5ea] bg-white p-5 shadow-sm sm:p-6"
+          className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6"
         >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-[#202124]">Workspace preferences</h2>
-              <p className="mt-1 text-sm leading-6 text-[#5f6368]">
+              <h2 className="text-lg font-semibold text-slate-100">Workspace preferences</h2>
+              <p className="mt-1 text-sm leading-6 text-slate-400">
                 These settings are stored privately for your Supabase account.
               </p>
             </div>
-            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2]">
+            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300">
               <Save className="size-5" aria-hidden="true" />
             </span>
           </div>
@@ -167,7 +167,7 @@ export function WorkspaceSettingsClient({ data }: { data: WorkspaceSettingsData 
             </Field>
 
             <Field label="Account email">
-              <input value={data.email} disabled className={`${inputClass} bg-[#f8f9fa]`} />
+              <input value={data.email} disabled className={`${inputClass} bg-white/[0.035]`} />
             </Field>
 
             <Field label="Timezone">
@@ -225,7 +225,7 @@ export function WorkspaceSettingsClient({ data }: { data: WorkspaceSettingsData 
               </select>
             </Field>
 
-            <label className="flex min-h-12 items-center gap-3 rounded-2xl border border-[#dadce0] px-4 py-3 text-sm text-[#3c4043]">
+            <label className="flex min-h-12 items-center gap-3 rounded-2xl border border-white/10 px-4 py-3 text-sm text-slate-200">
               <input
                 type="checkbox"
                 checked={profile.compact_mode}
@@ -246,8 +246,8 @@ export function WorkspaceSettingsClient({ data }: { data: WorkspaceSettingsData 
               aria-live="polite"
               className={`text-sm ${
                 profileMessage.toLowerCase().includes("saved")
-                  ? "text-[#137333]"
-                  : "text-[#b3261e]"
+                  ? "text-emerald-300"
+                  : "text-red-300"
               }`}
             >
               {profileMessage}
@@ -265,16 +265,16 @@ export function WorkspaceSettingsClient({ data }: { data: WorkspaceSettingsData 
 
         <form
           onSubmit={changePassword}
-          className="rounded-[24px] border border-[#e1e5ea] bg-white p-5 shadow-sm sm:p-6"
+          className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6"
         >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-[#202124]">Change password</h2>
-              <p className="mt-1 text-sm leading-6 text-[#5f6368]">
+              <h2 className="text-lg font-semibold text-slate-100">Change password</h2>
+              <p className="mt-1 text-sm leading-6 text-slate-400">
                 Your current password is verified before the new password is saved.
               </p>
             </div>
-            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#fce8e6] text-[#b3261e]">
+            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-red-400/10 text-red-300">
               <KeyRound className="size-5" aria-hidden="true" />
             </span>
           </div>
@@ -320,7 +320,7 @@ export function WorkspaceSettingsClient({ data }: { data: WorkspaceSettingsData 
             <button
               type="button"
               onClick={() => setShowPasswords((value) => !value)}
-              className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-[#5f6368] hover:bg-[#f1f3f4]"
+              className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-slate-400 hover:bg-white/[0.06]"
             >
               {showPasswords ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               {showPasswords ? "Hide passwords" : "Show passwords"}
@@ -338,8 +338,8 @@ export function WorkspaceSettingsClient({ data }: { data: WorkspaceSettingsData 
             aria-live="polite"
             className={`mt-3 text-sm ${
               passwordMessage.toLowerCase().includes("success")
-                ? "text-[#137333]"
-                : "text-[#b3261e]"
+                ? "text-emerald-300"
+                : "text-red-300"
             }`}
           >
             {passwordMessage}
@@ -348,35 +348,35 @@ export function WorkspaceSettingsClient({ data }: { data: WorkspaceSettingsData 
       </div>
 
       <div className="space-y-5">
-        <section className="rounded-[24px] border border-[#e1e5ea] bg-white p-5 shadow-sm sm:p-6">
+        <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-[#202124]">Storage usage</h2>
-              <p className="mt-1 text-sm text-[#5f6368]">
+              <h2 className="text-lg font-semibold text-slate-100">Storage usage</h2>
+              <p className="mt-1 text-sm text-slate-400">
                 Active and recycled files both consume Storage space.
               </p>
             </div>
-            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#e6f4ea] text-[#137333]">
+            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-emerald-400/10 text-emerald-300">
               <HardDrive className="size-5" aria-hidden="true" />
             </span>
           </div>
 
           <div className="mt-6">
             <div className="flex items-end justify-between gap-3">
-              <strong className="text-2xl font-semibold text-[#202124]">
+              <strong className="text-2xl font-semibold text-slate-100">
                 {formatBytes(data.summary.total_bytes)}
               </strong>
-              <span className="text-xs font-semibold text-[#80868b]">
+              <span className="text-xs font-semibold text-slate-400">
                 of {formatBytes(data.quotaBytes)}
               </span>
             </div>
-            <div className="mt-3 h-3 overflow-hidden rounded-full bg-[#edf1f5]">
+            <div className="mt-3 h-3 overflow-hidden rounded-full bg-white/[0.04]">
               <div
-                className="h-full rounded-full bg-[#1a73e8] transition-[width]"
+                className="h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] transition-[width]"
                 style={{ width: `${quotaPercent}%` }}
               />
             </div>
-            <p className="mt-2 text-xs text-[#80868b]">
+            <p className="mt-2 text-xs text-slate-400">
               {quotaPercent.toFixed(1)}% of the configured workspace quota
             </p>
           </div>
@@ -409,15 +409,15 @@ export function WorkspaceSettingsClient({ data }: { data: WorkspaceSettingsData 
           </div>
         </section>
 
-        <section className="rounded-[24px] border border-[#e1e5ea] bg-white p-5 shadow-sm sm:p-6">
+        <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-[#202124]">Metadata backup</h2>
-              <p className="mt-1 text-sm leading-6 text-[#5f6368]">
+              <h2 className="text-lg font-semibold text-slate-100">Metadata backup</h2>
+              <p className="mt-1 text-sm leading-6 text-slate-400">
                 Download account settings and module metadata as JSON. Private file and video bytes are not included.
               </p>
             </div>
-            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#fef7e0] text-[#a15c00]">
+            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-amber-400/10 text-amber-300">
               <Download className="size-5" aria-hidden="true" />
             </span>
           </div>
@@ -429,8 +429,8 @@ export function WorkspaceSettingsClient({ data }: { data: WorkspaceSettingsData 
             <Download className="size-4" aria-hidden="true" />
             Download JSON backup
           </a>
-          <p className="mt-3 flex items-start gap-2 text-xs leading-5 text-[#5f6368]">
-            <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-[#137333]" />
+          <p className="mt-3 flex items-start gap-2 text-xs leading-5 text-slate-400">
+            <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-300" />
             The export route checks your signed-in account and applies owner filters to every query.
           </p>
         </section>
@@ -441,7 +441,7 @@ export function WorkspaceSettingsClient({ data }: { data: WorkspaceSettingsData 
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="grid gap-2 text-sm font-semibold text-[#3c4043]">
+    <label className="grid gap-2 text-sm font-semibold text-slate-200">
       {label}
       {children}
     </label>
@@ -460,13 +460,13 @@ function StorageStat({
   detail: string;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-[#f8f9fa] p-4">
-      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white text-[#1967d2] shadow-sm">
+    <div className="flex items-center gap-3 rounded-2xl bg-white/[0.035] p-4">
+      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white/[0.045] text-cyan-300 shadow-sm">
         <Icon className="size-4" aria-hidden="true" />
       </span>
       <div className="min-w-0">
-        <p className="truncate text-xs font-medium text-[#80868b]">{label}</p>
-        <p className="mt-0.5 text-sm font-semibold text-[#202124]">
+        <p className="truncate text-xs font-medium text-slate-400">{label}</p>
+        <p className="mt-0.5 text-sm font-semibold text-slate-100">
           {value.toLocaleString()} · {detail}
         </p>
       </div>
@@ -475,7 +475,7 @@ function StorageStat({
 }
 
 const inputClass =
-  "h-12 w-full rounded-2xl border border-[#dadce0] bg-white px-4 text-sm font-normal text-[#202124] outline-none transition placeholder:text-[#9aa0a6] focus:border-[#1a73e8] focus:ring-4 focus:ring-[#e8f0fe] disabled:cursor-not-allowed disabled:text-[#80868b]";
+  "h-12 w-full rounded-2xl border border-white/10 bg-white/[0.045] px-4 text-sm font-normal text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-cyan-300/40 focus:ring-4 focus:ring-cyan-300/15 disabled:cursor-not-allowed disabled:text-slate-400";
 
 const primaryButtonClass =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#1a73e8] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1765cc] disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] disabled:cursor-not-allowed disabled:opacity-60";

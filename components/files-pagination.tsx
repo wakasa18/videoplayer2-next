@@ -23,10 +23,10 @@ export function FilesPagination({
 
   return (
     <nav
-      className="mt-6 flex flex-col items-center justify-between gap-3 rounded-[20px] border border-[#e1e5ea] bg-white px-4 py-3 shadow-sm sm:flex-row"
+      className="mt-6 flex flex-col items-center justify-between gap-3 rounded-[20px] border border-white/10 bg-white/[0.045] px-4 py-3 shadow-sm sm:flex-row"
       aria-label="Files pagination"
     >
-      <p className="text-xs text-[#80868b]">
+      <p className="text-xs text-slate-400">
         Page {page} of {totalPages} · {totalFiles.toLocaleString()} files
       </p>
       <div className="flex items-center gap-1">
@@ -42,7 +42,7 @@ export function FilesPagination({
           item === "ellipsis" ? (
             <span
               key={`ellipsis-${index}`}
-              className="grid size-9 place-items-center text-sm text-[#80868b]"
+              className="grid size-9 place-items-center text-sm text-slate-400"
             >
               …
             </span>
@@ -53,8 +53,8 @@ export function FilesPagination({
               aria-current={item === page ? "page" : undefined}
               className={`grid size-9 place-items-center rounded-full text-sm font-semibold transition ${
                 item === page
-                  ? "bg-[#e8f0fe] text-[#1967d2]"
-                  : "text-[#5f6368] hover:bg-[#f1f3f4]"
+                  ? "bg-cyan-400/10 text-cyan-300"
+                  : "text-slate-400 hover:bg-white/[0.06]"
               }`}
             >
               {item}
@@ -91,7 +91,7 @@ function PageLink({
     return (
       <span
         aria-disabled="true"
-        className="grid size-9 place-items-center rounded-full text-[#bdc1c6]"
+        className="grid size-9 place-items-center rounded-full text-slate-500"
       >
         {children}
       </span>
@@ -102,7 +102,7 @@ function PageLink({
     <Link
       href={href}
       aria-label={label}
-      className="grid size-9 place-items-center rounded-full text-[#5f6368] transition hover:bg-[#f1f3f4]"
+      className="grid size-9 place-items-center rounded-full text-slate-400 transition hover:bg-white/[0.06]"
     >
       {children}
     </Link>

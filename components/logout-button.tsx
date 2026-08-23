@@ -25,7 +25,7 @@ export function LogoutButton() {
       variant="ghost"
       onClick={logout}
       disabled={isLoading}
-      className="h-10 rounded-full px-3 text-[#5f6368] hover:bg-[#f1f3f4] hover:text-[#202124]"
+      className="h-10 rounded-full px-3 text-slate-400 hover:bg-white/[0.06] hover:text-slate-100"
     >
       <LogOut className="size-4" aria-hidden="true" />
       <span className="hidden sm:inline">

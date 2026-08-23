@@ -112,17 +112,17 @@ export function AssignmentProductivityCenter({
       <motion.section
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="overflow-hidden rounded-[28px] border border-[#e1e5ea] bg-white p-6 shadow-sm sm:p-8"
+        className="overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.045] p-6 shadow-sm sm:p-8"
       >
         <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#e8f0fe] px-3 py-1.5 text-xs font-semibold text-[#1967d2]">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-cyan-400/10 px-3 py-1.5 text-xs font-semibold text-cyan-300">
               <Sparkles className="size-4" /> Phase 5C · Automation and productivity
             </div>
-            <h1 className="text-3xl font-semibold tracking-[-.04em] text-[#202124] sm:text-4xl">
+            <h1 className="text-3xl font-semibold tracking-[-.04em] text-slate-100 sm:text-4xl">
               Assignment productivity
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#5f6368] sm:text-base">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base">
               Automate reminders and recurring assignments, reuse templates, review progress,
               and keep deadline notifications in one place.
             </p>
@@ -146,7 +146,7 @@ export function AssignmentProductivityCenter({
               </button>
             </div>
             {runMessage ? (
-              <p className="mt-3 rounded-2xl bg-[#f1f3f4] px-4 py-3 text-sm text-[#3c4043]">{runMessage}</p>
+              <p className="mt-3 rounded-2xl bg-white/[0.05] px-4 py-3 text-sm text-slate-200">{runMessage}</p>
             ) : null}
           </div>
 
@@ -167,11 +167,11 @@ export function AssignmentProductivityCenter({
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,.9fr)]">
-        <div className="rounded-[24px] border border-[#e1e5ea] bg-white p-5 shadow-sm sm:p-6">
+        <div className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[.08em] text-[#80868b]">Reusable workflows</p>
-              <h2 className="mt-1 text-xl font-semibold text-[#202124]">Assignment templates</h2>
+              <p className="text-xs font-bold uppercase tracking-[.08em] text-slate-400">Reusable workflows</p>
+              <h2 className="mt-1 text-xl font-semibold text-slate-100">Assignment templates</h2>
             </div>
             <button
               type="button"
@@ -208,14 +208,14 @@ export function AssignmentProductivityCenter({
           )}
         </div>
 
-        <form onSubmit={savePreferences} className="rounded-[24px] border border-[#e1e5ea] bg-white p-5 shadow-sm sm:p-6">
+        <form onSubmit={savePreferences} className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
           <div className="flex items-start gap-3">
-            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2]">
+            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300">
               <BellRing className="size-5" />
             </span>
             <div>
-              <h2 className="text-xl font-semibold text-[#202124]">Reminder settings</h2>
-              <p className="mt-1 text-sm leading-6 text-[#5f6368]">Times use the Philippine timezone.</p>
+              <h2 className="text-xl font-semibold text-slate-100">Reminder settings</h2>
+              <p className="mt-1 text-sm leading-6 text-slate-400">Times use the Philippine timezone.</p>
             </div>
           </div>
 
@@ -232,7 +232,7 @@ export function AssignmentProductivityCenter({
               checked={preferences.browser_enabled}
               onChange={(checked) => setPreferences((value) => ({ ...value, browser_enabled: checked }))}
               action={
-                <button type="button" onClick={enableBrowserNotifications} className="text-xs font-semibold text-[#1967d2] hover:underline">
+                <button type="button" onClick={enableBrowserNotifications} className="text-xs font-semibold text-cyan-300 hover:underline">
                   Request permission
                 </button>
               }
@@ -245,7 +245,7 @@ export function AssignmentProductivityCenter({
             />
             {preferences.email_enabled ? (
               <label className="block">
-                <span className="mb-2 block text-xs font-semibold text-[#5f6368]">Reminder email</span>
+                <span className="mb-2 block text-xs font-semibold text-slate-400">Reminder email</span>
                 <input
                   type="email"
                   value={preferences.email_address ?? ""}
@@ -264,7 +264,7 @@ export function AssignmentProductivityCenter({
             />
             {preferences.daily_digest_enabled ? (
               <label className="block">
-                <span className="mb-2 block text-xs font-semibold text-[#5f6368]">Digest time</span>
+                <span className="mb-2 block text-xs font-semibold text-slate-400">Digest time</span>
                 <input
                   type="time"
                   value={preferences.digest_time}
@@ -283,22 +283,22 @@ export function AssignmentProductivityCenter({
       </section>
 
       <section className="grid gap-5 xl:grid-cols-2">
-        <div className="rounded-[24px] border border-[#e1e5ea] bg-white p-5 shadow-sm sm:p-6">
-          <h2 className="text-xl font-semibold text-[#202124]">Recent notifications</h2>
-          <p className="mt-1 text-sm text-[#80868b]">{data.unreadCount} unread</p>
+        <div className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
+          <h2 className="text-xl font-semibold text-slate-100">Recent notifications</h2>
+          <p className="mt-1 text-sm text-slate-400">{data.unreadCount} unread</p>
           {data.notifications.length ? (
             <div className="mt-4 space-y-2">
               {data.notifications.slice(0, 10).map((notification) => (
-                <div key={notification.id} className={`rounded-2xl border p-4 ${notification.read_at ? "border-[#eef1f3]" : "border-[#d2e3fc] bg-[#f6f9fe]"}`}>
+                <div key={notification.id} className={`rounded-2xl border p-4 ${notification.read_at ? "border-white/10" : "border-cyan-300/20 bg-white/[0.04]"}`}>
                   <div className="flex items-start gap-3">
-                    <span className={`mt-1.5 size-2 shrink-0 rounded-full ${notification.read_at ? "bg-[#dadce0]" : "bg-[#1a73e8]"}`} />
+                    <span className={`mt-1.5 size-2 shrink-0 rounded-full ${notification.read_at ? "bg-white/[0.07]" : "bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]"}`} />
                     <div className="min-w-0 flex-1">
-                      <strong className="text-sm text-[#202124]">{notification.title}</strong>
-                      <p className="mt-1 text-xs leading-5 text-[#5f6368]">{notification.message}</p>
-                      <p className="mt-2 text-[11px] text-[#9aa0a6]">{formatDateTime(notification.created_at)}</p>
+                      <strong className="text-sm text-slate-100">{notification.title}</strong>
+                      <p className="mt-1 text-xs leading-5 text-slate-400">{notification.message}</p>
+                      <p className="mt-2 text-[11px] text-slate-500">{formatDateTime(notification.created_at)}</p>
                     </div>
                     {notification.assignment_id ? (
-                      <Link href={`/dashboard/assignments/${notification.assignment_id}`} className="text-xs font-semibold text-[#1967d2] hover:underline">Open</Link>
+                      <Link href={`/dashboard/assignments/${notification.assignment_id}`} className="text-xs font-semibold text-cyan-300 hover:underline">Open</Link>
                     ) : null}
                   </div>
                 </div>
@@ -309,19 +309,19 @@ export function AssignmentProductivityCenter({
           )}
         </div>
 
-        <div className="rounded-[24px] border border-[#e1e5ea] bg-white p-5 shadow-sm sm:p-6">
-          <h2 className="text-xl font-semibold text-[#202124]">Automation history</h2>
-          <p className="mt-1 text-sm text-[#80868b]">Recent manual and scheduled processing.</p>
+        <div className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
+          <h2 className="text-xl font-semibold text-slate-100">Automation history</h2>
+          <p className="mt-1 text-sm text-slate-400">Recent manual and scheduled processing.</p>
           {data.recentAutomationRuns.length ? (
             <div className="mt-4 space-y-2">
               {data.recentAutomationRuns.map((run) => (
-                <div key={run.id} className="flex flex-wrap items-center gap-3 rounded-2xl border border-[#eef1f3] p-4">
-                  <span className="grid size-10 place-items-center rounded-xl bg-[#f1f3f4] text-[#5f6368]"><RefreshCw className="size-4" /></span>
+                <div key={run.id} className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 p-4">
+                  <span className="grid size-10 place-items-center rounded-xl bg-white/[0.05] text-slate-400"><RefreshCw className="size-4" /></span>
                   <div className="min-w-0 flex-1">
-                    <strong className="block text-sm capitalize text-[#202124]">{run.run_source} run</strong>
-                    <span className="text-xs text-[#80868b]">{formatDateTime(run.started_at)}</span>
+                    <strong className="block text-sm capitalize text-slate-100">{run.run_source} run</strong>
+                    <span className="text-xs text-slate-400">{formatDateTime(run.started_at)}</span>
                   </div>
-                  <div className="text-right text-xs leading-5 text-[#5f6368]">
+                  <div className="text-right text-xs leading-5 text-slate-400">
                     <div>{run.reminders_created} reminders</div>
                     <div>{run.recurrences_created} recurrences</div>
                   </div>
@@ -392,23 +392,23 @@ function TemplateCard({
   }
 
   return (
-    <motion.article layout className="rounded-[22px] border border-[#e1e5ea] bg-white p-4 transition hover:border-[#d2e3fc] hover:shadow-sm">
+    <motion.article layout className="rounded-[22px] border border-white/10 bg-white/[0.045] p-4 transition hover:border-cyan-300/20 hover:shadow-sm">
       <div className="flex items-start gap-3">
-        <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2]"><Sparkles className="size-5" /></span>
+        <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300"><Sparkles className="size-5" /></span>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-semibold text-[#202124]">{template.name}</h3>
-          <p className="mt-1 truncate text-sm text-[#5f6368]">{template.title}</p>
+          <h3 className="truncate font-semibold text-slate-100">{template.name}</h3>
+          <p className="mt-1 truncate text-sm text-slate-400">{template.title}</p>
         </div>
       </div>
-      <div className="mt-4 flex flex-wrap gap-2 text-xs text-[#5f6368]">
-        <span className="rounded-full bg-[#f1f3f4] px-2.5 py-1">Due +{template.due_offset_days} days</span>
-        <span className="rounded-full bg-[#f1f3f4] px-2.5 py-1">{recurrenceLabel(template.recurrence)}</span>
-        {subject ? <span className="rounded-full bg-[#f1f3f4] px-2.5 py-1">{subject.name}</span> : null}
+      <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-400">
+        <span className="rounded-full bg-white/[0.05] px-2.5 py-1">Due +{template.due_offset_days} days</span>
+        <span className="rounded-full bg-white/[0.05] px-2.5 py-1">{recurrenceLabel(template.recurrence)}</span>
+        {subject ? <span className="rounded-full bg-white/[0.05] px-2.5 py-1">{subject.name}</span> : null}
       </div>
       <div className="mt-4 grid grid-cols-2 gap-2">
         <button type="button" onClick={createAssignment} disabled={busy} className={primaryButtonClass}>{busy ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}Use template</button>
         <button type="button" onClick={onEdit} disabled={busy} className={secondaryButtonClass}>Edit</button>
-        <button type="button" onClick={removeTemplate} disabled={busy} className="col-span-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-[#f6c7c3] px-4 text-sm font-semibold text-[#c5221f] hover:bg-[#fce8e6]"><Trash2 className="size-4" />Delete</button>
+        <button type="button" onClick={removeTemplate} disabled={busy} className="col-span-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-red-300/25 px-4 text-sm font-semibold text-red-300 hover:bg-red-400/10"><Trash2 className="size-4" />Delete</button>
       </div>
     </motion.article>
   );
@@ -459,12 +459,12 @@ function TemplateDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-[100] grid place-items-center bg-[#202124]/45 p-4 backdrop-blur-[2px]" onMouseDown={(event) => { if (event.currentTarget === event.target && !busy) onClose(); }}>
-      <motion.form onSubmit={submit} initial={{ opacity: 0, y: 16, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="max-h-[94vh] w-full max-w-3xl overflow-y-auto rounded-[28px] border border-[#e1e5ea] bg-white shadow-2xl">
-        <header className="sticky top-0 z-10 flex items-start gap-4 border-b border-[#eef1f3] bg-white/95 p-5 backdrop-blur sm:p-6">
-          <span className="grid size-11 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2]"><Sparkles className="size-5" /></span>
-          <div className="min-w-0 flex-1"><h2 className="text-lg font-semibold text-[#202124]">{template ? "Edit template" : "New assignment template"}</h2><p className="mt-1 text-sm text-[#80868b]">New assignments calculate their deadline from the due offset.</p></div>
-          <button type="button" onClick={onClose} className="grid size-10 place-items-center rounded-full text-[#5f6368] hover:bg-[#f1f3f4]"><X className="size-5" /></button>
+    <div className="fixed inset-0 z-[100] grid place-items-center bg-[#020611]/75 p-4 backdrop-blur-[2px]" onMouseDown={(event) => { if (event.currentTarget === event.target && !busy) onClose(); }}>
+      <motion.form onSubmit={submit} initial={{ opacity: 0, y: 16, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="max-h-[94vh] w-full max-w-3xl overflow-y-auto rounded-[28px] border border-white/10 bg-white/[0.045] shadow-2xl">
+        <header className="sticky top-0 z-10 flex items-start gap-4 border-b border-white/10 bg-[#0b1220]/95 p-5 backdrop-blur sm:p-6">
+          <span className="grid size-11 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300"><Sparkles className="size-5" /></span>
+          <div className="min-w-0 flex-1"><h2 className="text-lg font-semibold text-slate-100">{template ? "Edit template" : "New assignment template"}</h2><p className="mt-1 text-sm text-slate-400">New assignments calculate their deadline from the due offset.</p></div>
+          <button type="button" onClick={onClose} className="grid size-10 place-items-center rounded-full text-slate-400 hover:bg-white/[0.06]"><X className="size-5" /></button>
         </header>
         <div className="grid gap-4 p-5 sm:p-6 md:grid-cols-2">
           <Field label="Template name"><input value={name} onChange={(e) => setName(e.target.value)} required maxLength={100} className={inputClass} /></Field>
@@ -478,7 +478,7 @@ function TemplateDialog({
           <Field label="Reminder"><select value={reminder} onChange={(e) => setReminder(e.target.value)} className={inputClass}><option value="0">At deadline</option><option value="60">1 hour before</option><option value="180">3 hours before</option><option value="1440">1 day before</option><option value="2880">2 days before</option><option value="10080">1 week before</option></select></Field>
           <Field label="Reference link" className="md:col-span-2"><input type="url" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="https://..." className={inputClass} /></Field>
         </div>
-        <footer className="sticky bottom-0 flex flex-col-reverse gap-2 border-t border-[#eef1f3] bg-white/95 p-5 backdrop-blur sm:flex-row sm:justify-end">
+        <footer className="sticky bottom-0 flex flex-col-reverse gap-2 border-t border-white/10 bg-[#0b1220]/95 p-5 backdrop-blur sm:flex-row sm:justify-end">
           <button type="button" onClick={onClose} disabled={busy} className={secondaryButtonClass}>Cancel</button>
           <button type="submit" disabled={busy} className={primaryButtonClass}>{busy ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}{template ? "Save template" : "Create template"}</button>
         </footer>
@@ -488,20 +488,20 @@ function TemplateDialog({
 }
 
 function Stat({ label, value, icon: Icon }: { label: string; value: string | number; icon: typeof Clock3 }) {
-  return <div className="rounded-[20px] border border-[#e1e5ea] bg-white p-4"><Icon className="size-5 text-[#1967d2]" /><strong className="mt-4 block text-2xl font-semibold text-[#202124]">{value}</strong><span className="mt-1 block text-xs text-[#80868b]">{label}</span></div>;
+  return <div className="rounded-[20px] border border-white/10 bg-white/[0.045] p-4"><Icon className="size-5 text-cyan-300" /><strong className="mt-4 block text-2xl font-semibold text-slate-100">{value}</strong><span className="mt-1 block text-xs text-slate-400">{label}</span></div>;
 }
 function Insight({ label, value, icon: Icon, danger = false }: { label: string; value: string | number; icon: typeof Clock3; danger?: boolean }) {
-  return <div className="flex items-center gap-4 rounded-[20px] border border-[#e1e5ea] bg-white p-4 shadow-sm"><span className={`grid size-11 place-items-center rounded-2xl ${danger ? "bg-[#fce8e6] text-[#c5221f]" : "bg-[#e8f0fe] text-[#1967d2]"}`}><Icon className="size-5" /></span><div><strong className="block text-xl text-[#202124]">{value}</strong><span className="text-xs text-[#80868b]">{label}</span></div></div>;
+  return <div className="flex items-center gap-4 rounded-[20px] border border-white/10 bg-white/[0.045] p-4 shadow-sm"><span className={`grid size-11 place-items-center rounded-2xl ${danger ? "bg-red-400/10 text-red-300" : "bg-cyan-400/10 text-cyan-300"}`}><Icon className="size-5" /></span><div><strong className="block text-xl text-slate-100">{value}</strong><span className="text-xs text-slate-400">{label}</span></div></div>;
 }
 function ToggleRow({ label, description, checked, onChange, action }: { label: string; description: string; checked: boolean; onChange: (checked: boolean) => void; action?: React.ReactNode }) {
-  return <div className="flex items-start gap-3 rounded-2xl border border-[#eef1f3] p-3"><button type="button" role="switch" aria-checked={checked} onClick={() => onChange(!checked)} className={`relative mt-0.5 h-6 w-11 shrink-0 rounded-full transition ${checked ? "bg-[#1a73e8]" : "bg-[#bdc1c6]"}`}><span className={`absolute top-1 size-4 rounded-full bg-white shadow transition ${checked ? "left-6" : "left-1"}`} /></button><div className="min-w-0 flex-1"><strong className="block text-sm text-[#202124]">{label}</strong><p className="mt-0.5 text-xs leading-5 text-[#80868b]">{description}</p>{action ? <div className="mt-1">{action}</div> : null}</div></div>;
+  return <div className="flex items-start gap-3 rounded-2xl border border-white/10 p-3"><button type="button" role="switch" aria-checked={checked} onClick={() => onChange(!checked)} className={`relative mt-0.5 h-6 w-11 shrink-0 rounded-full transition ${checked ? "bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]" : "bg-white/10"}`}><span className={`absolute top-1 size-4 rounded-full bg-white/[0.045] shadow transition ${checked ? "left-6" : "left-1"}`} /></button><div className="min-w-0 flex-1"><strong className="block text-sm text-slate-100">{label}</strong><p className="mt-0.5 text-xs leading-5 text-slate-400">{description}</p>{action ? <div className="mt-1">{action}</div> : null}</div></div>;
 }
 function EmptyState({ icon: Icon, title, copy }: { icon: typeof Sparkles; title: string; copy: string }) {
-  return <div className="mt-5 grid min-h-48 place-items-center rounded-[20px] border border-dashed border-[#c6dafc] p-6 text-center"><div><Icon className="mx-auto size-7 text-[#1967d2]" /><h3 className="mt-3 font-semibold text-[#202124]">{title}</h3><p className="mt-1 max-w-sm text-sm leading-6 text-[#80868b]">{copy}</p></div></div>;
+  return <div className="mt-5 grid min-h-48 place-items-center rounded-[20px] border border-dashed border-cyan-300/20 p-6 text-center"><div><Icon className="mx-auto size-7 text-cyan-300" /><h3 className="mt-3 font-semibold text-slate-100">{title}</h3><p className="mt-1 max-w-sm text-sm leading-6 text-slate-400">{copy}</p></div></div>;
 }
-function Field({ label, className = "", children }: { label: string; className?: string; children: React.ReactNode }) { return <label className={`block ${className}`}><span className="mb-2 block text-xs font-semibold text-[#5f6368]">{label}</span>{children}</label>; }
+function Field({ label, className = "", children }: { label: string; className?: string; children: React.ReactNode }) { return <label className={`block ${className}`}><span className="mb-2 block text-xs font-semibold text-slate-400">{label}</span>{children}</label>; }
 function formatDateTime(value: string) { const date = new Date(value); return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila" }).format(date); }
 
-const inputClass = "min-h-11 w-full rounded-2xl border border-[#dadce0] bg-white px-4 text-sm text-[#202124] outline-none transition focus:border-[#8ab4f8] focus:ring-4 focus:ring-[#e8f0fe]";
-const primaryButtonClass = "inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#1a73e8] px-5 text-sm font-semibold text-white transition hover:bg-[#1557b0] disabled:opacity-60";
-const secondaryButtonClass = "inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#dadce0] bg-white px-5 text-sm font-semibold text-[#3c4043] transition hover:bg-[#f8f9fa] disabled:opacity-60";
+const inputClass = "min-h-11 w-full rounded-2xl border border-white/10 bg-white/[0.045] px-4 text-sm text-slate-100 outline-none transition focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15";
+const primaryButtonClass = "inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60";
+const secondaryButtonClass = "inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] disabled:opacity-60";

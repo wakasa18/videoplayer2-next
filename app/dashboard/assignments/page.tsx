@@ -25,19 +25,19 @@ export default async function AssignmentsPage({ searchParams }: AssignmentsPageP
   if (!result) {
     return (
       <main className="grid min-h-[68vh] place-items-center">
-        <section className="w-full max-w-2xl rounded-[28px] border border-[#f2d6a1] bg-white p-7 shadow-sm sm:p-9">
-          <span className="grid size-14 place-items-center rounded-2xl bg-[#fef7e0] text-[#b06000]">
+        <section className="w-full max-w-2xl rounded-[28px] border border-amber-300/25 bg-white/[0.045] p-7 shadow-sm sm:p-9">
+          <span className="grid size-14 place-items-center rounded-2xl bg-amber-400/10 text-amber-300">
             <AlertTriangle className="size-7" aria-hidden="true" />
           </span>
-          <p className="mt-5 text-xs font-bold uppercase tracking-[.08em] text-[#80868b]">
+          <p className="mt-5 text-xs font-bold uppercase tracking-[.08em] text-slate-400">
             Phase 5B
           </p>
-          <h1 className="mt-2 text-2xl font-semibold text-[#202124]">
+          <h1 className="mt-2 text-2xl font-semibold text-slate-100">
             Assignments needs server access
           </h1>
-          <p className="mt-3 text-sm leading-6 text-[#5f6368]">{message}</p>
-          <div className="mt-5 flex items-start gap-3 rounded-2xl bg-[#f8f9fa] p-4 text-sm leading-6 text-[#3c4043]">
-            <ClipboardList className="mt-0.5 size-5 shrink-0 text-[#1967d2]" aria-hidden="true" />
+          <p className="mt-3 text-sm leading-6 text-slate-400">{message}</p>
+          <div className="mt-5 flex items-start gap-3 rounded-2xl bg-white/[0.035] p-4 text-sm leading-6 text-slate-200">
+            <ClipboardList className="mt-0.5 size-5 shrink-0 text-cyan-300" aria-hidden="true" />
             <p>
               Confirm <code>SUPABASE_SERVICE_ROLE_KEY</code> is configured. Run <code>assignments_complete_upgrade.sql</code> first, then <code>phase5b_assignment_management.sql</code> to enable owner-secured assignment management.
             </p>

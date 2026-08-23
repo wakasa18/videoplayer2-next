@@ -27,16 +27,16 @@ const iconMap = {
 };
 
 const colorMap = {
-  pdf: "bg-[#fce8e6] text-[#c5221f]",
-  image: "bg-[#f3e8fd] text-[#8430ce]",
-  video: "bg-[#fce8f3] text-[#b80672]",
-  audio: "bg-[#e6f4ea] text-[#137333]",
-  document: "bg-[#e8f0fe] text-[#1967d2]",
-  spreadsheet: "bg-[#e6f4ea] text-[#188038]",
-  presentation: "bg-[#fef7e0] text-[#b06000]",
-  archive: "bg-[#f1f3f4] text-[#5f6368]",
-  text: "bg-[#e0f2f1] text-[#00796b]",
-  other: "bg-[#f1f3f4] text-[#5f6368]",
+  pdf: "bg-red-400/10 text-red-300 ring-1 ring-inset ring-red-300/20",
+  image: "bg-purple-400/10 text-purple-300 ring-1 ring-inset ring-purple-300/20",
+  video: "bg-pink-400/10 text-pink-300 ring-1 ring-inset ring-pink-300/20",
+  audio: "bg-emerald-400/10 text-emerald-300 ring-1 ring-inset ring-emerald-300/20",
+  document: "bg-cyan-400/10 text-cyan-300 ring-1 ring-inset ring-cyan-300/20",
+  spreadsheet: "bg-emerald-400/10 text-emerald-300 ring-1 ring-inset ring-emerald-300/20",
+  presentation: "bg-amber-400/10 text-amber-300 ring-1 ring-inset ring-amber-300/20",
+  archive: "bg-white/5 text-slate-300 ring-1 ring-inset ring-white/10",
+  text: "bg-teal-400/10 text-teal-300 ring-1 ring-inset ring-teal-300/20",
+  other: "bg-white/5 text-slate-300 ring-1 ring-inset ring-white/10",
 };
 
 type FileTypeIconProps = {
@@ -55,7 +55,7 @@ export function FileTypeIcon({
 
   return (
     <span
-      className={`grid shrink-0 place-items-center ${className} ${colorMap[type]}`}
+      className={`grid shrink-0 place-items-center transition-transform duration-300 group-hover:scale-105 ${className} ${colorMap[type]}`}
       aria-hidden="true"
     >
       <Icon className={iconClassName} />

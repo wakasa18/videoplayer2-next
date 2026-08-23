@@ -238,7 +238,7 @@ export function VideoUploadDialog({ open, onOpenChange, categories, maxUploadByt
     <AnimatePresence>
       {open ? (
         <motion.div
-          className="fixed inset-0 z-[110] grid place-items-center bg-[#202124]/45 p-3 backdrop-blur-[3px] sm:p-5"
+          className="fixed inset-0 z-[110] grid place-items-center bg-[#020611]/75 p-3 backdrop-blur-[3px] sm:p-5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -248,41 +248,41 @@ export function VideoUploadDialog({ open, onOpenChange, categories, maxUploadByt
             role="dialog"
             aria-modal="true"
             aria-labelledby="video-upload-title"
-            className="flex max-h-[94vh] w-full max-w-3xl flex-col overflow-hidden rounded-[30px] border border-[#dadce0] bg-white shadow-[0_20px_60px_rgba(32,33,36,.28)]"
+            className="flex max-h-[94vh] w-full max-w-3xl flex-col overflow-hidden rounded-[30px] border border-white/10 bg-[#0b1220]/95 shadow-[0_24px_70px_rgba(0,4,14,0.6)] backdrop-blur-2xl"
             initial={{ opacity: 0, y: 22, scale: 0.965 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 14, scale: 0.975 }}
             transition={{ type: "spring", stiffness: 320, damping: 28 }}
           >
-            <header className="flex items-start justify-between gap-4 border-b border-[#eef1f3] px-5 py-4 sm:px-6">
+            <header className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-4 sm:px-6">
               <div className="flex items-center gap-3">
                 <motion.span
-                  className="grid size-11 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2]"
+                  className="grid size-11 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300"
                   animate={uploading ? { y: [0, -2, 0] } : undefined}
                   transition={{ repeat: uploading ? Infinity : 0, duration: 1.4 }}
                 >
                   <Upload className="size-5" />
                 </motion.span>
                 <div>
-                  <h2 id="video-upload-title" className="text-lg font-semibold text-[#202124]">Upload videos</h2>
-                  <p className="mt-1 text-xs text-[#80868b]">Private storage · up to {formatBytes(maxUploadBytes)} each</p>
+                  <h2 id="video-upload-title" className="text-lg font-semibold text-slate-100">Upload videos</h2>
+                  <p className="mt-1 text-xs text-slate-400">Private storage · up to {formatBytes(maxUploadBytes)} each</p>
                 </div>
               </div>
-              <button type="button" onClick={close} disabled={uploading} className="grid size-10 place-items-center rounded-full text-[#5f6368] transition hover:bg-[#f1f3f4] disabled:opacity-40" aria-label="Close upload dialog">
+              <button type="button" onClick={close} disabled={uploading} className="grid size-10 place-items-center rounded-full text-slate-400 transition hover:bg-white/[0.06] disabled:opacity-40" aria-label="Close upload dialog">
                 <X className="size-5" />
               </button>
             </header>
 
             <div className="overflow-y-auto px-5 py-5 sm:px-6">
               <div className="grid gap-4 sm:grid-cols-2">
-                <label className="text-sm font-medium text-[#3c4043]">
+                <label className="text-sm font-medium text-slate-200">
                   Category
-                  <input list="video-categories" value={category} onChange={(event) => setCategory(event.target.value)} placeholder="Optional" disabled={uploading} className="mt-2 h-11 w-full rounded-2xl border border-[#dadce0] px-4 outline-none focus:border-[#8ab4f8] focus:ring-4 focus:ring-[#e8f0fe]" />
+                  <input list="video-categories" value={category} onChange={(event) => setCategory(event.target.value)} placeholder="Optional" disabled={uploading} className="mt-2 h-11 w-full rounded-2xl border border-white/10 px-4 outline-none focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15" />
                   <datalist id="video-categories">{categories.map((item) => <option key={item} value={item} />)}</datalist>
                 </label>
-                <label className="text-sm font-medium text-[#3c4043]">
+                <label className="text-sm font-medium text-slate-200">
                   Description
-                  <input value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Applied to all videos" disabled={uploading} className="mt-2 h-11 w-full rounded-2xl border border-[#dadce0] px-4 outline-none focus:border-[#8ab4f8] focus:ring-4 focus:ring-[#e8f0fe]" />
+                  <input value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Applied to all videos" disabled={uploading} className="mt-2 h-11 w-full rounded-2xl border border-white/10 px-4 outline-none focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15" />
                 </label>
               </div>
 
@@ -294,21 +294,21 @@ export function VideoUploadDialog({ open, onOpenChange, categories, maxUploadByt
                   onDragOver={(event) => event.preventDefault()}
                   onDragLeave={() => setDragging(false)}
                   onDrop={(event) => { event.preventDefault(); setDragging(false); void chooseFiles(Array.from(event.dataTransfer.files)); }}
-                  className={`mt-5 grid min-h-64 w-full place-items-center rounded-[24px] border-2 border-dashed p-8 text-center transition ${dragging ? "border-[#1a73e8] bg-[#e8f0fe]" : "border-[#c6dafc] bg-[#f8fbff] hover:bg-[#f3f7ff]"}`}
+                  className={`mt-5 grid min-h-64 w-full place-items-center rounded-[24px] border-2 border-dashed p-8 text-center transition ${dragging ? "border-cyan-300/40 bg-cyan-400/10" : "border-cyan-300/20 bg-white/[0.04] hover:bg-white/[0.04]"}`}
                 >
                   <span>
-                    <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2]"><Film className="size-8" /></span>
-                    <strong className="mt-5 block text-base text-[#202124]">Choose videos or drag them here</strong>
-                    <span className="mt-2 block text-sm text-[#5f6368]">MP4, WebM, MOV, M4V, OGV, AVI, or MKV</span>
+                    <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300"><Film className="size-8" /></span>
+                    <strong className="mt-5 block text-base text-slate-100">Choose videos or drag them here</strong>
+                    <span className="mt-2 block text-sm text-slate-400">MP4, WebM, MOV, M4V, OGV, AVI, or MKV</span>
                   </span>
                 </button>
               ) : (
-                <div className="mt-5 overflow-hidden rounded-[24px] border border-[#e1e5ea]">
-                  <div className="flex items-center justify-between bg-[#f8f9fa] px-4 py-3 text-xs text-[#5f6368]">
-                    <span><strong className="text-[#202124]">{queue.length} video{queue.length === 1 ? "" : "s"}</strong> · {formatBytes(totalBytes)}</span>
-                    {!uploading ? <button type="button" onClick={() => inputRef.current?.click()} className="font-semibold text-[#1967d2]">Replace selection</button> : null}
+                <div className="mt-5 overflow-hidden rounded-[24px] border border-white/10">
+                  <div className="flex items-center justify-between bg-white/[0.035] px-4 py-3 text-xs text-slate-400">
+                    <span><strong className="text-slate-100">{queue.length} video{queue.length === 1 ? "" : "s"}</strong> · {formatBytes(totalBytes)}</span>
+                    {!uploading ? <button type="button" onClick={() => inputRef.current?.click()} className="font-semibold text-cyan-300">Replace selection</button> : null}
                   </div>
-                  <div className="max-h-72 divide-y divide-[#eef1f3] overflow-y-auto">
+                  <div className="max-h-72 divide-y divide-white/10 overflow-y-auto">
                     {queue.map((item) => <QueueRow key={item.id} item={item} />)}
                   </div>
                 </div>
@@ -316,27 +316,27 @@ export function VideoUploadDialog({ open, onOpenChange, categories, maxUploadByt
               <input ref={inputRef} type="file" accept="video/*,.mkv,.avi" multiple hidden onChange={(event) => void chooseFiles(Array.from(event.target.files ?? []))} />
 
               {queue.length ? (
-                <div className="mt-5 rounded-[20px] border border-[#d2e3fc] bg-[#f8fbff] p-4">
-                  <div className="flex items-center justify-between text-sm"><strong className="text-[#3c4043]">{completeCount} completed · {failedCount} failed</strong><span className="font-semibold text-[#1967d2]">{progress}%</span></div>
-                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#e1e8f5]"><motion.span className="block h-full rounded-full bg-[#1a73e8]" animate={{ width: `${progress}%` }} /></div>
+                <div className="mt-5 rounded-[20px] border border-cyan-300/20 bg-white/[0.04] p-4">
+                  <div className="flex items-center justify-between text-sm"><strong className="text-slate-200">{completeCount} completed · {failedCount} failed</strong><span className="font-semibold text-cyan-300">{progress}%</span></div>
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-cyan-400/10"><motion.span className="block h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]" animate={{ width: `${progress}%` }} /></div>
                 </div>
               ) : null}
 
               {limitedPlaybackCount ? (
-                <div className="mt-4 flex gap-3 rounded-2xl border border-[#f7d794] bg-[#fef7e0] p-4 text-sm leading-6 text-[#7a4d00]">
+                <div className="mt-4 flex gap-3 rounded-2xl border border-amber-300/25 bg-amber-400/10 p-4 text-sm leading-6 text-amber-300">
                   <AlertCircle className="mt-0.5 size-5 shrink-0" />
                   <p>
                     {limitedPlaybackCount} selected video{limitedPlaybackCount === 1 ? " uses" : "s use"} a format such as MKV or AVI. It can be stored and downloaded, but browser playback depends on the codecs and browser. MP4 with H.264/AAC or WebM is recommended for reliable playback.
                   </p>
                 </div>
               ) : null}
-              {globalError ? <div className="mt-4 flex gap-3 rounded-2xl border border-[#f6c7c3] bg-[#fce8e6] p-4 text-sm text-[#a50e0e]"><AlertCircle className="size-5 shrink-0" /><p>{globalError}</p></div> : null}
+              {globalError ? <div className="mt-4 flex gap-3 rounded-2xl border border-red-300/25 bg-red-400/10 p-4 text-sm text-red-300"><AlertCircle className="size-5 shrink-0" /><p>{globalError}</p></div> : null}
             </div>
 
-            <footer className="flex flex-wrap items-center justify-end gap-3 border-t border-[#eef1f3] px-5 py-4 sm:px-6">
-              {failedCount && !uploading ? <button type="button" onClick={retry} className="inline-flex h-11 items-center gap-2 rounded-full border border-[#dadce0] px-5 font-semibold text-[#3c4043] hover:bg-[#f8f9fa]"><RotateCcw className="size-4" />Retry failed</button> : null}
-              <button type="button" onClick={uploading ? cancel : close} className="h-11 rounded-full border border-[#dadce0] px-5 font-semibold text-[#3c4043] hover:bg-[#f8f9fa]">{uploading ? "Cancel upload" : "Cancel"}</button>
-              <button type="button" onClick={() => void startUpload()} disabled={!queue.length || uploading || completeCount === queue.length} className="inline-flex h-11 items-center gap-2 rounded-full bg-[#1a73e8] px-5 font-semibold text-white transition hover:bg-[#1557b0] disabled:cursor-not-allowed disabled:opacity-50">{uploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}{uploading ? "Uploading" : queue.length > 1 ? "Upload videos" : "Upload video"}</button>
+            <footer className="flex flex-wrap items-center justify-end gap-3 border-t border-white/10 px-5 py-4 sm:px-6">
+              {failedCount && !uploading ? <button type="button" onClick={retry} className="inline-flex h-11 items-center gap-2 rounded-full border border-white/10 px-5 font-semibold text-slate-200 hover:bg-white/[0.06]"><RotateCcw className="size-4" />Retry failed</button> : null}
+              <button type="button" onClick={uploading ? cancel : close} className="h-11 rounded-full border border-white/10 px-5 font-semibold text-slate-200 hover:bg-white/[0.06]">{uploading ? "Cancel upload" : "Cancel"}</button>
+              <button type="button" onClick={() => void startUpload()} disabled={!queue.length || uploading || completeCount === queue.length} className="inline-flex h-11 items-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50">{uploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}{uploading ? "Uploading" : queue.length > 1 ? "Upload videos" : "Upload video"}</button>
             </footer>
           </motion.section>
         </motion.div>
@@ -349,9 +349,9 @@ function QueueRow({ item }: { item: QueueItem }) {
   const Icon = item.status === "complete" ? CheckCircle2 : item.status === "error" ? AlertCircle : item.status === "preparing" || item.status === "uploading" || item.status === "finalizing" ? Loader2 : Film;
   return (
     <div className="flex items-center gap-3 px-4 py-3">
-      <span className={`grid size-10 shrink-0 place-items-center rounded-xl ${item.status === "complete" ? "bg-[#e6f4ea] text-[#137333]" : item.status === "error" ? "bg-[#fce8e6] text-[#c5221f]" : "bg-[#e8f0fe] text-[#1967d2]"}`}><Icon className={`size-5 ${["preparing", "uploading", "finalizing"].includes(item.status) ? "animate-spin" : ""}`} /></span>
-      <div className="min-w-0 flex-1"><strong className="block truncate text-sm text-[#202124]">{item.file.name}</strong><p className={`mt-1 truncate text-xs ${item.error ? "text-[#c5221f]" : "text-[#80868b]"}`}>{item.error || `${formatBytes(item.file.size)} · ${item.status}`}</p>{item.status === "uploading" ? <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#e8eaed]"><span className="block h-full bg-[#1a73e8]" style={{ width: `${item.progress}%` }} /></div> : null}</div>
-      <span className="text-xs font-semibold text-[#5f6368]">{item.progress ? `${item.progress}%` : ""}</span>
+      <span className={`grid size-10 shrink-0 place-items-center rounded-xl ${item.status === "complete" ? "bg-emerald-400/10 text-emerald-300" : item.status === "error" ? "bg-red-400/10 text-red-300" : "bg-cyan-400/10 text-cyan-300"}`}><Icon className={`size-5 ${["preparing", "uploading", "finalizing"].includes(item.status) ? "animate-spin" : ""}`} /></span>
+      <div className="min-w-0 flex-1"><strong className="block truncate text-sm text-slate-100">{item.file.name}</strong><p className={`mt-1 truncate text-xs ${item.error ? "text-red-300" : "text-slate-400"}`}>{item.error || `${formatBytes(item.file.size)} · ${item.status}`}</p>{item.status === "uploading" ? <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[0.08]"><span className="block h-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]" style={{ width: `${item.progress}%` }} /></div> : null}</div>
+      <span className="text-xs font-semibold text-slate-400">{item.progress ? `${item.progress}%` : ""}</span>
     </div>
   );
 }

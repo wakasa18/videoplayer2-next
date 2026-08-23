@@ -63,7 +63,7 @@ export function TopBar({ userEmail, displayName, onMenuClick }: TopBarProps) {
         <form
           action={searchAction}
           method="get"
-          className="tech-search-focus mx-auto hidden w-full max-w-2xl items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] px-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition focus-within:border-cyan-300/35 focus-within:bg-white/[0.065] md:flex"
+          className="tech-search-focus mx-auto hidden w-full max-w-2xl items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] px-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition focus-within:border-cyan-300/35 focus-within:bg-white/[0.06]/[0.065] md:flex"
         >
           <Search className="size-5 shrink-0 text-slate-400" aria-hidden="true" />
           <label htmlFor="workspace-search" className="sr-only">

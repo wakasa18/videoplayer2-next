@@ -144,11 +144,11 @@ export function AssignmentNotificationBell() {
         aria-label={unreadCount ? `${unreadCount} unread assignment notifications` : "Assignment notifications"}
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className="relative grid size-10 place-items-center rounded-full text-[#5f6368] transition hover:bg-[#f1f3f4] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#d2e3fc]"
+        className="relative grid size-10 place-items-center rounded-full text-slate-400 transition hover:bg-white/[0.06] focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/15"
       >
-        {unreadCount ? <BellRing className="size-5 text-[#1967d2]" /> : <Bell className="size-5" />}
+        {unreadCount ? <BellRing className="size-5 text-cyan-300" /> : <Bell className="size-5" />}
         {unreadCount ? (
-          <span className="absolute -right-0.5 -top-0.5 grid min-w-5 place-items-center rounded-full bg-[#d93025] px-1 text-[10px] font-bold leading-5 text-white">
+          <span className="absolute -right-0.5 -top-0.5 grid min-w-5 place-items-center rounded-full bg-[linear-gradient(135deg,#fb7185,#ef4444)] px-1 text-[10px] font-bold leading-5 text-white">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         ) : null}
@@ -170,30 +170,30 @@ export function AssignmentNotificationBell() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
               transition={{ duration: 0.16 }}
-              className="fixed inset-x-3 top-[68px] z-50 max-h-[min(76vh,620px)] overflow-hidden rounded-[24px] border border-[#e1e5ea] bg-white shadow-2xl sm:absolute sm:inset-x-auto sm:right-0 sm:top-12 sm:w-[390px]"
+              className="fixed inset-x-3 top-[68px] z-50 max-h-[min(76vh,620px)] overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.045] shadow-2xl sm:absolute sm:inset-x-auto sm:right-0 sm:top-12 sm:w-[390px]"
             >
-              <header className="flex items-center gap-3 border-b border-[#eef1f3] px-4 py-4">
-                <span className="grid size-10 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2]">
+              <header className="flex items-center gap-3 border-b border-white/10 px-4 py-4">
+                <span className="grid size-10 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300">
                   <BellRing className="size-5" />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <h2 className="font-semibold text-[#202124]">Assignment notifications</h2>
-                  <p className="text-xs text-[#80868b]">{unreadCount} unread</p>
+                  <h2 className="font-semibold text-slate-100">Assignment notifications</h2>
+                  <p className="text-xs text-slate-400">{unreadCount} unread</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="grid size-9 place-items-center rounded-full text-[#5f6368] hover:bg-[#f1f3f4] sm:hidden"
+                  className="grid size-9 place-items-center rounded-full text-slate-400 hover:bg-white/[0.06] sm:hidden"
                 >
                   <X className="size-4" />
                 </button>
               </header>
 
-              <div className="flex items-center justify-between gap-3 border-b border-[#eef1f3] px-4 py-2.5">
+              <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-2.5">
                 <Link
                   href="/dashboard/assignments/productivity"
                   onClick={() => setOpen(false)}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1967d2] hover:underline"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-300 hover:underline"
                 >
                   <Settings2 className="size-3.5" /> Settings and templates
                 </Link>
@@ -201,7 +201,7 @@ export function AssignmentNotificationBell() {
                   type="button"
                   onClick={markAllRead}
                   disabled={busy || unreadCount === 0}
-                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold text-[#3c4043] hover:bg-[#f1f3f4] disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-white/[0.06] disabled:opacity-50"
                 >
                   {busy ? <Loader2 className="size-3.5 animate-spin" /> : <CheckCheck className="size-3.5" />}
                   Mark all read
@@ -210,7 +210,7 @@ export function AssignmentNotificationBell() {
 
               <div className="max-h-[470px] overflow-y-auto p-2">
                 {loading ? (
-                  <div className="grid min-h-40 place-items-center text-[#80868b]">
+                  <div className="grid min-h-40 place-items-center text-slate-400">
                     <Loader2 className="size-5 animate-spin" />
                   </div>
                 ) : notifications.length ? (
@@ -219,21 +219,21 @@ export function AssignmentNotificationBell() {
                       const content = (
                         <>
                           <span
-                            className={`mt-1 size-2 shrink-0 rounded-full ${notification.read_at ? "bg-transparent" : "bg-[#1a73e8]"}`}
+                            className={`mt-1 size-2 shrink-0 rounded-full ${notification.read_at ? "bg-transparent" : "bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]"}`}
                           />
                           <span className="min-w-0 flex-1">
-                            <strong className="block text-sm font-semibold text-[#202124]">
+                            <strong className="block text-sm font-semibold text-slate-100">
                               {notification.title}
                             </strong>
-                            <span className="mt-1 block text-xs leading-5 text-[#5f6368]">
+                            <span className="mt-1 block text-xs leading-5 text-slate-400">
                               {notification.message}
                             </span>
-                            <span className="mt-1.5 block text-[11px] text-[#9aa0a6]">
+                            <span className="mt-1.5 block text-[11px] text-slate-500">
                               {formatRelative(notification.created_at)}
                             </span>
                           </span>
                           {notification.assignment_id ? (
-                            <ChevronRight className="mt-1 size-4 shrink-0 text-[#9aa0a6]" />
+                            <ChevronRight className="mt-1 size-4 shrink-0 text-slate-500" />
                           ) : null}
                         </>
                       );
@@ -245,7 +245,7 @@ export function AssignmentNotificationBell() {
                             void markRead(notification);
                             setOpen(false);
                           }}
-                          className={`flex gap-3 rounded-2xl px-3 py-3 transition hover:bg-[#f8f9fa] ${notification.read_at ? "" : "bg-[#f6f9fe]"}`}
+                          className={`flex gap-3 rounded-2xl px-3 py-3 transition hover:bg-white/[0.06] ${notification.read_at ? "" : "bg-white/[0.04]"}`}
                         >
                           {content}
                         </Link>
@@ -254,7 +254,7 @@ export function AssignmentNotificationBell() {
                           key={notification.id}
                           type="button"
                           onClick={() => void markRead(notification)}
-                          className={`flex w-full gap-3 rounded-2xl px-3 py-3 text-left transition hover:bg-[#f8f9fa] ${notification.read_at ? "" : "bg-[#f6f9fe]"}`}
+                          className={`flex w-full gap-3 rounded-2xl px-3 py-3 text-left transition hover:bg-white/[0.06] ${notification.read_at ? "" : "bg-white/[0.04]"}`}
                         >
                           {content}
                         </button>
@@ -264,9 +264,9 @@ export function AssignmentNotificationBell() {
                 ) : (
                   <div className="grid min-h-44 place-items-center px-6 text-center">
                     <div>
-                      <Bell className="mx-auto size-7 text-[#9aa0a6]" />
-                      <p className="mt-3 text-sm font-semibold text-[#3c4043]">No notifications yet</p>
-                      <p className="mt-1 text-xs leading-5 text-[#80868b]">
+                      <Bell className="mx-auto size-7 text-slate-500" />
+                      <p className="mt-3 text-sm font-semibold text-slate-200">No notifications yet</p>
+                      <p className="mt-1 text-xs leading-5 text-slate-400">
                         Reminders and recurring-task updates will appear here.
                       </p>
                     </div>
@@ -275,7 +275,7 @@ export function AssignmentNotificationBell() {
               </div>
 
               {!preferences.in_app_enabled ? (
-                <div className="border-t border-[#eef1f3] bg-[#fef7e0] px-4 py-3 text-xs text-[#7a4f01]">
+                <div className="border-t border-white/10 bg-amber-400/10 px-4 py-3 text-xs text-amber-300">
                   In-app reminders are currently disabled in Productivity settings.
                 </div>
               ) : null}

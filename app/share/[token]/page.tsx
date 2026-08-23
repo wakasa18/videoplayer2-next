@@ -61,16 +61,16 @@ export default async function PublicSharePage({ params, searchParams }: PageProp
   const message = failure instanceof Error ? failure.message : "This shared link is unavailable.";
   const gone = failure instanceof ShareRequestError && failure.status === 410;
   return (
-    <main className="grid min-h-screen place-items-center bg-[#f1f3f4] p-5">
-      <section className="w-full max-w-xl rounded-[28px] border border-[#e1e5ea] bg-white p-7 text-center shadow-lg sm:p-10">
-        <span className={`mx-auto grid size-16 place-items-center rounded-2xl ${gone ? "bg-[#fce8e6] text-[#c5221f]" : "bg-[#fef7e0] text-[#b06000]"}`}>
+    <main className="grid min-h-screen place-items-center bg-white/[0.05] p-5">
+      <section className="w-full max-w-xl rounded-[28px] border border-white/10 bg-white/[0.045] p-7 text-center shadow-lg sm:p-10">
+        <span className={`mx-auto grid size-16 place-items-center rounded-2xl ${gone ? "bg-red-400/10 text-red-300" : "bg-amber-400/10 text-amber-300"}`}>
           {gone ? <ShieldX className="size-8" /> : <AlertTriangle className="size-8" />}
         </span>
-        <h1 className="mt-6 text-2xl font-semibold tracking-[-.02em] text-[#202124]">
+        <h1 className="mt-6 text-2xl font-semibold tracking-[-.02em] text-slate-100">
           {gone ? "This shared link is no longer available" : "Shared link unavailable"}
         </h1>
-        <p className="mt-3 text-sm leading-6 text-[#5f6368]">{message}</p>
-        <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#f1f3f4] px-4 py-2 text-xs font-semibold text-[#5f6368]"><Link2 className="size-4" /> Damon&apos;s Archive secure sharing</div>
+        <p className="mt-3 text-sm leading-6 text-slate-400">{message}</p>
+        <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/[0.05] px-4 py-2 text-xs font-semibold text-slate-400"><Link2 className="size-4" /> Damon&apos;s Archive secure sharing</div>
       </section>
     </main>
   );

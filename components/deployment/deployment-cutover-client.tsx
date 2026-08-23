@@ -112,15 +112,15 @@ export function DeploymentCutoverClient({ data }: { data: DeploymentDashboardDat
         <SummaryCard label="System Check" value={data.system.overall === "pass" ? "Ready" : data.system.overall === "warn" ? "Review" : "Blocked"} status={data.system.overall} />
       </section>
 
-      <section className="rounded-[24px] border border-[#e1e5ea] bg-white p-5 shadow-sm sm:p-6">
+      <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-3">
               <StatusBadge status={release.status} />
-              <span className="text-xs font-medium text-[#80868b]">Created {formatDate(release.created_at)}</span>
+              <span className="text-xs font-medium text-slate-400">Created {formatDate(release.created_at)}</span>
             </div>
-            <h2 className="mt-4 text-2xl font-semibold tracking-[-.02em] text-[#202124]">Production release control</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#5f6368]">
+            <h2 className="mt-4 text-2xl font-semibold tracking-[-.02em] text-slate-100">Production release control</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
               Add the final Vercel URL and commit, move the release through the controlled states, and download the deployment report for your records.
             </p>
           </div>
@@ -142,13 +142,13 @@ export function DeploymentCutoverClient({ data }: { data: DeploymentDashboardDat
           onSave={(payload) => runAction("save", async () => { await updateRelease(payload); setMessage("Release details saved."); })}
         />
 
-        <div className="mt-5 rounded-2xl bg-[#f8f9fa] p-4">
+        <div className="mt-5 rounded-2xl bg-white/[0.035] p-4">
           <div className="flex items-center justify-between gap-4 text-sm">
-            <span className="font-semibold text-[#3c4043]">Required smoke-test progress</span>
-            <span className="font-semibold text-[#1967d2]">{percent}%</span>
+            <span className="font-semibold text-slate-200">Required smoke-test progress</span>
+            <span className="font-semibold text-cyan-300">{percent}%</span>
           </div>
-          <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-[#e1e5ea]">
-            <div className="h-full rounded-full bg-[#1a73e8] transition-all" style={{ width: `${percent}%` }} />
+          <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-white/[0.05]">
+            <div className="h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] transition-all" style={{ width: `${percent}%` }} />
           </div>
         </div>
 
@@ -168,28 +168,28 @@ export function DeploymentCutoverClient({ data }: { data: DeploymentDashboardDat
         />
 
         {data.readiness.blockers.length ? (
-          <div className="mt-5 rounded-2xl border border-[#f2d6a1] bg-[#fef7e0] p-4">
-            <div className="flex items-center gap-2 font-semibold text-[#8a4f00]"><ShieldAlert className="size-4" /> Launch blockers</div>
-            <ul className="mt-2 space-y-1 text-sm leading-6 text-[#8a4f00]">
+          <div className="mt-5 rounded-2xl border border-amber-300/25 bg-amber-400/10 p-4">
+            <div className="flex items-center gap-2 font-semibold text-amber-300"><ShieldAlert className="size-4" /> Launch blockers</div>
+            <ul className="mt-2 space-y-1 text-sm leading-6 text-amber-300">
               {data.readiness.blockers.map((blocker) => <li key={blocker}>• {blocker}</li>)}
             </ul>
           </div>
         ) : null}
-        <p aria-live="polite" className={`mt-4 text-sm leading-6 ${message.toLowerCase().includes("fail") || message.toLowerCase().includes("could not") ? "text-[#b3261e]" : "text-[#137333]"}`}>{message}</p>
+        <p aria-live="polite" className={`mt-4 text-sm leading-6 ${message.toLowerCase().includes("fail") || message.toLowerCase().includes("could not") ? "text-red-300" : "text-emerald-300"}`}>{message}</p>
       </section>
 
-      <section className="rounded-[24px] border border-[#e1e5ea] bg-white p-5 shadow-sm sm:p-6">
+      <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-[#202124]">Production smoke tests</h2>
-            <p className="mt-1 text-sm text-[#5f6368]">Run these against the actual Vercel deployment, not only localhost.</p>
+            <h2 className="text-lg font-semibold text-slate-100">Production smoke tests</h2>
+            <p className="mt-1 text-sm text-slate-400">Run these against the actual Vercel deployment, not only localhost.</p>
           </div>
-          <div className="text-sm text-[#5f6368]">{data.readiness.failedTests} failed · {data.readiness.pendingTests} not run</div>
+          <div className="text-sm text-slate-400">{data.readiness.failedTests} failed · {data.readiness.pendingTests} not run</div>
         </div>
         <div className="mt-5 space-y-5">
           {grouped.map(([category, tests]) => (
             <div key={category}>
-              <h3 className="mb-2 text-xs font-bold uppercase tracking-[.12em] text-[#80868b]">{category}</h3>
+              <h3 className="mb-2 text-xs font-bold uppercase tracking-[.12em] text-slate-400">{category}</h3>
               <div className="space-y-2">
                 {tests.map((test) => (
                   <SmokeTestRow
@@ -206,9 +206,9 @@ export function DeploymentCutoverClient({ data }: { data: DeploymentDashboardDat
       </section>
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(340px,.95fr)]">
-        <section className="rounded-[24px] border border-[#e1e5ea] bg-white p-5 shadow-sm sm:p-6">
-          <h2 className="text-lg font-semibold text-[#202124]">Cutover sequence</h2>
-          <div className="mt-4 space-y-3 text-sm leading-6 text-[#3c4043]">
+        <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
+          <h2 className="text-lg font-semibold text-slate-100">Cutover sequence</h2>
+          <div className="mt-4 space-y-3 text-sm leading-6 text-slate-200">
             <Step number="1" title="Prepare" text="Build locally, run System Check, back up metadata, and configure Vercel and Supabase production settings." />
             <Step number="2" title="Deploy" text="Publish the release to Vercel, record its URL and commit, then change the release status to Deploying." />
             <Step number="3" title="Verify" text="Complete every required smoke test using production data and private Storage access." />
@@ -217,19 +217,19 @@ export function DeploymentCutoverClient({ data }: { data: DeploymentDashboardDat
           </div>
         </section>
 
-        <section className="rounded-[24px] border border-[#e1e5ea] bg-white p-5 shadow-sm sm:p-6">
-          <h2 className="text-lg font-semibold text-[#202124]">Release history</h2>
+        <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
+          <h2 className="text-lg font-semibold text-slate-100">Release history</h2>
           {data.events.length ? (
             <ol className="mt-4 space-y-3">
               {data.events.map((event) => (
-                <li key={event.id} className="border-l-2 border-[#d2e3fc] pl-4">
-                  <div className="text-sm font-semibold text-[#3c4043]">{event.message}</div>
-                  <div className="mt-1 text-xs text-[#80868b]">{formatDate(event.created_at)}</div>
+                <li key={event.id} className="border-l-2 border-cyan-300/20 pl-4">
+                  <div className="text-sm font-semibold text-slate-200">{event.message}</div>
+                  <div className="mt-1 text-xs text-slate-400">{formatDate(event.created_at)}</div>
                 </li>
               ))}
             </ol>
           ) : (
-            <p className="mt-4 text-sm text-[#5f6368]">No deployment events have been recorded yet.</p>
+            <p className="mt-4 text-sm text-slate-400">No deployment events have been recorded yet.</p>
           )}
         </section>
       </div>
@@ -245,10 +245,10 @@ function CreateReleasePanel({ busy, message, onCreate }: { busy: string; message
   const [commitSha, setCommitSha] = useState("");
   const [notes, setNotes] = useState("");
   return (
-    <section className="rounded-[24px] border border-[#e1e5ea] bg-white p-6 shadow-sm sm:p-8">
-      <span className="grid size-14 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2]"><Rocket className="size-7" /></span>
-      <h2 className="mt-5 text-2xl font-semibold text-[#202124]">Create the Phase 9 release</h2>
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-[#5f6368]">This creates an owner-scoped cutover record and the full production smoke-test checklist. It does not deploy to Vercel automatically.</p>
+    <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-6 shadow-sm sm:p-8">
+      <span className="grid size-14 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300"><Rocket className="size-7" /></span>
+      <h2 className="mt-5 text-2xl font-semibold text-slate-100">Create the Phase 9 release</h2>
+      <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">This creates an owner-scoped cutover record and the full production smoke-test checklist. It does not deploy to Vercel automatically.</p>
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         <Field label="Release tag"><input value={releaseTag} onChange={(event) => setReleaseTag(event.target.value)} className={inputClass} /></Field>
         <Field label="Environment"><select value={environment} onChange={(event) => setEnvironment(event.target.value)} className={inputClass}><option value="production">Production</option><option value="preview">Preview</option></select></Field>
@@ -259,7 +259,7 @@ function CreateReleasePanel({ busy, message, onCreate }: { busy: string; message
       <button type="button" disabled={Boolean(busy) || !releaseTag.trim()} onClick={() => onCreate({ releaseTag, environment, deploymentUrl, commitSha, notes })} className={`${primaryButton} mt-5`}>
         {busy === "create" ? <Loader2 className="size-4 animate-spin" /> : <Rocket className="size-4" />} Create release
       </button>
-      <p aria-live="polite" className="mt-4 text-sm text-[#5f6368]">{message}</p>
+      <p aria-live="polite" className="mt-4 text-sm text-slate-400">{message}</p>
     </section>
   );
 }
@@ -281,7 +281,7 @@ function ReleaseEditor({ release, disabled, onSave }: { release: DeploymentRelea
 function ReleaseActions({ release, canStartDeployment, canGoLive, busy, onStatus, onAutomaticChecks }: { release: DeploymentRelease; canStartDeployment: boolean; canGoLive: boolean; busy: string; onStatus: (status: DeploymentReleaseStatus) => void; onAutomaticChecks: () => void }) {
   const status = release.status;
   return (
-    <div className="mt-5 flex flex-wrap gap-2 border-t border-[#eceff1] pt-5">
+    <div className="mt-5 flex flex-wrap gap-2 border-t border-white/10 pt-5">
       {status !== "live" && status !== "rolled_back" ? <button type="button" disabled={Boolean(busy)} onClick={onAutomaticChecks} className={secondaryButton}>{busy === "automatic" ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />} Run automatic checks</button> : null}
       {status === "draft" ? <button type="button" disabled={Boolean(busy) || !canStartDeployment} onClick={() => onStatus("ready")} className={primaryButton}><FileCheck2 className="size-4" /> Mark ready</button> : null}
       {status === "ready" ? <><button type="button" disabled={Boolean(busy)} onClick={() => onStatus("draft")} className={secondaryButton}><RotateCcw className="size-4" /> Back to draft</button><button type="button" disabled={Boolean(busy) || !canStartDeployment} onClick={() => onStatus("deploying")} className={primaryButton}><Play className="size-4" /> Start deployment</button></> : null}
@@ -295,14 +295,14 @@ function ReleaseActions({ release, canStartDeployment, canGoLive, busy, onStatus
 
 function SmokeTestRow({ test, disabled, onStatus }: { test: DeploymentSmokeTest; disabled: boolean; onStatus: (status: DeploymentTestStatus) => void }) {
   return (
-    <article className="rounded-2xl border border-[#e1e5ea] p-4">
+    <article className="rounded-2xl border border-white/10 p-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 items-start gap-3">
           <TestIcon status={test.status} />
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2"><h4 className="font-semibold text-[#202124]">{test.label}</h4>{test.required ? <span className="rounded-full bg-[#fce8e6] px-2 py-0.5 text-[11px] font-semibold text-[#b3261e]">Required</span> : <span className="rounded-full bg-[#f1f3f4] px-2 py-0.5 text-[11px] font-semibold text-[#5f6368]">Optional</span>}</div>
-            {test.detail ? <p className="mt-1 text-sm leading-6 text-[#5f6368]">{test.detail}</p> : null}
-            {test.checked_at ? <p className="mt-1 text-xs text-[#9aa0a6]">Updated {formatDate(test.checked_at)}</p> : null}
+            <div className="flex flex-wrap items-center gap-2"><h4 className="font-semibold text-slate-100">{test.label}</h4>{test.required ? <span className="rounded-full bg-red-400/10 px-2 py-0.5 text-[11px] font-semibold text-red-300">Required</span> : <span className="rounded-full bg-white/[0.05] px-2 py-0.5 text-[11px] font-semibold text-slate-400">Optional</span>}</div>
+            {test.detail ? <p className="mt-1 text-sm leading-6 text-slate-400">{test.detail}</p> : null}
+            {test.checked_at ? <p className="mt-1 text-xs text-slate-500">Updated {formatDate(test.checked_at)}</p> : null}
           </div>
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
@@ -317,28 +317,28 @@ function SmokeTestRow({ test, disabled, onStatus }: { test: DeploymentSmokeTest;
 }
 
 function TestButton({ label, active, disabled, onClick, icon: Icon, danger = false }: { label: string; active: boolean; disabled: boolean; onClick: () => void; icon: typeof Check; danger?: boolean }) {
-  const activeClass = danger ? "border-[#f6aea8] bg-[#fce8e6] text-[#b3261e]" : "border-[#a8dab5] bg-[#e6f4ea] text-[#137333]";
-  return <button type="button" disabled={disabled} onClick={onClick} className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition disabled:opacity-50 ${active ? activeClass : "border-[#dadce0] bg-white text-[#5f6368] hover:bg-[#f8f9fa]"}`}><Icon className="size-3.5" />{label}</button>;
+  const activeClass = danger ? "border-red-300/25 bg-red-400/10 text-red-300" : "border-emerald-300/20 bg-emerald-400/10 text-emerald-300";
+  return <button type="button" disabled={disabled} onClick={onClick} className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition disabled:opacity-50 ${active ? activeClass : "border-white/10 bg-white/[0.045] text-slate-400 hover:bg-white/[0.06]"}`}><Icon className="size-3.5" />{label}</button>;
 }
 
 function SummaryCard({ label, value, status }: { label: string; value: string; status: "pass" | "warn" | "fail" }) {
-  return <article className="rounded-[22px] border border-[#e1e5ea] bg-white p-5 shadow-sm"><div className="flex items-center justify-between gap-3"><span className="text-sm font-medium text-[#5f6368]">{label}</span>{status === "pass" ? <CheckCircle2 className="size-5 text-[#137333]" /> : status === "warn" ? <AlertTriangle className="size-5 text-[#b06000]" /> : <XCircle className="size-5 text-[#b3261e]" />}</div><strong className="mt-3 block truncate text-2xl font-semibold tracking-[-.02em] text-[#202124]" title={value}>{value}</strong></article>;
+  return <article className="rounded-[22px] border border-white/10 bg-white/[0.045] p-5 shadow-sm"><div className="flex items-center justify-between gap-3"><span className="text-sm font-medium text-slate-400">{label}</span>{status === "pass" ? <CheckCircle2 className="size-5 text-emerald-300" /> : status === "warn" ? <AlertTriangle className="size-5 text-amber-300" /> : <XCircle className="size-5 text-red-300" />}</div><strong className="mt-3 block truncate text-2xl font-semibold tracking-[-.02em] text-slate-100" title={value}>{value}</strong></article>;
 }
 
 function StatusBadge({ status }: { status: DeploymentReleaseStatus }) {
-  const styles: Record<DeploymentReleaseStatus, string> = { draft: "bg-[#f1f3f4] text-[#5f6368]", ready: "bg-[#e8f0fe] text-[#1967d2]", deploying: "bg-[#fef7e0] text-[#b06000]", live: "bg-[#e6f4ea] text-[#137333]", failed: "bg-[#fce8e6] text-[#b3261e]", rolled_back: "bg-[#f3e8fd] text-[#7b1fa2]" };
+  const styles: Record<DeploymentReleaseStatus, string> = { draft: "bg-white/[0.05] text-slate-400", ready: "bg-cyan-400/10 text-cyan-300", deploying: "bg-amber-400/10 text-amber-300", live: "bg-emerald-400/10 text-emerald-300", failed: "bg-red-400/10 text-red-300", rolled_back: "bg-purple-400/10 text-purple-300" };
   return <span className={`rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wide ${styles[status]}`}>{statusLabel(status)}</span>;
 }
 
 function TestIcon({ status }: { status: DeploymentTestStatus }) {
-  if (status === "pass") return <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-[#137333]" />;
-  if (status === "fail") return <XCircle className="mt-0.5 size-5 shrink-0 text-[#b3261e]" />;
-  if (status === "skipped") return <SkipForward className="mt-0.5 size-5 shrink-0 text-[#7b1fa2]" />;
-  return <Circle className="mt-0.5 size-5 shrink-0 text-[#9aa0a6]" />;
+  if (status === "pass") return <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-300" />;
+  if (status === "fail") return <XCircle className="mt-0.5 size-5 shrink-0 text-red-300" />;
+  if (status === "skipped") return <SkipForward className="mt-0.5 size-5 shrink-0 text-purple-300" />;
+  return <Circle className="mt-0.5 size-5 shrink-0 text-slate-500" />;
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) { return <label className="block"><span className="mb-1.5 block text-sm font-semibold text-[#3c4043]">{label}</span>{children}</label>; }
-function Step({ number, title, text }: { number: string; title: string; text: string }) { return <div className="flex gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#e8f0fe] text-xs font-bold text-[#1967d2]">{number}</span><div><div className="font-semibold text-[#202124]">{title}</div><p className="text-[#5f6368]">{text}</p></div></div>; }
+function Field({ label, children }: { label: string; children: React.ReactNode }) { return <label className="block"><span className="mb-1.5 block text-sm font-semibold text-slate-200">{label}</span>{children}</label>; }
+function Step({ number, title, text }: { number: string; title: string; text: string }) { return <div className="flex gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-cyan-400/10 text-xs font-bold text-cyan-300">{number}</span><div><div className="font-semibold text-slate-100">{title}</div><p className="text-slate-400">{text}</p></div></div>; }
 
 function groupTests(tests: DeploymentSmokeTest[]): Array<[string, DeploymentSmokeTest[]]> {
   const map = new Map<string, DeploymentSmokeTest[]>();
@@ -350,8 +350,8 @@ function statusLabel(status: DeploymentReleaseStatus): string { return status.re
 function formatDate(value: string | null): string { if (!value) return "Unknown"; const date = new Date(value); return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila" }).format(date); }
 async function expectSuccess(response: Response, fallback: string): Promise<unknown> { const payload = await response.json().catch(() => ({})) as { error?: string }; if (!response.ok) throw new Error(payload.error ?? fallback); return payload; }
 
-const inputClass = "w-full rounded-xl border border-[#dadce0] bg-white px-3.5 py-2.5 text-sm text-[#202124] outline-none transition focus:border-[#1a73e8] focus:ring-2 focus:ring-[#d2e3fc]";
-const primaryButton = "inline-flex items-center justify-center gap-2 rounded-full bg-[#1a73e8] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1967d2] disabled:cursor-not-allowed disabled:opacity-50";
-const secondaryButton = "inline-flex items-center justify-center gap-2 rounded-full border border-[#dadce0] bg-white px-4 py-2.5 text-sm font-semibold text-[#3c4043] transition hover:bg-[#f8f9fa] disabled:cursor-not-allowed disabled:opacity-50";
-const successButton = "inline-flex items-center justify-center gap-2 rounded-full bg-[#188038] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#137333] disabled:cursor-not-allowed disabled:opacity-50";
-const dangerButton = "inline-flex items-center justify-center gap-2 rounded-full border border-[#f6aea8] bg-white px-4 py-2.5 text-sm font-semibold text-[#b3261e] transition hover:bg-[#fce8e6] disabled:cursor-not-allowed disabled:opacity-50";
+const inputClass = "w-full rounded-xl border border-white/10 bg-white/[0.045] px-3.5 py-2.5 text-sm text-slate-100 outline-none transition focus:border-cyan-300/40 focus:ring-2 focus:ring-cyan-300/15";
+const primaryButton = "inline-flex items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] disabled:cursor-not-allowed disabled:opacity-50";
+const secondaryButton = "inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-50";
+const successButton = "inline-flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50";
+const dangerButton = "inline-flex items-center justify-center gap-2 rounded-full border border-red-300/25 bg-white/[0.045] px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-400/10 disabled:cursor-not-allowed disabled:opacity-50";

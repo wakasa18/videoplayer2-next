@@ -107,7 +107,7 @@ export function ShareDialog({
     <AnimatePresence>
       {open ? (
         <motion.div
-          className="fixed inset-0 z-[100] grid place-items-center bg-[#202124]/45 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] grid place-items-center bg-[#020611]/75 p-4 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -119,28 +119,28 @@ export function ShareDialog({
             role="dialog"
             aria-modal="true"
             aria-label={`Share ${targetName}`}
-            className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[28px] border border-[#e1e5ea] bg-white shadow-2xl"
+            className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[28px] border border-white/10 bg-[#0b1220]/95 shadow-[0_24px_70px_rgba(0,4,14,0.6)] backdrop-blur-2xl"
             initial={{ opacity: 0, y: 24, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
             transition={{ type: "spring", stiffness: 320, damping: 28 }}
           >
-            <header className="flex items-start gap-4 border-b border-[#eef1f3] p-5 sm:p-6">
-              <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2]">
+            <header className="flex items-start gap-4 border-b border-white/10 p-5 sm:p-6">
+              <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300">
                 <Link2 className="size-5" />
               </span>
               <div className="min-w-0 flex-1">
-                <h2 className="truncate text-xl font-semibold tracking-[-.02em] text-[#202124]">
+                <h2 className="truncate text-xl font-semibold tracking-[-.02em] text-slate-100">
                   Share {targetName}
                 </h2>
-                <p className="mt-1 text-sm text-[#5f6368]">
+                <p className="mt-1 text-sm text-slate-400">
                   Create a secure public link without exposing your Supabase Storage bucket.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={close}
-                className="grid size-10 shrink-0 place-items-center rounded-full text-[#5f6368] transition hover:bg-[#f1f3f4]"
+                className="grid size-10 shrink-0 place-items-center rounded-full text-slate-400 transition hover:bg-white/[0.06]"
                 aria-label="Close share dialog"
               >
                 <X className="size-5" />
@@ -149,7 +149,7 @@ export function ShareDialog({
 
             {result ? (
               <div className="space-y-5 p-5 sm:p-6">
-                <div className="flex items-start gap-3 rounded-2xl border border-[#cee9d4] bg-[#e6f4ea] p-4 text-[#137333]">
+                <div className="flex items-start gap-3 rounded-2xl border border-emerald-300/20 bg-emerald-400/10 p-4 text-emerald-300">
                   <ShieldCheck className="mt-0.5 size-5 shrink-0" />
                   <div>
                     <strong className="block text-sm">Shared link created</strong>
@@ -159,18 +159,18 @@ export function ShareDialog({
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-[#dadce0] bg-[#f8f9fa] p-3">
-                  <label className="text-xs font-semibold text-[#5f6368]">Public link</label>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-3">
+                  <label className="text-xs font-semibold text-slate-400">Public link</label>
                   <div className="mt-2 flex gap-2">
                     <input
                       readOnly
                       value={result.publicUrl}
-                      className="min-w-0 flex-1 rounded-xl border border-[#dadce0] bg-white px-3 py-2.5 text-sm text-[#202124] outline-none"
+                      className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.045] px-3 py-2.5 text-sm text-slate-100 outline-none"
                     />
                     <button
                       type="button"
                       onClick={() => void copyLink()}
-                      className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#1a73e8] px-4 text-sm font-semibold text-white transition hover:bg-[#1557b0]"
+                      className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-4 text-sm font-semibold text-white transition hover:brightness-110"
                     >
                       {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
                       {copied ? "Copied" : "Copy"}
@@ -183,14 +183,14 @@ export function ShareDialog({
                     href={result.publicUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#dadce0] bg-white px-4 text-sm font-semibold text-[#3c4043] transition hover:bg-[#f8f9fa]"
+                    className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06]"
                   >
                     <ExternalLink className="size-4" /> Open link
                   </a>
                   <button
                     type="button"
                     onClick={() => setShowQr((value) => !value)}
-                    className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#dadce0] bg-white px-4 text-sm font-semibold text-[#3c4043] transition hover:bg-[#f8f9fa]"
+                    className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06]"
                   >
                     <QrCode className="size-4" /> {showQr ? "Hide QR" : "Show QR"}
                   </button>
@@ -204,11 +204,11 @@ export function ShareDialog({
                       exit={{ opacity: 0, height: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="grid place-items-center rounded-2xl border border-[#e1e5ea] bg-white p-5">
+                      <div className="grid place-items-center rounded-2xl border border-white/10 bg-white/[0.045] p-5">
                         {/* The QR image service receives only the public share URL. */}
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={qrUrl} alt="QR code for shared link" width={260} height={260} className="rounded-xl" />
-                        <p className="mt-3 text-center text-xs text-[#80868b]">
+                        <p className="mt-3 text-center text-xs text-slate-400">
                           QR rendering uses api.qrserver.com.
                         </p>
                       </div>
@@ -220,7 +220,7 @@ export function ShareDialog({
                   <button
                     type="button"
                     onClick={close}
-                    className="min-h-11 rounded-full bg-[#1a73e8] px-6 text-sm font-semibold text-white transition hover:bg-[#1557b0]"
+                    className="min-h-11 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-6 text-sm font-semibold text-white transition hover:brightness-110"
                   >
                     Done
                   </button>
@@ -279,7 +279,7 @@ export function ShareDialog({
                   />
                 </Field>
 
-                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-[#dadce0] bg-[#f8f9fa] p-4">
+                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.035] p-4">
                   <input
                     type="checkbox"
                     checked={allowDownloads}
@@ -287,15 +287,15 @@ export function ShareDialog({
                     className="mt-1 size-4 accent-[#1a73e8]"
                   />
                   <span>
-                    <strong className="block text-sm font-semibold text-[#202124]">Allow downloads</strong>
-                    <small className="mt-1 block text-xs leading-5 text-[#5f6368]">
+                    <strong className="block text-sm font-semibold text-slate-100">Allow downloads</strong>
+                    <small className="mt-1 block text-xs leading-5 text-slate-400">
                       Preview remains available when downloads are disabled.
                     </small>
                   </span>
                 </label>
 
                 {error ? (
-                  <div className="rounded-2xl border border-[#f6c7c3] bg-[#fce8e6] p-4 text-sm text-[#a50e0e]">
+                  <div className="rounded-2xl border border-red-300/25 bg-red-400/10 p-4 text-sm text-red-300">
                     {error}
                   </div>
                 ) : null}
@@ -305,7 +305,7 @@ export function ShareDialog({
                     type="button"
                     disabled={busy}
                     onClick={close}
-                    className="min-h-11 rounded-full border border-[#dadce0] bg-white px-5 text-sm font-semibold text-[#3c4043] transition hover:bg-[#f8f9fa] disabled:opacity-60"
+                    className="min-h-11 rounded-full border border-white/10 bg-white/[0.045] px-5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] disabled:opacity-60"
                   >
                     Cancel
                   </button>
@@ -313,7 +313,7 @@ export function ShareDialog({
                     type="button"
                     disabled={busy}
                     onClick={() => void createShare()}
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#1a73e8] px-5 text-sm font-semibold text-white transition hover:bg-[#1557b0] disabled:opacity-60"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
                   >
                     <Link2 className="size-4" /> {busy ? "Creating…" : "Create shared link"}
                   </button>
@@ -338,8 +338,8 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 flex items-center gap-2 text-xs font-semibold text-[#5f6368]">
-        <Icon className="size-4 text-[#1967d2]" /> {label}
+      <span className="mb-2 flex items-center gap-2 text-xs font-semibold text-slate-400">
+        <Icon className="size-4 text-cyan-300" /> {label}
       </span>
       {children}
     </label>
@@ -348,4 +348,4 @@ function Field({
 
 
 const inputClass =
-  "min-h-11 w-full rounded-xl border border-[#dadce0] bg-white px-3 text-sm text-[#202124] outline-none transition placeholder:text-[#9aa0a6] focus:border-[#8ab4f8] focus:ring-4 focus:ring-[#e8f0fe]";
+  "min-h-11 w-full rounded-xl border border-white/10 bg-white/[0.045] px-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15";

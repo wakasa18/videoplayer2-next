@@ -91,13 +91,13 @@ export function ShareManager({ shares }: { shares: ShareListItem[] }) {
 
   if (!shares.length) {
     return (
-      <div className="grid min-h-72 place-items-center rounded-[24px] border border-dashed border-[#c6dafc] bg-white p-8 text-center">
+      <div className="grid min-h-72 place-items-center rounded-[24px] border border-dashed border-cyan-300/20 bg-white/[0.045] p-8 text-center">
         <div className="max-w-md">
-          <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2]">
+          <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300">
             <Link2 className="size-7" />
           </span>
-          <h2 className="mt-5 text-lg font-semibold text-[#202124]">No shared links yet</h2>
-          <p className="mt-2 text-sm leading-6 text-[#5f6368]">
+          <h2 className="mt-5 text-lg font-semibold text-slate-100">No shared links yet</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-400">
             Open a file or folder menu and choose Share to create the first public link.
           </p>
         </div>
@@ -108,7 +108,7 @@ export function ShareManager({ shares }: { shares: ShareListItem[] }) {
   return (
     <>
       {error ? (
-        <div className="mb-4 rounded-2xl border border-[#f6c7c3] bg-[#fce8e6] p-4 text-sm text-[#a50e0e]">
+        <div className="mb-4 rounded-2xl border border-red-300/25 bg-red-400/10 p-4 text-sm text-red-300">
           {error}
         </div>
       ) : null}
@@ -122,55 +122,55 @@ export function ShareManager({ shares }: { shares: ShareListItem[] }) {
               initial={{ opacity: 0, y: 14, scale: 0.985 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ delay: Math.min(index, 14) * 0.035, duration: 0.24 }}
-              className="rounded-[24px] border border-[#e1e5ea] bg-white p-5 shadow-sm transition hover:border-[#c6dafc] hover:shadow-md"
+              className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm transition hover:border-cyan-300/35 hover:shadow-md"
             >
               <div className="flex items-start gap-4">
-                <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[#e8f0fe] text-[#1967d2]">
+                <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300">
                   <Icon className="size-6" />
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <h2 className="truncate text-base font-semibold text-[#202124]">{share.target_name}</h2>
-                      <p className="mt-1 text-xs text-[#80868b]">
+                      <h2 className="truncate text-base font-semibold text-slate-100">{share.target_name}</h2>
+                      <p className="mt-1 text-xs text-slate-400">
                         {share.share_type === "folder" ? "Folder link" : "File link"} · Created {formatDate(share.created_at)}
                       </p>
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <button type="button" className="grid size-9 shrink-0 place-items-center rounded-full text-[#5f6368] transition hover:bg-[#f1f3f4]" aria-label="Shared link actions">
+                        <button type="button" className="grid size-9 shrink-0 place-items-center rounded-full text-slate-400 transition hover:bg-white/[0.06]" aria-label="Shared link actions">
                           <MoreVertical className="size-5" />
                         </button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-52 rounded-2xl border-[#e1e5ea] bg-white p-2 shadow-xl">
+                      <DropdownMenuContent align="end" className="w-52 rounded-2xl border-white/10 bg-white/[0.045] p-2 shadow-xl">
                         <DropdownMenuItem disabled={!share.public_url} onSelect={() => void copyLink(share)} className={itemClass}><Copy /> Copy link</DropdownMenuItem>
                         {share.public_url ? <DropdownMenuItem asChild className={itemClass}><a href={share.public_url} target="_blank" rel="noreferrer"><ExternalLink /> Open link</a></DropdownMenuItem> : null}
                         <DropdownMenuItem disabled={!share.public_url} onSelect={() => setQrShare(share)} className={itemClass}><QrCode /> Show QR code</DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => void loadAnalytics(share)} className={itemClass}><Activity /> View analytics</DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-[#eef1f3]" />
+                        <DropdownMenuSeparator className="bg-white/[0.04]" />
                         {share.state === "revoked" ? (
                           <DropdownMenuItem disabled={busyId === share.id} onSelect={() => void mutate(share.id, "activate")} className={itemClass}><Power /> Reactivate</DropdownMenuItem>
                         ) : (
                           <DropdownMenuItem disabled={busyId === share.id} onSelect={() => void mutate(share.id, "revoke")} className={itemClass}><Ban /> Revoke link</DropdownMenuItem>
                         )}
-                        <DropdownMenuItem disabled={busyId === share.id} onSelect={() => void mutate(share.id, "delete")} className={`${itemClass} text-[#c5221f] focus:bg-[#fce8e6] focus:text-[#c5221f]`}><Trash2 /> Delete permanently</DropdownMenuItem>
+                        <DropdownMenuItem disabled={busyId === share.id} onSelect={() => void mutate(share.id, "delete")} className={`${itemClass} text-red-300 focus:bg-red-400/10 focus:text-red-300`}><Trash2 /> Delete permanently</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-2">
                     <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${state.className}`}>{state.label}</span>
-                    <span className="rounded-full bg-[#f1f3f4] px-2.5 py-1 text-xs font-semibold text-[#5f6368]">
+                    <span className="rounded-full bg-white/[0.05] px-2.5 py-1 text-xs font-semibold text-slate-400">
                       <Eye className="mr-1 inline size-3.5" /> {share.view_count.toLocaleString()} views
                     </span>
-                    <span className="rounded-full bg-[#f1f3f4] px-2.5 py-1 text-xs font-semibold text-[#5f6368]">
+                    <span className="rounded-full bg-white/[0.05] px-2.5 py-1 text-xs font-semibold text-slate-400">
                       <Download className="mr-1 inline size-3.5" /> {share.download_count.toLocaleString()}{share.max_downloads ? ` / ${share.max_downloads}` : ""}
                     </span>
                   </div>
 
-                  <div className="mt-4 grid gap-2 text-xs text-[#5f6368] sm:grid-cols-2">
-                    <p className="flex items-center gap-2"><CalendarClock className="size-4 text-[#80868b]" /> {share.expires_at ? `Expires ${formatDate(share.expires_at)}` : "No expiration"}</p>
-                    <p className="flex items-center gap-2"><Download className="size-4 text-[#80868b]" /> {share.allow_downloads ? "Downloads enabled" : "Preview only"}</p>
+                  <div className="mt-4 grid gap-2 text-xs text-slate-400 sm:grid-cols-2">
+                    <p className="flex items-center gap-2"><CalendarClock className="size-4 text-slate-400" /> {share.expires_at ? `Expires ${formatDate(share.expires_at)}` : "No expiration"}</p>
+                    <p className="flex items-center gap-2"><Download className="size-4 text-slate-400" /> {share.allow_downloads ? "Downloads enabled" : "Preview only"}</p>
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-2">
@@ -178,7 +178,7 @@ export function ShareManager({ shares }: { shares: ShareListItem[] }) {
                       type="button"
                       disabled={!share.public_url}
                       onClick={() => void copyLink(share)}
-                      className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#1a73e8] px-4 text-sm font-semibold text-white transition hover:bg-[#1557b0] disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-4 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {copiedId === share.id ? <Check className="size-4" /> : <Copy className="size-4" />}
                       {copiedId === share.id ? "Copied" : "Copy link"}
@@ -187,14 +187,14 @@ export function ShareManager({ shares }: { shares: ShareListItem[] }) {
                       type="button"
                       disabled={analyticsLoading}
                       onClick={() => void loadAnalytics(share)}
-                      className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#dadce0] bg-white px-4 text-sm font-semibold text-[#3c4043] transition hover:bg-[#f8f9fa] disabled:opacity-60"
+                      className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] disabled:opacity-60"
                     >
                       <Activity className="size-4" /> Analytics
                     </button>
                   </div>
 
                   {!share.public_url ? (
-                    <p className="mt-3 rounded-xl bg-[#fef7e0] p-3 text-xs leading-5 text-[#8d4e00]">
+                    <p className="mt-3 rounded-xl bg-amber-400/10 p-3 text-xs leading-5 text-amber-300">
                       This legacy link has no encrypted token copy. Create a new link to copy it from this dashboard.
                     </p>
                   ) : null}
@@ -222,8 +222,8 @@ function QrModal({ share, onClose }: { share: ShareListItem | null; onClose: () 
         <ModalShell title={`QR code · ${share.target_name}`} onClose={onClose}>
           <div className="grid place-items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={qrUrl} width={280} height={280} alt="Shared link QR code" className="rounded-2xl border border-[#e1e5ea] bg-white p-3" />
-            <p className="mt-3 text-center text-xs text-[#80868b]">QR rendering uses api.qrserver.com.</p>
+            <img src={qrUrl} width={280} height={280} alt="Shared link QR code" className="rounded-2xl border border-white/10 bg-white/[0.045] p-3" />
+            <p className="mt-3 text-center text-xs text-slate-400">QR rendering uses api.qrserver.com.</p>
           </div>
         </ModalShell>
       ) : null}
@@ -241,16 +241,16 @@ function AnalyticsModal({ analytics, loading, onClose }: { analytics: Analytics 
             <Stat icon={Download} label="Downloads" value={analytics.share.download_count} />
             <Stat icon={Activity} label="Events shown" value={analytics.events.length} />
           </div>
-          <h3 className="mt-6 text-sm font-semibold text-[#202124]">Recent activity</h3>
+          <h3 className="mt-6 text-sm font-semibold text-slate-100">Recent activity</h3>
           <div className="mt-3 max-h-80 space-y-2 overflow-y-auto">
-            {loading ? <p className="text-sm text-[#5f6368]">Loading activity…</p> : null}
-            {!loading && !analytics.events.length ? <p className="rounded-2xl bg-[#f8f9fa] p-5 text-sm text-[#5f6368]">No tracked activity yet.</p> : null}
+            {loading ? <p className="text-sm text-slate-400">Loading activity…</p> : null}
+            {!loading && !analytics.events.length ? <p className="rounded-2xl bg-white/[0.035] p-5 text-sm text-slate-400">No tracked activity yet.</p> : null}
             {analytics.events.map((event) => (
-              <div key={event.id} className="flex items-start gap-3 rounded-2xl border border-[#e1e5ea] p-3">
-                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#e8f0fe] text-[#1967d2]"><Activity className="size-4" /></span>
+              <div key={event.id} className="flex items-start gap-3 rounded-2xl border border-white/10 p-3">
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-cyan-400/10 text-cyan-300"><Activity className="size-4" /></span>
                 <div className="min-w-0 flex-1">
-                  <strong className="block text-sm font-semibold capitalize text-[#202124]">{event.event_type.replaceAll("_", " ")}</strong>
-                  <small className="mt-1 block text-xs text-[#80868b]">{formatDateTime(event.created_at)}</small>
+                  <strong className="block text-sm font-semibold capitalize text-slate-100">{event.event_type.replaceAll("_", " ")}</strong>
+                  <small className="mt-1 block text-xs text-slate-400">{formatDateTime(event.created_at)}</small>
                 </div>
               </div>
             ))}
@@ -263,9 +263,9 @@ function AnalyticsModal({ analytics, loading, onClose }: { analytics: Analytics 
 
 function ModalShell({ title, onClose, wide = false, children }: { title: string; onClose: () => void; wide?: boolean; children: React.ReactNode }) {
   return (
-    <motion.div className="fixed inset-0 z-[110] grid place-items-center bg-[#202124]/45 p-4 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-      <motion.section className={`max-h-[90vh] w-full overflow-y-auto rounded-[28px] border border-[#e1e5ea] bg-white p-5 shadow-2xl sm:p-6 ${wide ? "max-w-3xl" : "max-w-md"}`} initial={{ opacity: 0, y: 20, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: .98 }}>
-        <header className="mb-5 flex items-center justify-between gap-3"><h2 className="truncate text-lg font-semibold text-[#202124]">{title}</h2><button type="button" onClick={onClose} className="grid size-9 shrink-0 place-items-center rounded-full text-[#5f6368] hover:bg-[#f1f3f4]" aria-label="Close"><X className="size-5" /></button></header>
+    <motion.div className="fixed inset-0 z-[110] grid place-items-center bg-[#020611]/75 p-4 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+      <motion.section className={`max-h-[90vh] w-full overflow-y-auto rounded-[28px] border border-white/10 bg-[#0b1220]/95 p-5 shadow-[0_24px_70px_rgba(0,4,14,0.6)] backdrop-blur-2xl sm:p-6 ${wide ? "max-w-3xl" : "max-w-md"}`} initial={{ opacity: 0, y: 20, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: .98 }}>
+        <header className="mb-5 flex items-center justify-between gap-3"><h2 className="truncate text-lg font-semibold text-slate-100">{title}</h2><button type="button" onClick={onClose} className="grid size-9 shrink-0 place-items-center rounded-full text-slate-400 hover:bg-white/[0.06]" aria-label="Close"><X className="size-5" /></button></header>
         {children}
       </motion.section>
     </motion.div>
@@ -273,7 +273,7 @@ function ModalShell({ title, onClose, wide = false, children }: { title: string;
 }
 
 function Stat({ icon: Icon, label, value }: { icon: typeof Eye; label: string; value: number }) {
-  return <div className="rounded-2xl border border-[#e1e5ea] bg-[#f8f9fa] p-4"><Icon className="size-5 text-[#1967d2]" /><strong className="mt-3 block text-2xl text-[#202124]">{value.toLocaleString()}</strong><span className="mt-1 block text-xs font-medium text-[#80868b]">{label}</span></div>;
+  return <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4"><Icon className="size-5 text-cyan-300" /><strong className="mt-3 block text-2xl text-slate-100">{value.toLocaleString()}</strong><span className="mt-1 block text-xs font-medium text-slate-400">{label}</span></div>;
 }
 
 function absoluteUrl(value: string): string {
@@ -290,10 +290,10 @@ function formatDateTime(value: string): string {
 }
 
 function stateInfo(state: ShareListItem["state"]): { label: string; className: string } {
-  if (state === "active") return { label: "Active", className: "bg-[#e6f4ea] text-[#137333]" };
-  if (state === "revoked") return { label: "Revoked", className: "bg-[#fce8e6] text-[#a50e0e]" };
-  if (state === "expired") return { label: "Expired", className: "bg-[#fef7e0] text-[#8d4e00]" };
-  return { label: "Limit reached", className: "bg-[#fef7e0] text-[#8d4e00]" };
+  if (state === "active") return { label: "Active", className: "bg-emerald-400/10 text-emerald-300" };
+  if (state === "revoked") return { label: "Revoked", className: "bg-red-400/10 text-red-300" };
+  if (state === "expired") return { label: "Expired", className: "bg-amber-400/10 text-amber-300" };
+  return { label: "Limit reached", className: "bg-amber-400/10 text-amber-300" };
 }
 
-const itemClass = "min-h-10 cursor-pointer rounded-xl px-3 text-sm text-[#3c4043] focus:bg-[#f1f3f4] focus:text-[#202124]";
+const itemClass = "min-h-10 cursor-pointer rounded-xl px-3 text-sm text-slate-200 focus:bg-white/[0.05] focus:text-slate-100";

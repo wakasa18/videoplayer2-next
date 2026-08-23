@@ -11,7 +11,7 @@ type FilesToolbarProps = {
 
 export function FilesToolbar({ filters, categories }: FilesToolbarProps) {
   return (
-    <section className="rounded-[22px] border border-[#e1e5ea] bg-white p-4 shadow-sm">
+    <section className="tech-panel rounded-[22px] p-4">
       <form method="get" action="/dashboard/files" className="space-y-3">
         {filters.folder ? (
           <input type="hidden" name="folder" value={filters.folder} />
@@ -19,15 +19,15 @@ export function FilesToolbar({ filters, categories }: FilesToolbarProps) {
         <input type="hidden" name="view" value={filters.view} />
 
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-          <label className="flex min-h-12 flex-1 items-center gap-3 rounded-full bg-[#f1f3f4] px-4 transition focus-within:bg-white focus-within:shadow-[0_1px_2px_rgba(60,64,67,.16),0_1px_3px_1px_rgba(60,64,67,.08)]">
-            <Search className="size-5 shrink-0 text-[#5f6368]" aria-hidden="true" />
+          <label className="flex min-h-12 flex-1 items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition focus-within:border-cyan-300/40 focus-within:bg-white/[0.065] focus-within:ring-2 focus-within:ring-cyan-300/10">
+            <Search className="size-5 shrink-0 text-slate-400" aria-hidden="true" />
             <span className="sr-only">Search files and folders</span>
             <input
               type="search"
               name="q"
               defaultValue={filters.q}
               placeholder="Search this folder"
-              className="min-w-0 flex-1 bg-transparent text-sm text-[#202124] outline-none placeholder:text-[#80868b]"
+              className="min-w-0 flex-1 bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500"
             />
           </label>
 
@@ -37,10 +37,10 @@ export function FilesToolbar({ filters, categories }: FilesToolbarProps) {
                 favorite: !filters.favorite,
                 page: 1,
               })}
-              className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full border px-4 text-sm font-semibold transition ${
+              className={`tech-interactive inline-flex min-h-11 items-center justify-center gap-2 rounded-full border px-4 text-sm font-semibold ${
                 filters.favorite
-                  ? "border-[#d2e3fc] bg-[#e8f0fe] text-[#1967d2]"
-                  : "border-[#dadce0] bg-white text-[#3c4043] hover:bg-[#f8f9fa]"
+                  ? "border-amber-300/25 bg-amber-400/10 text-amber-200"
+                  : "border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/[0.07]"
               }`}
             >
               <Star
@@ -50,13 +50,13 @@ export function FilesToolbar({ filters, categories }: FilesToolbarProps) {
               Favorites
             </Link>
 
-            <div className="flex rounded-full border border-[#dadce0] bg-white p-1">
+            <div className="flex rounded-full border border-white/10 bg-white/[0.03] p-1">
               <Link
                 href={buildFileQuery(filters, { view: "grid", page: 1 })}
                 className={`grid size-9 place-items-center rounded-full transition ${
                   filters.view === "grid"
-                    ? "bg-[#e8f0fe] text-[#1967d2]"
-                    : "text-[#5f6368] hover:bg-[#f1f3f4]"
+                    ? "bg-cyan-400/15 text-cyan-200"
+                    : "text-slate-400 hover:bg-white/[0.06] hover:text-slate-200"
                 }`}
                 aria-label="Grid view"
               >
@@ -66,8 +66,8 @@ export function FilesToolbar({ filters, categories }: FilesToolbarProps) {
                 href={buildFileQuery(filters, { view: "list", page: 1 })}
                 className={`grid size-9 place-items-center rounded-full transition ${
                   filters.view === "list"
-                    ? "bg-[#e8f0fe] text-[#1967d2]"
-                    : "text-[#5f6368] hover:bg-[#f1f3f4]"
+                    ? "bg-cyan-400/15 text-cyan-200"
+                    : "text-slate-400 hover:bg-white/[0.06] hover:text-slate-200"
                 }`}
                 aria-label="List view"
               >
@@ -128,7 +128,7 @@ export function FilesToolbar({ filters, categories }: FilesToolbarProps) {
           <div className="flex items-end gap-2">
             <button
               type="submit"
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#1a73e8] px-5 text-sm font-semibold text-white transition hover:bg-[#1557b0]"
+              className="tech-interactive inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-cyan-200/20 bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-[#04101d] shadow-[0_10px_24px_rgba(40,137,255,0.23)] hover:brightness-110"
             >
               <SlidersHorizontal className="size-4" aria-hidden="true" />
               Apply
@@ -146,7 +146,7 @@ export function FilesToolbar({ filters, categories }: FilesToolbarProps) {
                 },
                 {},
               )}
-              className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#dadce0] bg-white px-4 text-sm font-semibold text-[#3c4043] transition hover:bg-[#f8f9fa]"
+              className="tech-interactive inline-flex min-h-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 text-sm font-semibold text-slate-300 hover:bg-white/[0.07]"
             >
               Clear
             </Link>
@@ -171,12 +171,12 @@ function FilterSelect({
   children,
 }: FilterSelectProps) {
   return (
-    <label className="grid gap-1.5 text-xs font-semibold text-[#5f6368]">
+    <label className="grid gap-1.5 text-xs font-semibold text-slate-400">
       {label}
       <select
         name={name}
         defaultValue={defaultValue}
-        className="min-h-11 rounded-xl border border-[#dadce0] bg-white px-3 text-sm font-medium text-[#202124] outline-none transition focus:border-[#8ab4f8] focus:ring-4 focus:ring-[#e8f0fe]"
+        className="min-h-11 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-slate-100 outline-none transition focus:border-cyan-300/45 focus:ring-2 focus:ring-cyan-300/15"
       >
         {children}
       </select>
