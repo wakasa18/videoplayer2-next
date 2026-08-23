@@ -107,9 +107,11 @@ export async function GET(
       "Cache-Control": "private, no-store, max-age=0",
       "Content-Disposition": `inline; filename="${fallbackName}"; filename*=UTF-8''${encodeURIComponent(safeName)}`,
       "Content-Type": contentType,
+      "Content-Security-Policy": "base-uri 'none'; frame-ancestors 'self'; object-src 'none'; form-action 'none'",
       "Cross-Origin-Resource-Policy": "same-origin",
       "Referrer-Policy": "no-referrer",
       "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "SAMEORIGIN",
     });
 
     copyHeader(upstream.headers, responseHeaders, "accept-ranges");
@@ -123,7 +125,7 @@ export async function GET(
     if (contentType.startsWith("image/svg+xml")) {
       responseHeaders.set(
         "Content-Security-Policy",
-        "sandbox; default-src 'none'; style-src 'unsafe-inline'; img-src data: blob:",
+        "sandbox; default-src 'none'; style-src 'unsafe-inline'; img-src data: blob:; frame-ancestors 'self'",
       );
     }
 
