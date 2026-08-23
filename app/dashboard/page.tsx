@@ -8,8 +8,6 @@ import {
   Settings,
   ShieldCheck,
 } from "lucide-react";
-import Link from "next/link";
-
 import { DashboardReveal, DashboardStatCard, DashboardQuickLink } from "@/components/dashboard-reveal";
 import { getWorkspaceSummarySafe } from "@/lib/workspace/data";
 import { formatBytes } from "@/lib/workspace/utils";
