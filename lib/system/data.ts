@@ -33,6 +33,8 @@ const EXPECTED_TABLES = [
   "deployment_events",
   "maintenance_runs",
   "backup_verifications",
+  "quality_runs",
+  "quality_web_vitals",
 ] as const;
 
 export async function getSystemDiagnosticsData(): Promise<SystemDiagnosticsData> {

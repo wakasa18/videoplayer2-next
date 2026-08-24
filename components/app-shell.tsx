@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
+import { PerformanceMonitor } from "@/components/quality/performance-monitor";
 import { Sidebar } from "@/components/sidebar";
 import { TopBar } from "@/components/top-bar";
 import type { WorkspaceDefaultModule } from "@/lib/workspace/types";
@@ -45,6 +46,7 @@ export function AppShell({
 
   return (
     <div className="tech-shell min-h-screen text-slate-100">
+      <PerformanceMonitor />
       <TopBar
         userEmail={userEmail}
         displayName={displayName}
@@ -56,6 +58,8 @@ export function AppShell({
 
         <AnimatePresence mode="wait" initial={false}>
           <motion.main
+            id="main-content"
+            tabIndex={-1}
             key={pathname}
             className={compactMode ? "tech-page-transition min-w-0 flex-1 py-1" : "tech-page-transition min-w-0 flex-1 py-1"}
             initial={{ opacity: 0, y: 12, filter: "blur(6px)" }}

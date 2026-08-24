@@ -5,6 +5,7 @@ import {
   BookOpenCheck,
   ClipboardList,
   FolderOpen,
+  FlaskConical,
   Home,
   Link2,
   Plus,
@@ -39,6 +40,7 @@ const links = [
   { href: "/dashboard/deployment", label: "Deployment", icon: Rocket },
   { href: "/dashboard/system", label: "System Check", icon: ShieldCheck },
   { href: "/dashboard/maintenance", label: "Maintenance", icon: Wrench },
+  { href: "/dashboard/quality", label: "Quality Assurance", icon: FlaskConical },
 ];
 
 type SidebarProps = {
@@ -160,7 +162,7 @@ export function Sidebar({
             System online
           </div>
           <div className="mt-2 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-slate-500">
-            <Zap className="size-3 text-cyan-300" /> Phase 10 production
+            <Zap className="size-3 text-cyan-300" /> Phase 11 quality release
           </div>
         </div>
       </div>

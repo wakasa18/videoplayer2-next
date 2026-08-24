@@ -30,3 +30,16 @@ Read:
 - `docs/PHASE8_ROLLBACK_GUIDE.md`
 
 Server secrets must never be exposed through `NEXT_PUBLIC_` variables. Keep Row Level Security enabled for every exposed table and Storage policy.
+
+## Phase 11 quality assurance
+
+Run `database/phase11_quality_assurance.sql`, then open `/dashboard/quality` to run final security, schema, Storage, automation, stability, Web Vitals, and accessibility checks.
+
+Useful commands:
+
+```bash
+npm run check
+npm run release:check
+npm run build
+npm run smoke:production -- https://your-domain.com
+```

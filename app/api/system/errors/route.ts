@@ -33,6 +33,29 @@ export async function POST(request: Request) {
       created_at: new Date().toISOString(),
     };
 
+    const duplicateCutoff = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+    let duplicateQuery = client
+      .from("system_error_logs")
+      .select("id")
+      .eq("owner_id", user.id)
+      .eq("source", row.source)
+      .eq("message", row.message)
+      .gte("created_at", duplicateCutoff)
+      .limit(1);
+
+    duplicateQuery = row.digest
+      ? duplicateQuery.eq("digest", row.digest)
+      : duplicateQuery.is("digest", null);
+    duplicateQuery = row.path
+      ? duplicateQuery.eq("path", row.path)
+      : duplicateQuery.is("path", null);
+
+    const { data: duplicate, error: duplicateError } =
+      await duplicateQuery.maybeSingle();
+    if (!duplicateError && duplicate) {
+      return Response.json({ success: true, duplicate: true });
+    }
+
     const { error } = await client.from("system_error_logs").insert(row);
     if (error) {
       throw new SystemRequestError(
@@ -40,7 +63,7 @@ export async function POST(request: Request) {
         503,
       );
     }
-    return Response.json({ success: true }, { status: 201 });
+    return Response.json({ success: true, duplicate: false }, { status: 201 });
   } catch (error) {
     return systemErrorResponse(error);
   }
@@ -49,13 +72,19 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const { client, user } = await requireSystemContext(request);
+    const url = new URL(request.url);
+    const scope = url.searchParams.get("scope");
     const cutoff = new Date();
     cutoff.setUTCDate(cutoff.getUTCDate() - 90);
-    const { error, count } = await client
+
+    let deleteQuery = client
       .from("system_error_logs")
       .delete({ count: "exact" })
-      .eq("owner_id", user.id)
-      .lt("created_at", cutoff.toISOString());
+      .eq("owner_id", user.id);
+    if (scope !== "all") {
+      deleteQuery = deleteQuery.lt("created_at", cutoff.toISOString());
+    }
+    const { error, count } = await deleteQuery;
     if (error) throw new SystemRequestError(error.message, 500);
     return Response.json({ success: true, deleted: count ?? 0 });
   } catch (error) {

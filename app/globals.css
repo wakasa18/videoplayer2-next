@@ -780,3 +780,33 @@
     transform: none !important;
   }
 }
+
+@layer components {
+  .skip-link {
+    position: fixed;
+    left: 1rem;
+    top: 1rem;
+    z-index: 9999;
+    transform: translateY(-180%);
+    border: 1px solid rgba(103, 232, 249, 0.45);
+    border-radius: 0.75rem;
+    background: #07101d;
+    padding: 0.7rem 1rem;
+    color: #e6f9ff;
+    font-size: 0.875rem;
+    font-weight: 700;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    transition: transform 160ms ease;
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+}
+
+@layer base {
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid rgba(103, 232, 249, 0.88);
+    outline-offset: 3px;
+  }
+}
