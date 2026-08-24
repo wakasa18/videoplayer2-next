@@ -43,6 +43,27 @@ export function MaintenanceClient({ data }: { data: MaintenanceDashboardData }) 
     }
   }
 
+  async function clearReviewedErrors() {
+    const confirmed = window.confirm(
+      "Clear all reviewed application error logs? This does not change files, videos, or assignments.",
+    );
+    if (!confirmed) return;
+
+    setBusy("errors");
+    setMessage("Clearing reviewed application error logs...");
+    try {
+      const response = await fetch("/api/system/errors?scope=all", { method: "DELETE" });
+      const payload = (await response.json()) as { error?: string; deleted?: number };
+      if (!response.ok) throw new Error(payload.error ?? "Could not clear error logs.");
+      setMessage(`Cleared ${payload.deleted ?? 0} reviewed error report(s).`);
+      router.refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Could not clear error logs.");
+    } finally {
+      setBusy("");
+    }
+  }
+
   async function verifyBackup(file: File) {
     setBusy("backup");
     setMessage("Reading and validating backup metadata...");
@@ -88,7 +109,13 @@ export function MaintenanceClient({ data }: { data: MaintenanceDashboardData }) 
 
   const current = data.current;
   const stale = current.records.stalePendingFiles + current.records.stalePendingVideos;
-  const missing = current.storage.missingFiles + current.storage.missingVideos;
+  const missing =
+    current.storage.missingFiles +
+    current.storage.missingVideos +
+    current.storage.missingPathFiles +
+    current.storage.missingPathVideos;
+  const invalidSizes =
+    current.storage.invalidFileSizes + current.storage.invalidVideoSizes;
 
   return (
     <div className="space-y-5">
@@ -96,7 +123,7 @@ export function MaintenanceClient({ data }: { data: MaintenanceDashboardData }) 
         <SummaryCard icon={ShieldCheck} label="Maintenance status" value={statusLabel(current.status)} status={current.status} />
         <SummaryCard icon={HardDrive} label="Storage used" value={formatBytes(current.storage.totalBytes)} detail={`${current.storage.quotaPercent.toFixed(1)}% of quota`} status={current.storage.quotaPercent >= 100 ? "critical" : current.storage.quotaPercent >= 80 ? "attention" : "healthy"} />
         <SummaryCard icon={Clock3} label="Stale uploads" value={String(stale)} detail="Pending over 24 hours" status={stale ? "attention" : "healthy"} />
-        <SummaryCard icon={AlertTriangle} label="Errors in 24 hours" value={String(current.records.errors24h)} detail={`${missing} sampled missing object(s)`} status={current.records.errors24h || missing ? "attention" : "healthy"} />
+        <SummaryCard icon={AlertTriangle} label="Review items" value={String(current.records.errors24h + missing + current.storage.auditErrors)} detail={`${current.records.errorReports24h} error report(s) · ${missing} missing path/object(s)`} status={current.records.errors24h || missing || current.storage.auditErrors ? "attention" : "healthy"} />
       </section>
 
       <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
@@ -132,8 +159,16 @@ export function MaintenanceClient({ data }: { data: MaintenanceDashboardData }) 
             <Stat label="Video storage" value={formatBytes(current.storage.videoBytes)} />
             <Stat label="Pending files" value={String(current.records.pendingFiles)} />
             <Stat label="Pending videos" value={String(current.records.pendingVideos)} />
-            <Stat label="Errors in 7 days" value={String(current.records.errors7d)} />
-            <Stat label="Errors in 30 days" value={String(current.records.errors30d)} />
+            <Stat label="Missing Storage paths" value={String(current.storage.missingPathFiles + current.storage.missingPathVideos)} />
+            <Stat label="Missing audited objects" value={String(current.storage.missingFiles + current.storage.missingVideos)} />
+            <Stat label="Storage audit errors" value={String(current.storage.auditErrors)} />
+            <Stat label="Invalid file sizes" value={String(invalidSizes)} />
+            <Stat label="Storage objects audited" value={`${current.storage.auditedObjects}/${current.storage.auditCandidates}`} />
+            <Stat label="Audit coverage" value={`${current.storage.auditCoveragePercent.toFixed(1)}%`} />
+            <Stat label="Unique errors in 7 days" value={String(current.records.errors7d)} />
+            <Stat label="Unique errors in 30 days" value={String(current.records.errors30d)} />
+            <Stat label="Error reports in 7 days" value={String(current.records.errorReports7d)} />
+            <Stat label="Error reports in 30 days" value={String(current.records.errorReports30d)} />
           </dl>
           <div className="mt-5">
             <div className="flex justify-between text-xs font-medium text-slate-400"><span>Storage quota</span><span>{current.storage.quotaPercent.toFixed(1)}%</span></div>
@@ -156,6 +191,60 @@ export function MaintenanceClient({ data }: { data: MaintenanceDashboardData }) 
           </div>
         </section>
       </div>
+
+      <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
+        <div className="flex items-center gap-3">
+          <span className="grid size-11 place-items-center rounded-2xl bg-indigo-400/10 text-indigo-300"><ShieldCheck className="size-5" /></span>
+          <div>
+            <h2 className="text-lg font-semibold text-slate-100">Automation and configuration</h2>
+            <p className="text-sm text-slate-400">Production secrets, daily cron health, and rate-limit availability.</p>
+          </div>
+        </div>
+        <dl className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <ConfigStat label="Supabase server secret" healthy={current.configuration.serverSecret} value={current.configuration.serverSecret ? "Configured" : "Missing"} />
+          <ConfigStat label="Cron secret" healthy={current.configuration.cronSecret} value={current.configuration.cronSecret ? "Configured" : "Missing"} />
+          <ConfigStat label="Rate limiting" healthy={current.configuration.rateLimitFunction} value={current.configuration.rateLimitFunction ? "Available" : "Unavailable"} />
+          <ConfigStat label="Daily maintenance" healthy={current.configuration.cronFresh && current.configuration.lastCronStatus !== "critical"} value={current.configuration.lastCronRunAt ? `${current.configuration.cronFresh ? "Fresh" : "Overdue"} · ${formatDate(current.configuration.lastCronRunAt)}` : "No completed run"} />
+        </dl>
+      </section>
+
+      <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <span className="grid size-11 place-items-center rounded-2xl bg-amber-400/10 text-amber-300"><AlertTriangle className="size-5" /></span>
+            <div>
+              <h2 className="text-lg font-semibold text-slate-100">Recent application errors</h2>
+              <p className="text-sm text-slate-400">Repeated reports of the same error are grouped together.</p>
+            </div>
+          </div>
+          {current.recentErrors.length ? (
+            <button type="button" disabled={Boolean(busy)} onClick={() => void clearReviewedErrors()} className={secondaryButton}>
+              {busy === "errors" ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />} Clear reviewed logs
+            </button>
+          ) : null}
+        </div>
+        {current.recentErrors.length ? (
+          <div className="mt-5 grid gap-3">
+            {current.recentErrors.map((error) => (
+              <article key={`${error.id}-${error.digest ?? error.message}`} className="rounded-2xl border border-white/10 bg-white/[0.025] p-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <strong className="text-sm text-slate-100">{error.source}</strong>
+                      {error.occurrences > 1 ? <span className="rounded-full bg-amber-400/10 px-2.5 py-1 text-xs font-semibold text-amber-300">{error.occurrences} reports</span> : null}
+                    </div>
+                    <p className="mt-2 break-words text-sm leading-6 text-slate-300">{error.message}</p>
+                    <p className="mt-2 break-all text-xs text-slate-500">{error.path ?? "Path unavailable"}</p>
+                  </div>
+                  <time className="shrink-0 text-xs text-slate-400">{formatDate(error.createdAt)}</time>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-5 rounded-2xl bg-emerald-400/10 p-4 text-sm text-emerald-300">No application errors are currently recorded.</div>
+        )}
+      </section>
 
       <div className="grid gap-5 xl:grid-cols-2">
         <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
@@ -180,6 +269,9 @@ function SummaryCard({ icon: Icon, label, value, detail, status }: { icon: typeo
   return <article className="rounded-[22px] border border-white/10 bg-white/[0.045] p-5 shadow-sm"><div className="flex items-center justify-between"><Icon className="size-5 text-cyan-300" /><StatusDot status={status} /></div><span className="mt-4 block text-sm font-medium text-slate-400">{label}</span><strong className="mt-1 block text-2xl font-semibold text-slate-100">{value}</strong>{detail ? <p className="mt-1 text-xs text-slate-400">{detail}</p> : null}</article>;
 }
 function Stat({ label, value }: { label: string; value: string }) { return <div className="rounded-2xl bg-white/[0.035] p-4"><dt className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</dt><dd className="mt-1 text-lg font-semibold text-slate-100">{value}</dd></div>; }
+function ConfigStat({ label, value, healthy }: { label: string; value: string; healthy: boolean }) {
+  return <div className={`rounded-2xl border p-4 ${healthy ? "border-emerald-300/15 bg-emerald-400/[0.06]" : "border-amber-300/15 bg-amber-400/[0.06]"}`}><dt className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</dt><dd className={`mt-2 text-sm font-semibold ${healthy ? "text-emerald-300" : "text-amber-300"}`}>{value}</dd></div>;
+}
 function StatusDot({ status }: { status: MaintenanceStatus }) { return status === "healthy" ? <CheckCircle2 className="size-5 text-emerald-300" /> : status === "attention" ? <AlertTriangle className="size-5 text-amber-300" /> : <XCircle className="size-5 text-red-300" />; }
 function StatusBadge({ status }: { status: MaintenanceStatus }) { return <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${status === "healthy" ? "bg-emerald-400/10 text-emerald-300" : status === "attention" ? "bg-amber-400/10 text-amber-300" : "bg-red-400/10 text-red-300"}`}>{statusLabel(status)}</span>; }
 function VerificationBadge({ status }: { status: "pass" | "warn" | "fail" }) { return <span className={`rounded-full px-2 py-1 text-xs font-semibold ${status === "pass" ? "bg-emerald-400/10 text-emerald-300" : status === "warn" ? "bg-amber-400/10 text-amber-300" : "bg-red-400/10 text-red-300"}`}>{status}</span>; }

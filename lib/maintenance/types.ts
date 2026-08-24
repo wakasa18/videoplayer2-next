@@ -6,6 +6,17 @@ export type MaintenanceTiming = {
   status: "fast" | "review" | "slow";
 };
 
+
+export type MaintenanceRecentError = {
+  id: number;
+  source: string;
+  message: string;
+  digest: string | null;
+  path: string | null;
+  createdAt: string;
+  occurrences: number;
+};
+
 export type MaintenanceCleanup = {
   staleFilesDeleted: number;
   staleVideosDeleted: number;
@@ -28,6 +39,14 @@ export type MaintenanceReport = {
     quotaPercent: number;
     missingFiles: number;
     missingVideos: number;
+    missingPathFiles: number;
+    missingPathVideos: number;
+    invalidFileSizes: number;
+    invalidVideoSizes: number;
+    auditErrors: number;
+    auditedObjects: number;
+    auditCandidates: number;
+    auditCoveragePercent: number;
     sampledObjects: number;
   };
   records: {
@@ -38,12 +57,19 @@ export type MaintenanceReport = {
     errors24h: number;
     errors7d: number;
     errors30d: number;
+    errorReports24h: number;
+    errorReports7d: number;
+    errorReports30d: number;
   };
+  recentErrors: MaintenanceRecentError[];
   configuration: {
     serverSecret: boolean;
     cronSecret: boolean;
     rateLimitFunction: boolean;
     errorRetentionDays: number;
+    cronFresh: boolean;
+    lastCronRunAt: string | null;
+    lastCronStatus: MaintenanceStatus | null;
   };
   timings: MaintenanceTiming[];
   warnings: string[];

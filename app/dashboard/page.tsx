@@ -1,4 +1,6 @@
-import { Cloud } from "lucide-react";
+import {
+  Cloud,
+} from "lucide-react";
 import { DashboardReveal, DashboardStatCard, DashboardQuickLink } from "@/components/dashboard-reveal";
 import { getWorkspaceSummarySafe } from "@/lib/workspace/data";
 import { formatBytes } from "@/lib/workspace/utils";
