@@ -2,6 +2,7 @@
 
 import {
   Activity,
+  BadgeCheck,
   BookOpenCheck,
   ClipboardList,
   FolderOpen,
@@ -41,6 +42,7 @@ const links = [
   { href: "/dashboard/system", label: "System Check", icon: ShieldCheck },
   { href: "/dashboard/maintenance", label: "Maintenance", icon: Wrench },
   { href: "/dashboard/quality", label: "Quality Assurance", icon: FlaskConical },
+  { href: "/dashboard/handoff", label: "Final Handoff", icon: BadgeCheck },
 ];
 
 type SidebarProps = {
@@ -162,7 +164,7 @@ export function Sidebar({
             System online
           </div>
           <div className="mt-2 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-slate-500">
-            <Zap className="size-3 text-cyan-300" /> Phase 11 quality release
+            <Zap className="size-3 text-cyan-300" /> Phase 12 final handoff
           </div>
         </div>
       </div>

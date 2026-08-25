@@ -31,6 +31,10 @@ export async function GET(request: Request) {
       deploymentEventsResult,
       maintenanceRunsResult,
       backupVerificationsResult,
+      qualityRunsResult,
+      qualityVitalsResult,
+      handoffItemsResult,
+      handoffRunsResult,
     ] = await Promise.all([
       client
         .from("workspace_profiles")
@@ -120,12 +124,36 @@ export async function GET(request: Request) {
         .eq("owner_id", user.id)
         .order("verified_at", { ascending: false })
         .limit(500),
+      client
+        .from("quality_runs")
+        .select("id,release,status,score,summary,checks,metrics,total_duration_ms,created_at")
+        .eq("owner_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(500),
+      client
+        .from("quality_web_vitals")
+        .select("metric_id,name,value,delta,rating,navigation_type,path,created_at")
+        .eq("owner_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(2000),
+      client
+        .from("handoff_acceptance_items")
+        .select("item_key,status,evidence,created_at,updated_at")
+        .eq("owner_id", user.id)
+        .order("updated_at", { ascending: false })
+        .limit(500),
+      client
+        .from("handoff_acceptance_runs")
+        .select("id,release,status,accepted_by,notes,readiness,checklist,accepted_at,created_at")
+        .eq("owner_id", user.id)
+        .order("accepted_at", { ascending: false })
+        .limit(100),
     ]);
 
     const warnings: string[] = [];
     const backup = {
-      schema: "damons-archive-phase10-metadata-backup",
-      version: 3,
+      schema: "damons-archive-phase12-metadata-backup",
+      version: 4,
       generated_at: new Date().toISOString(),
       account: {
         user_id: user.id,
@@ -146,6 +174,10 @@ export async function GET(request: Request) {
       deployment_events: collect("deployment_events", deploymentEventsResult, warnings),
       maintenance_runs: collect("maintenance_runs", maintenanceRunsResult, warnings),
       backup_verifications: collect("backup_verifications", backupVerificationsResult, warnings),
+      quality_runs: collect("quality_runs", qualityRunsResult, warnings),
+      quality_web_vitals: collect("quality_web_vitals", qualityVitalsResult, warnings),
+      handoff_acceptance_items: collect("handoff_acceptance_items", handoffItemsResult, warnings),
+      handoff_acceptance_runs: collect("handoff_acceptance_runs", handoffRunsResult, warnings),
       warnings,
       note: "This backup contains metadata only. Private Storage objects and authentication secrets are not included.",
     };
