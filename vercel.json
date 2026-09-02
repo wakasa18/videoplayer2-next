@@ -3,6 +3,10 @@
   "framework": "nextjs",
   "crons": [
     {
+      "path": "/api/assignments/automation",
+      "schedule": "0 23 * * *"
+    },
+    {
       "path": "/api/maintenance/daily",
       "schedule": "0 0 * * *"
     }

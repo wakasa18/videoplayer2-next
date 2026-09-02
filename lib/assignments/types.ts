@@ -224,6 +224,11 @@ export type AssignmentProductivityStats = {
 };
 
 export type AssignmentProductivityData = {
+  emailService: {
+    configured: boolean;
+    provider: "gmail" | "webhook" | "none";
+    sender: string | null;
+  };
   templates: AssignmentTemplate[];
   notifications: AssignmentNotification[];
   unreadCount: number;

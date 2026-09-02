@@ -2,6 +2,10 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import {
+  sendAssignmentDigestEmail,
+  sendAssignmentReminderEmail,
+} from "@/lib/assignments/email";
 import type {
   AssignmentRecurrence,
   AssignmentStatus,
@@ -317,54 +321,72 @@ export async function processAssignmentAutomation(
         ? `${assignment.title} was due ${formatDateTime(dueAt)}.`
         : `${assignment.title} is due ${formatDateTime(dueAt)}.`;
 
-      let inserted = false;
-      if (preference?.in_app_enabled !== false) {
-        inserted = await createNotification(client, {
-          ownerId: assignment.owner_id,
-          assignmentId: assignment.id,
-          eventType: overdue ? "overdue" : "reminder",
-          title: overdue ? "Assignment overdue" : "Assignment reminder",
-          message,
-          dedupeKey: `reminder:${assignment.id}:${reminderKey}`,
-        });
-      }
+      const inAppEnabled = preference?.in_app_enabled !== false;
+      const emailEnabled = Boolean(preference?.email_enabled && preference.email_address);
+      if (!inAppEnabled && !emailEnabled) continue;
 
+      const dedupeKey = `reminder:${assignment.id}:${reminderKey}`;
+      const inserted = await createNotification(client, {
+        ownerId: assignment.owner_id,
+        assignmentId: assignment.id,
+        eventType: overdue ? "overdue" : "reminder",
+        title: overdue ? "Assignment overdue" : "Assignment reminder",
+        message,
+        dedupeKey,
+      });
+      if (inserted && inAppEnabled) result.remindersCreated += 1;
+
+      let emailDelivered = !emailEnabled;
       let emailedAt: string | null = null;
-      if (preference?.email_enabled && preference.email_address) {
-        const emailed = await requestReminderEmail({
-          email: preference.email_address,
-          assignmentId: assignment.id,
-          title: assignment.title,
-          message,
-          dueAt: dueAt?.toISOString() ?? null,
-          ownerId: assignment.owner_id,
-        });
-        if (emailed) {
-          emailedAt = now.toISOString();
-          result.emailsRequested += 1;
+      if (emailEnabled && preference?.email_address) {
+        const previousEmail = await getNotificationEmailedAt(
+          client,
+          assignment.owner_id,
+          dedupeKey,
+        );
+        if (previousEmail) {
+          emailDelivered = true;
+          emailedAt = previousEmail;
+        } else {
+          const emailResult = await sendAssignmentReminderEmail({
+            email: preference.email_address,
+            assignmentId: assignment.id,
+            title: assignment.title,
+            message,
+            dueAt: dueAt?.toISOString() ?? null,
+            ownerId: assignment.owner_id,
+            overdue,
+          });
+          if (emailResult.ok) {
+            emailedAt = now.toISOString();
+            emailDelivered = true;
+            result.emailsRequested += 1;
+            await markNotificationEmailed(
+              client,
+              assignment.owner_id,
+              dedupeKey,
+              emailedAt,
+            );
+          } else {
+            result.errors.push(
+              `Email reminder for "${assignment.title}" failed: ${emailResult.error ?? "Unknown email error."}`,
+            );
+          }
         }
       }
 
+      const deliveryCompleted = emailDelivered;
       const { error: updateError } = await client
         .from("assignments")
         .update({
           reminder_due_at: reminderAt.toISOString(),
-          reminder_sent_at: now.toISOString(),
+          ...(deliveryCompleted ? { reminder_sent_at: now.toISOString() } : {}),
           snoozed_until: null,
           updated_at: now.toISOString(),
         })
         .eq("id", assignment.id)
         .eq("owner_id", assignment.owner_id);
       if (updateError) throw new Error(updateError.message);
-
-      if (inserted) result.remindersCreated += 1;
-      if (emailedAt) {
-        await client
-          .from("assignment_notifications")
-          .update({ emailed_at: emailedAt })
-          .eq("owner_id", assignment.owner_id)
-          .eq("dedupe_key", `reminder:${assignment.id}:${reminderKey}`);
-      }
     } catch (error) {
       result.errors.push(error instanceof Error ? error.message : "Reminder processing failed.");
     }
@@ -492,13 +514,23 @@ async function createDailyDigests(
   for (const [ownerId, assignments] of grouped) {
     const preference = preferences.get(ownerId);
     if (!preference?.daily_digest_enabled) continue;
-    const [hour = 7] = String(preference.digest_time || "07:00").split(":").map(Number);
-    if (manilaNow.getHours() < hour) continue;
+    const [hour = 7, minute = 0] = String(preference.digest_time || "07:00")
+      .split(":")
+      .map(Number);
+    const currentMinutes = manilaNow.getHours() * 60 + manilaNow.getMinutes();
+    if (currentMinutes < hour * 60 + minute) continue;
 
     const dueToday = assignments.filter((assignment) => assignment.due_date === dateKey);
-    const overdue = assignments.filter((assignment) => assignment.due_date && assignment.due_date < dateKey);
+    const overdue = assignments.filter(
+      (assignment) => assignment.due_date && assignment.due_date < dateKey,
+    );
     if (dueToday.length === 0 && overdue.length === 0) continue;
 
+    const emailEnabled = Boolean(preference.email_enabled && preference.email_address);
+    const inAppEnabled = preference.in_app_enabled !== false;
+    if (!inAppEnabled && !emailEnabled) continue;
+
+    const dedupeKey = `digest:${dateKey}`;
     try {
       const created = await createNotification(client, {
         ownerId,
@@ -506,42 +538,78 @@ async function createDailyDigests(
         eventType: "digest",
         title: "Daily assignment summary",
         message: `${dueToday.length} due today · ${overdue.length} overdue.`,
-        dedupeKey: `digest:${dateKey}`,
+        dedupeKey,
       });
-      if (created) result.remindersCreated += 1;
+      if (created && inAppEnabled) result.remindersCreated += 1;
+
+      if (emailEnabled && preference.email_address) {
+        const previousEmail = await getNotificationEmailedAt(client, ownerId, dedupeKey);
+        if (!previousEmail) {
+          const emailResult = await sendAssignmentDigestEmail({
+            email: preference.email_address,
+            ownerId,
+            dateKey,
+            dueToday: dueToday.map((assignment) => ({
+              id: assignment.id,
+              title: assignment.title,
+              dueAt: assignmentDueInstant(assignment)?.toISOString() ?? null,
+              overdue: false,
+            })),
+            overdue: overdue.map((assignment) => ({
+              id: assignment.id,
+              title: assignment.title,
+              dueAt: assignmentDueInstant(assignment)?.toISOString() ?? null,
+              overdue: true,
+            })),
+          });
+          if (emailResult.ok) {
+            result.emailsRequested += 1;
+            await markNotificationEmailed(
+              client,
+              ownerId,
+              dedupeKey,
+              new Date().toISOString(),
+            );
+          } else {
+            result.errors.push(
+              `Daily assignment email failed: ${emailResult.error ?? "Unknown email error."}`,
+            );
+          }
+        }
+      }
     } catch (error) {
       result.errors.push(error instanceof Error ? error.message : "Daily digest failed.");
     }
   }
 }
 
-async function requestReminderEmail(input: {
-  email: string;
-  assignmentId: number;
-  title: string;
-  message: string;
-  dueAt: string | null;
-  ownerId: string;
-}): Promise<boolean> {
-  const endpoint = process.env.ASSIGNMENT_EMAIL_WEBHOOK_URL?.trim();
-  if (!endpoint) return false;
+async function getNotificationEmailedAt(
+  client: SupabaseClient,
+  ownerId: string,
+  dedupeKey: string,
+): Promise<string | null> {
+  const { data, error } = await client
+    .from("assignment_notifications")
+    .select("emailed_at")
+    .eq("owner_id", ownerId)
+    .eq("dedupe_key", dedupeKey)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return data?.emailed_at ? String(data.emailed_at) : null;
+}
 
-  try {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(process.env.ASSIGNMENT_EMAIL_WEBHOOK_SECRET
-          ? { Authorization: `Bearer ${process.env.ASSIGNMENT_EMAIL_WEBHOOK_SECRET}` }
-          : {}),
-      },
-      body: JSON.stringify({ type: "assignment_reminder", ...input }),
-      signal: AbortSignal.timeout(10_000),
-    });
-    return response.ok;
-  } catch {
-    return false;
-  }
+async function markNotificationEmailed(
+  client: SupabaseClient,
+  ownerId: string,
+  dedupeKey: string,
+  emailedAt: string,
+): Promise<void> {
+  const { error } = await client
+    .from("assignment_notifications")
+    .update({ emailed_at: emailedAt })
+    .eq("owner_id", ownerId)
+    .eq("dedupe_key", dedupeKey);
+  if (error) throw new Error(error.message);
 }
 
 function toDateKey(date: Date): string {

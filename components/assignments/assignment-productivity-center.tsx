@@ -10,11 +10,13 @@ import {
   Flame,
   Gauge,
   Loader2,
+  Mail,
   Play,
   Plus,
   RefreshCw,
   Repeat2,
   Save,
+  Send,
   Sparkles,
   Trash2,
   X,
@@ -42,6 +44,11 @@ export function AssignmentProductivityCenter({
   const [savingPreferences, setSavingPreferences] = useState(false);
   const [running, setRunning] = useState(false);
   const [runMessage, setRunMessage] = useState("");
+  const [testingEmail, setTestingEmail] = useState(false);
+  const [emailTestResult, setEmailTestResult] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
   const [editingTemplate, setEditingTemplate] = useState<AssignmentTemplate | null>(null);
   const [templateFormOpen, setTemplateFormOpen] = useState(false);
 
@@ -88,6 +95,32 @@ export function AssignmentProductivityCenter({
     }
   }
 
+  async function sendTestEmail() {
+    if (testingEmail) return;
+    setTestingEmail(true);
+    setEmailTestResult(null);
+    try {
+      const response = await fetch("/api/assignments/notifications/test-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emailAddress: preferences.email_address }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error ?? "The test email could not be sent.");
+      setEmailTestResult({
+        type: "success",
+        message: `Test email sent to ${payload.email}.`,
+      });
+    } catch (error) {
+      setEmailTestResult({
+        type: "error",
+        message: error instanceof Error ? error.message : "The test email could not be sent.",
+      });
+    } finally {
+      setTestingEmail(false);
+    }
+  }
+
   async function runAutomation() {
     if (running) return;
     setRunning(true);
@@ -97,7 +130,7 @@ export function AssignmentProductivityCenter({
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error ?? "Automation could not run.");
       setRunMessage(
-        `${payload.remindersCreated ?? 0} reminders · ${payload.recurrencesCreated ?? 0} recurring tasks created`,
+        `${payload.remindersCreated ?? 0} reminders · ${payload.emailsRequested ?? 0} emails sent · ${payload.recurrencesCreated ?? 0} recurring tasks created`,
       );
       router.refresh();
     } catch (error) {
@@ -239,22 +272,66 @@ export function AssignmentProductivityCenter({
             />
             <ToggleRow
               label="Email reminders"
-              description="Send through the configured server email webhook."
+              description="Send due-soon reminders, overdue alerts, and enabled daily summaries to your email."
               checked={preferences.email_enabled}
-              onChange={(checked) => setPreferences((value) => ({ ...value, email_enabled: checked }))}
+              onChange={(checked) => {
+                setPreferences((value) => ({ ...value, email_enabled: checked }));
+                setEmailTestResult(null);
+              }}
             />
+            <div className={`rounded-2xl border p-3 ${data.emailService.configured ? "border-emerald-300/20 bg-emerald-400/[0.06]" : "border-amber-300/20 bg-amber-400/[0.06]"}`}>
+              <div className="flex items-start gap-3">
+                <span className={`grid size-9 shrink-0 place-items-center rounded-xl ${data.emailService.configured ? "bg-emerald-400/10 text-emerald-300" : "bg-amber-400/10 text-amber-300"}`}>
+                  {data.emailService.configured ? <CheckCircle2 className="size-4" /> : <Mail className="size-4" />}
+                </span>
+                <div className="min-w-0">
+                  <strong className="block text-sm text-slate-100">
+                    {data.emailService.configured
+                      ? `Email service ready via ${data.emailService.provider === "gmail" ? "Gmail SMTP" : "webhook"}`
+                      : "Email service needs configuration"}
+                  </strong>
+                  <p className="mt-1 text-xs leading-5 text-slate-400">
+                    {data.emailService.configured
+                      ? data.emailService.sender
+                        ? `Sender: ${data.emailService.sender}`
+                        : "The existing assignment email webhook will be used."
+                      : "Add GMAIL_SMTP_USER and GMAIL_SMTP_APP_PASSWORD to the Vercel environment variables."}
+                  </p>
+                </div>
+              </div>
+            </div>
             {preferences.email_enabled ? (
-              <label className="block">
-                <span className="mb-2 block text-xs font-semibold text-slate-400">Reminder email</span>
-                <input
-                  type="email"
-                  value={preferences.email_address ?? ""}
-                  onChange={(event) => setPreferences((value) => ({ ...value, email_address: event.target.value }))}
-                  required
-                  className={inputClass}
-                  placeholder="you@example.com"
-                />
-              </label>
+              <div className="space-y-2">
+                <label className="block">
+                  <span className="mb-2 block text-xs font-semibold text-slate-400">Reminder email</span>
+                  <input
+                    type="email"
+                    value={preferences.email_address ?? ""}
+                    onChange={(event) => {
+                      setPreferences((value) => ({ ...value, email_address: event.target.value }));
+                      setEmailTestResult(null);
+                    }}
+                    required
+                    className={inputClass}
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={sendTestEmail}
+                  disabled={testingEmail || !preferences.email_address}
+                  className={`${secondaryButtonClass} w-full justify-center`}
+                >
+                  {testingEmail ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+                  Send test email
+                </button>
+                {emailTestResult ? (
+                  <p className={`rounded-xl px-3 py-2 text-xs leading-5 ${emailTestResult.type === "success" ? "bg-emerald-400/10 text-emerald-200" : "bg-red-400/10 text-red-200"}`}>
+                    {emailTestResult.message}
+                  </p>
+                ) : null}
+              </div>
             ) : null}
             <ToggleRow
               label="Daily digest"
@@ -323,6 +400,7 @@ export function AssignmentProductivityCenter({
                   </div>
                   <div className="text-right text-xs leading-5 text-slate-400">
                     <div>{run.reminders_created} reminders</div>
+                    <div>{run.emails_requested} emails</div>
                     <div>{run.recurrences_created} recurrences</div>
                   </div>
                 </div>

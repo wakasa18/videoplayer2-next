@@ -10,6 +10,7 @@ import type {
   AssignmentRecurrence,
   AssignmentTemplate,
 } from "@/lib/assignments/types";
+import { getAssignmentEmailServiceStatus } from "@/lib/assignments/email";
 import { normalizePriority } from "@/lib/assignments/utils";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient as createSessionClient } from "@/lib/supabase/server";
@@ -25,16 +26,17 @@ const DEFAULT_PREFERENCES: AssignmentNotificationPreferences = {
 };
 
 export async function getAssignmentProductivityData(): Promise<AssignmentProductivityData> {
-  const { client, userId } = await getProductivityContext();
+  const { client, userId, userEmail } = await getProductivityContext();
   const [templates, notifications, preferences, assignments, runs] = await Promise.all([
     loadTemplates(client, userId),
     loadNotifications(client, userId, 50),
-    loadPreferences(client, userId),
+    loadPreferences(client, userId, userEmail),
     loadAssignments(client, userId),
     loadAutomationRuns(client, userId),
   ]);
 
   return {
+    emailService: getAssignmentEmailServiceStatus(),
     templates,
     notifications,
     unreadCount: notifications.filter((notification) => !notification.read_at).length,
@@ -49,16 +51,19 @@ export async function getAssignmentNotificationFeed(limit = 12): Promise<{
   unreadCount: number;
   preferences: AssignmentNotificationPreferences;
 }> {
-  const { client, userId } = await getProductivityContext();
+  const { client, userId, userEmail } = await getProductivityContext();
   const [notifications, preferences, unreadResult] = await Promise.all([
     loadNotifications(client, userId, Math.min(Math.max(limit, 1), 50)),
-    loadPreferences(client, userId),
+    loadPreferences(client, userId, userEmail),
     client
       .from("assignment_notifications")
       .select("id", { count: "exact", head: true })
       .eq("owner_id", userId)
       .is("read_at", null),
   ]);
+  if (!preferences.in_app_enabled) {
+    return { notifications: [], unreadCount: 0, preferences };
+  }
   return {
     notifications,
     unreadCount: unreadResult.count ?? notifications.filter((item) => !item.read_at).length,
@@ -69,6 +74,7 @@ export async function getAssignmentNotificationFeed(limit = 12): Promise<{
 async function getProductivityContext(): Promise<{
   client: SupabaseClient;
   userId: string;
+  userEmail: string | null;
 }> {
   const sessionClient = await createSessionClient();
   const {
@@ -76,7 +82,11 @@ async function getProductivityContext(): Promise<{
     error,
   } = await sessionClient.auth.getUser();
   if (error || !user) throw new Error("Authentication required.");
-  return { client: createAdminClient() ?? sessionClient, userId: user.id };
+  return {
+    client: createAdminClient() ?? sessionClient,
+    userId: user.id,
+    userEmail: user.email ?? null,
+  };
 }
 
 async function loadTemplates(
@@ -156,6 +166,7 @@ async function loadNotifications(
 async function loadPreferences(
   client: SupabaseClient,
   userId: string,
+  defaultEmail: string | null,
 ): Promise<AssignmentNotificationPreferences> {
   const { data, error } = await client
     .from("assignment_notification_preferences")
@@ -165,10 +176,10 @@ async function loadPreferences(
     .eq("owner_id", userId)
     .maybeSingle();
   if (error) {
-    if (error.code === "42P01") return DEFAULT_PREFERENCES;
+    if (error.code === "42P01") return { ...DEFAULT_PREFERENCES, email_address: defaultEmail };
     throw new Error(error.message);
   }
-  if (!data) return DEFAULT_PREFERENCES;
+  if (!data) return { ...DEFAULT_PREFERENCES, email_address: defaultEmail };
   return {
     in_app_enabled: Boolean(data.in_app_enabled),
     browser_enabled: Boolean(data.browser_enabled),

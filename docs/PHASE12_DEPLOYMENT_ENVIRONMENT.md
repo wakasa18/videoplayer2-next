@@ -21,6 +21,15 @@
 
 Never prefix server secrets with `NEXT_PUBLIC_`. Keep `.env.local` out of Git and release archives.
 
+## Assignment email variables
+To send assignment reminders through Gmail SMTP, add these server-only variables:
+
+- `GMAIL_SMTP_USER` — the Gmail or Google Workspace account used to send
+- `GMAIL_SMTP_APP_PASSWORD` — a 16-character Google App Password
+- `ASSIGNMENT_EMAIL_FROM` — optional display name and the same Gmail address
+
+Google 2-Step Verification must be enabled before an App Password can be created. Never use the normal Gmail password. The existing `ASSIGNMENT_EMAIL_WEBHOOK_URL` and `ASSIGNMENT_EMAIL_WEBHOOK_SECRET` variables remain available as a fallback integration.
+
 ## Deployment command
 ```bash
 npm run check
