@@ -59,6 +59,26 @@ export type WorkspaceActivityResult = {
   page: number;
 };
 
+
+export type DashboardHomeAssignment = {
+  id: number;
+  title: string;
+  due_date: string;
+  due_time: string | null;
+  status: "to_do" | "in_progress" | "blocked";
+  priority: "low" | "medium" | "high";
+  subject: string | null;
+};
+
+export type DashboardHomeData = {
+  displayName: string;
+  timezone: string;
+  quotaBytes: number;
+  summary: WorkspaceSummary;
+  upcomingAssignments: DashboardHomeAssignment[];
+  recentActivity: WorkspaceActivityItem[];
+};
+
 export type WorkspaceSettingsData = {
   email: string;
   profile: WorkspaceProfile;

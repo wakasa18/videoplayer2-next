@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getWorkspaceQuotaBytes } from "@/lib/workspace/server";
 import type {
+  DashboardHomeData,
+  DashboardHomeAssignment,
   WorkspaceActivityFilters,
   WorkspaceActivityItem,
   WorkspaceActivityResult,
@@ -24,6 +26,81 @@ const EMPTY_SUMMARY: WorkspaceSummary = {
   active_share_count: 0,
   total_bytes: 0,
 };
+
+export async function getDashboardHomeDataSafe(): Promise<DashboardHomeData> {
+  const client = await createClient();
+  const {
+    data: { user },
+  } = await client.auth.getUser();
+
+  const fallback: DashboardHomeData = {
+    displayName: user?.email?.split("@")[0] || "Account",
+    timezone: "Asia/Manila",
+    quotaBytes: getWorkspaceQuotaBytes(),
+    summary: EMPTY_SUMMARY,
+    upcomingAssignments: [],
+    recentActivity: [],
+  };
+
+  if (!user) return fallback;
+
+  const [summaryResult, profileResult, assignmentsResult, activityResult] =
+    await Promise.all([
+      client.rpc("get_workspace_summary"),
+      client
+        .from("workspace_profiles")
+        .select("display_name,timezone")
+        .eq("owner_id", user.id)
+        .maybeSingle(),
+      client
+        .from("assignments")
+        .select("id,title,due_date,due_time,status,priority,subject")
+        .eq("owner_id", user.id)
+        .in("status", ["to_do", "in_progress", "blocked"])
+        .is("archived_at", null)
+        .is("deleted_at", null)
+        .not("due_date", "is", null)
+        .order("due_date", { ascending: true })
+        .order("due_time", { ascending: true, nullsFirst: false })
+        .limit(5),
+      client.rpc("get_workspace_activity", {
+        p_module: null,
+        p_query: null,
+        p_limit: 5,
+        p_offset: 0,
+      }),
+    ]);
+
+  const profile = (profileResult.data ?? {}) as {
+    display_name?: unknown;
+    timezone?: unknown;
+  };
+
+  const assignments: DashboardHomeAssignment[] = assignmentsResult.error
+    ? []
+    : ((assignmentsResult.data ?? []) as Array<Record<string, unknown>>)
+        .map((row) => normalizeDashboardAssignment(row))
+        .filter((row): row is DashboardHomeAssignment => row !== null);
+
+  const recentActivity: WorkspaceActivityItem[] = activityResult.error
+    ? []
+    : ((activityResult.data ?? []) as WorkspaceActivityItem[]).map(normalizeActivity);
+
+  return {
+    displayName:
+      typeof profile.display_name === "string" && profile.display_name.trim()
+        ? profile.display_name.trim()
+        : fallback.displayName,
+    timezone:
+      typeof profile.timezone === "string" && profile.timezone.trim()
+        ? profile.timezone.trim()
+        : fallback.timezone,
+    quotaBytes: fallback.quotaBytes,
+    summary: summaryResult.error ? EMPTY_SUMMARY : normalizeSummary(summaryResult.data),
+    upcomingAssignments: assignments,
+    recentActivity,
+  };
+}
 
 export async function getWorkspaceSettingsData(): Promise<WorkspaceSettingsData> {
   const client = await createClient();
@@ -114,6 +191,37 @@ export async function getWorkspaceSummarySafe(): Promise<WorkspaceSummary> {
   const client = await createClient();
   const { data, error } = await client.rpc("get_workspace_summary");
   return error ? EMPTY_SUMMARY : normalizeSummary(data);
+}
+
+function normalizeDashboardAssignment(
+  row: Record<string, unknown>,
+): DashboardHomeAssignment | null {
+  const id = Number(row.id);
+  const title = typeof row.title === "string" ? row.title.trim() : "";
+  const dueDate = typeof row.due_date === "string" ? row.due_date : "";
+  const status = String(row.status ?? "to_do");
+  const priority = String(row.priority ?? "medium");
+
+  if (
+    !Number.isFinite(id) ||
+    id <= 0 ||
+    !title ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(dueDate) ||
+    !["to_do", "in_progress", "blocked"].includes(status) ||
+    !["low", "medium", "high"].includes(priority)
+  ) {
+    return null;
+  }
+
+  return {
+    id,
+    title,
+    due_date: dueDate,
+    due_time: typeof row.due_time === "string" && row.due_time ? row.due_time : null,
+    status: status as DashboardHomeAssignment["status"],
+    priority: priority as DashboardHomeAssignment["priority"],
+    subject: typeof row.subject === "string" && row.subject.trim() ? row.subject.trim() : null,
+  };
 }
 
 function normalizeProfile(
