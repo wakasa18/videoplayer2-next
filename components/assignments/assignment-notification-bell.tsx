@@ -146,7 +146,7 @@ export function AssignmentNotificationBell() {
         aria-label={unreadCount ? `${unreadCount} unread assignment notifications` : "Assignment notifications"}
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className="relative grid size-10 place-items-center rounded-full text-slate-400 transition hover:bg-white/[0.06] focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/15"
+        className="relative grid size-10 place-items-center rounded-xl border border-white/[0.09] bg-white/[0.035] text-slate-400 transition hover:border-cyan-300/15 hover:bg-white/[0.075] hover:text-slate-100 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/15 sm:size-11"
       >
         {unreadCount ? <BellRing className="size-5 text-cyan-300" /> : <Bell className="size-5" />}
         {unreadCount ? (

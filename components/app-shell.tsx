@@ -18,6 +18,8 @@ type AppShellProps = {
   compactMode?: boolean;
 };
 
+const SIDEBAR_STORAGE_KEY = "damons-archive:sidebar-collapsed";
+
 export function AppShell({
   children,
   userEmail,
@@ -27,6 +29,19 @@ export function AppShell({
 }: AppShellProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    let storedCollapsed = false;
+    try {
+      storedCollapsed = window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === "true";
+    } catch {
+      // Storage can be unavailable in strict/private browser contexts.
+    }
+
+    const timer = window.setTimeout(() => setSidebarCollapsed(storedCollapsed), 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -44,6 +59,18 @@ export function AppShell({
     };
   }, [mobileOpen]);
 
+  function toggleSidebar() {
+    setSidebarCollapsed((current) => {
+      const next = !current;
+      try {
+        window.localStorage.setItem(SIDEBAR_STORAGE_KEY, String(next));
+      } catch {
+        // Keep the UI functional even when storage is unavailable.
+      }
+      return next;
+    });
+  }
+
   return (
     <div className="tech-shell min-h-screen text-slate-100">
       <PerformanceMonitor />
@@ -53,15 +80,23 @@ export function AppShell({
         onMenuClick={() => setMobileOpen(true)}
       />
 
-      <div className="relative mx-auto flex max-w-[1720px] gap-5 px-3 pb-8 pt-5 sm:px-5 lg:px-6">
-        <Sidebar quickModule={quickModule} />
+      <div className="relative mx-auto flex max-w-[1720px] gap-4 px-3 pb-8 pt-4 sm:px-5 lg:gap-5 lg:px-6 lg:pt-5">
+        <Sidebar
+          quickModule={quickModule}
+          collapsed={sidebarCollapsed}
+          onToggleCollapse={toggleSidebar}
+        />
 
         <AnimatePresence mode="wait" initial={false}>
           <motion.main
             id="main-content"
             tabIndex={-1}
             key={pathname}
-            className={compactMode ? "tech-page-transition min-w-0 flex-1 py-1" : "tech-page-transition min-w-0 flex-1 py-1"}
+            className={
+              compactMode
+                ? "tech-page-transition min-w-0 flex-1 py-1"
+                : "tech-page-transition min-w-0 flex-1 py-1"
+            }
             initial={{ opacity: 0, y: 12, filter: "blur(6px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, y: -6, filter: "blur(3px)" }}
@@ -79,13 +114,13 @@ export function AppShell({
         <button
           type="button"
           aria-label="Close navigation"
-          className={`absolute inset-0 bg-[#020611]/75 backdrop-blur-md transition-opacity duration-300 ${
+          className={`absolute inset-0 bg-[#020611]/78 backdrop-blur-md transition-opacity duration-300 ${
             mobileOpen ? "opacity-100" : "opacity-0"
           }`}
           onClick={() => setMobileOpen(false)}
         />
         <div
-          className={`relative h-full w-[min(88vw,340px)] p-3 transition-transform duration-500 ease-[cubic-bezier(.16,1,.3,1)] ${
+          className={`relative h-full w-[min(88vw,340px)] p-2.5 transition-transform duration-500 ease-[cubic-bezier(.16,1,.3,1)] ${
             mobileOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
