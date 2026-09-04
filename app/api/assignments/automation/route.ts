@@ -25,13 +25,16 @@ export async function GET(request: Request) {
     const admin = createAdminClient();
     if (!admin) {
       throw new AssignmentRequestError(
-        "SUPABASE_SERVICE_ROLE_KEY is required for scheduled automation.",
+        "SUPABASE_SECRET_KEY (or a service-role key) is required for scheduled automation.",
         503,
       );
     }
 
     const result = await processAssignmentAutomation(admin, { source: "cron" });
-    return NextResponse.json({ success: true, ...result });
+    return NextResponse.json(
+      { success: true, checkedAt: new Date().toISOString(), ...result },
+      { headers: { "Cache-Control": "no-store" } },
+    );
   } catch (error) {
     return assignmentErrorResponse(error);
   }

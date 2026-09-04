@@ -291,7 +291,6 @@ export async function processAssignmentAutomation(
     .in("status", ACTIVE_STATUSES)
     .is("archived_at", null)
     .is("deleted_at", null)
-    .not("due_date", "is", null)
     .limit(AUTOMATION_LIMIT);
   if (options.ownerId) reminderQuery = reminderQuery.eq("owner_id", options.ownerId);
 
@@ -317,9 +316,11 @@ export async function processAssignmentAutomation(
       const dueAt = assignmentDueInstant(assignment);
       const overdue = dueAt ? dueAt.getTime() < now.getTime() : false;
       const preference = preferences.get(assignment.owner_id);
-      const message = overdue
-        ? `${assignment.title} was due ${formatDateTime(dueAt)}.`
-        : `${assignment.title} is due ${formatDateTime(dueAt)}.`;
+      const message = dueAt
+        ? overdue
+          ? `${assignment.title} was due ${formatDateTime(dueAt)}.`
+          : `${assignment.title} is due ${formatDateTime(dueAt)}.`
+        : `Scheduled reminder for ${assignment.title}.`;
 
       const inAppEnabled = preference?.in_app_enabled !== false;
       const emailEnabled = Boolean(preference?.email_enabled && preference.email_address);

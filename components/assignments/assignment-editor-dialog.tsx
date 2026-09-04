@@ -79,7 +79,7 @@ export function AssignmentEditorDialog({
             subjectId,
             linkUrl,
             reminderMinutesBefore: reminderMinutes,
-            customReminderAt: customReminderAt ? new Date(customReminderAt).toISOString() : "",
+            customReminderAt: customReminderAt ? manilaInputToIso(customReminderAt) : "",
             recurrence,
             recurrenceUntil,
           }),
@@ -130,7 +130,7 @@ export function AssignmentEditorDialog({
               <Field label="Priority"><select value={priority} onChange={(e) => setPriority(e.target.value)} className={inputClass}><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></Field>
               <Field label="Subject"><select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} className={inputClass}><option value="">General</option>{subjects.map((subject) => <option key={subject.id} value={subject.id}>{subject.code ? `${subject.code} · ` : ""}{subject.name}</option>)}</select></Field>
               <Field label="Reminder"><select value={reminderMinutes} onChange={(e) => setReminderMinutes(e.target.value)} className={inputClass}><option value="0">At deadline</option><option value="60">1 hour before</option><option value="180">3 hours before</option><option value="1440">1 day before</option><option value="2880">2 days before</option><option value="10080">1 week before</option></select></Field>
-              <Field label="Custom reminder"><input type="datetime-local" value={customReminderAt} onChange={(e) => setCustomReminderAt(e.target.value)} className={inputClass} /></Field>
+              <Field label="Custom reminder (Philippine time)"><input type="datetime-local" value={customReminderAt} onChange={(e) => setCustomReminderAt(e.target.value)} className={inputClass} /><span className="mt-2 block text-[11px] leading-5 text-slate-500">When email reminders are enabled, the scheduler sends this reminder at the time you choose.</span></Field>
               <Field label="Repeat schedule"><select value={recurrence} onChange={(e) => setRecurrence(e.target.value)} className={inputClass}><option value="">Does not repeat</option><option value="daily">Daily</option><option value="weekdays">Every weekday</option><option value="weekly">Weekly</option><option value="biweekly">Every 2 weeks</option><option value="monthly">Monthly</option></select></Field>
               <Field label="Repeat until"><input type="date" value={recurrenceUntil} onChange={(e) => setRecurrenceUntil(e.target.value)} disabled={!recurrence} className={`${inputClass} disabled:bg-white/[0.05] disabled:text-slate-500`} /></Field>
               <Field label="Reference link" className="md:col-span-2"><input type="url" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="https://..." maxLength={500} className={inputClass} /></Field>
@@ -157,8 +157,15 @@ function toLocalDateTime(value: string | null): string {
   if (!value) return "";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-  const offset = date.getTimezoneOffset();
-  return new Date(date.getTime() - offset * 60_000).toISOString().slice(0, 16);
+  // The assignment UI uses Philippine time regardless of the device timezone.
+  return new Date(date.getTime() + 8 * 60 * 60_000).toISOString().slice(0, 16);
+}
+
+function manilaInputToIso(value: string): string {
+  const normalized = value.length === 16 ? `${value}:00` : value;
+  const date = new Date(`${normalized}+08:00`);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toISOString();
 }
 
 const inputClass = "min-h-11 w-full rounded-2xl border border-white/10 bg-white/[0.045] px-4 text-sm text-slate-100 outline-none transition focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15";
