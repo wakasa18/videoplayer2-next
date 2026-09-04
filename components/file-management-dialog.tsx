@@ -1,6 +1,8 @@
 /* eslint-disable react-hooks/set-state-in-effect -- dialog state resets when reopened and folder loading begins asynchronously */
 "use client";
 
+import { ModalPortal } from "@/components/ui/modal-portal";
+
 import { AnimatePresence, motion } from "motion/react";
 import { AlertTriangle, FilePenLine, FolderInput, Loader2, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -111,10 +113,11 @@ export function FileManagementDialog({
   }
 
   return (
-    <AnimatePresence>
+    <ModalPortal>
+      <AnimatePresence>
       {mode ? (
         <motion.div
-          className="fixed inset-0 z-[100] grid place-items-center bg-[#020611]/75 p-4 backdrop-blur-[2px]"
+          className="tech-modal-overlay fixed inset-0 z-[100] grid place-items-center overflow-y-auto p-3 sm:p-5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -124,7 +127,7 @@ export function FileManagementDialog({
         >
           <motion.form
             onSubmit={submit}
-            className="w-full max-w-xl overflow-hidden rounded-[28px] border border-white/10 bg-[#0b1220]/95 shadow-[0_24px_70px_rgba(0,4,14,0.6)] backdrop-blur-2xl"
+            className="tech-modal-surface w-full max-w-xl overflow-hidden rounded-[28px] border"
             initial={{ opacity: 0, y: 18, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.98 }}
@@ -186,7 +189,8 @@ export function FileManagementDialog({
           </motion.form>
         </motion.div>
       ) : null}
-    </AnimatePresence>
+      </AnimatePresence>
+    </ModalPortal>
   );
 }
 

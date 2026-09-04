@@ -1,5 +1,7 @@
 "use client";
 
+import { ModalPortal } from "@/components/ui/modal-portal";
+
 import { motion } from "motion/react";
 import {
   AlarmClock,
@@ -537,8 +539,9 @@ function TemplateDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-[100] grid place-items-center bg-[#020611]/75 p-4 backdrop-blur-[2px]" onMouseDown={(event) => { if (event.currentTarget === event.target && !busy) onClose(); }}>
-      <motion.form onSubmit={submit} initial={{ opacity: 0, y: 16, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="max-h-[94vh] w-full max-w-3xl overflow-y-auto rounded-[28px] border border-white/10 bg-white/[0.045] shadow-2xl">
+    <ModalPortal>
+      <div className="tech-modal-overlay fixed inset-0 z-[100] grid place-items-center overflow-y-auto p-3 sm:p-5" onMouseDown={(event) => { if (event.currentTarget === event.target && !busy) onClose(); }}>
+      <motion.form onSubmit={submit} initial={{ opacity: 0, y: 16, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="tech-modal-surface max-h-[94dvh] w-full max-w-3xl overflow-y-auto rounded-[28px] border">
         <header className="sticky top-0 z-10 flex items-start gap-4 border-b border-white/10 bg-[#0b1220]/95 p-5 backdrop-blur sm:p-6">
           <span className="grid size-11 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300"><Sparkles className="size-5" /></span>
           <div className="min-w-0 flex-1"><h2 className="text-lg font-semibold text-slate-100">{template ? "Edit template" : "New assignment template"}</h2><p className="mt-1 text-sm text-slate-400">New assignments calculate their deadline from the due offset.</p></div>
@@ -561,7 +564,8 @@ function TemplateDialog({
           <button type="submit" disabled={busy} className={primaryButtonClass}>{busy ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}{template ? "Save template" : "Create template"}</button>
         </footer>
       </motion.form>
-    </div>
+      </div>
+    </ModalPortal>
   );
 }
 

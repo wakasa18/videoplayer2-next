@@ -1,5 +1,7 @@
 "use client";
 
+import { ModalPortal } from "@/components/ui/modal-portal";
+
 import { AnimatePresence, motion } from "motion/react";
 import { Download, ExternalLink, X } from "lucide-react";
 import Link from "next/link";
@@ -34,10 +36,11 @@ export function PreviewDialog({ file, open, onClose }: PreviewDialogProps) {
   }, [onClose, open]);
 
   return (
-    <AnimatePresence>
+    <ModalPortal>
+      <AnimatePresence>
       {open ? (
         <motion.div
-          className="fixed inset-0 z-[100] grid place-items-center bg-[#020611]/76 p-3 backdrop-blur-md sm:p-6"
+          className="tech-modal-overlay fixed inset-0 z-[100] grid place-items-center overflow-y-auto p-2 sm:p-5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -49,7 +52,7 @@ export function PreviewDialog({ file, open, onClose }: PreviewDialogProps) {
             role="dialog"
             aria-modal="true"
             aria-label={`Preview ${file.title}`}
-            className="tech-panel flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-[1.4rem]"
+            className="tech-modal-surface flex max-h-[94dvh] w-full max-w-6xl flex-col overflow-hidden rounded-[1.4rem] border"
             initial={{ opacity: 0, y: 18, scale: 0.985 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 14, scale: 0.988 }}
@@ -95,6 +98,7 @@ export function PreviewDialog({ file, open, onClose }: PreviewDialogProps) {
           </motion.section>
         </motion.div>
       ) : null}
-    </AnimatePresence>
+      </AnimatePresence>
+    </ModalPortal>
   );
 }

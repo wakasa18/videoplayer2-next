@@ -64,7 +64,7 @@ export function AssignmentItemActions({
           <MoreVertical className="size-5" />
         </button>
         {open ? (
-          <div className="absolute right-0 top-11 z-30 w-52 rounded-2xl border border-white/10 bg-white/[0.045] p-2 shadow-xl">
+          <div className="tech-menu-surface absolute right-0 top-11 z-[160] w-52 rounded-2xl border p-2">
             <MenuButton icon={Pencil} label="Edit" onClick={() => { setEditing(true); setOpen(false); }} />
             <MenuButton icon={CircleDot} label="Mark in progress" onClick={() => run("status", "in_progress")} disabled={busy} />
             <MenuButton icon={CheckCircle2} label="Mark done" onClick={() => run("status", "done")} disabled={busy} />

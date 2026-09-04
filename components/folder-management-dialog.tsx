@@ -1,6 +1,8 @@
 /* eslint-disable react-hooks/set-state-in-effect -- dialog state resets when reopened and folder loading begins asynchronously */
 "use client";
 
+import { ModalPortal } from "@/components/ui/modal-portal";
+
 import { AnimatePresence, motion } from "motion/react";
 import { AlertTriangle, FolderInput, FolderPen, Loader2, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -68,9 +70,9 @@ export function FolderManagementDialog({ folder, mode, onClose }: { folder: Fold
     }
   }
 
-  return <AnimatePresence>{mode ? (
-    <motion.div className="fixed inset-0 z-[100] grid place-items-center bg-[#020611]/75 p-4 backdrop-blur-[2px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.currentTarget === event.target && !submitting) onClose(); }}>
-      <motion.form onSubmit={submit} className="w-full max-w-lg overflow-hidden rounded-[28px] border border-white/10 bg-[#0b1220]/95 shadow-[0_24px_70px_rgba(0,4,14,0.6)] backdrop-blur-2xl" initial={{ opacity: 0, y: 18, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: .98 }} transition={{ type: "spring", stiffness: 330, damping: 28 }}>
+  return <ModalPortal><AnimatePresence>{mode ? (
+    <motion.div className="tech-modal-overlay fixed inset-0 z-[100] grid place-items-center overflow-y-auto p-3 sm:p-5" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.currentTarget === event.target && !submitting) onClose(); }}>
+      <motion.form onSubmit={submit} className="tech-modal-surface w-full max-w-lg overflow-hidden rounded-[28px] border" initial={{ opacity: 0, y: 18, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: .98 }} transition={{ type: "spring", stiffness: 330, damping: 28 }}>
         <div className="flex items-start gap-4 border-b border-white/10 p-5 sm:p-6">
           <span className={`grid size-11 shrink-0 place-items-center rounded-2xl ${mode === "trash" ? "bg-red-400/10 text-red-300" : "bg-cyan-400/10 text-cyan-300"}`}>{mode === "rename" ? <FolderPen className="size-5" /> : mode === "move" ? <FolderInput className="size-5" /> : <Trash2 className="size-5" />}</span>
           <div className="min-w-0 flex-1"><h2 className="text-lg font-semibold text-slate-100">{heading}</h2><p className="mt-1 truncate text-sm text-slate-400">{folder.path}</p></div>
@@ -85,7 +87,7 @@ export function FolderManagementDialog({ folder, mode, onClose }: { folder: Fold
         <div className="flex flex-col-reverse gap-2 border-t border-white/10 p-5 sm:flex-row sm:justify-end"><button type="button" onClick={onClose} disabled={submitting} className="min-h-11 rounded-full border border-white/10 bg-white/[0.045] px-5 text-sm font-semibold text-slate-200 hover:bg-white/[0.06]">Cancel</button><button type="submit" disabled={submitting || loadingFolders} className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-semibold text-white disabled:opacity-60 ${mode === "trash" ? "bg-[linear-gradient(135deg,#fb7185,#ef4444)] hover:brightness-110" : "bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] hover:brightness-110"}`}>{submitting ? <Loader2 className="size-4 animate-spin" /> : null}{mode === "rename" ? "Rename folder" : mode === "move" ? "Move folder" : "Move to Recycle Bin"}</button></div>
       </motion.form>
     </motion.div>
-  ) : null}</AnimatePresence>;
+  ) : null}</AnimatePresence></ModalPortal>;
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) { return <label className="block"><span className="mb-2 block text-xs font-semibold text-slate-400">{label}</span>{children}</label>; }

@@ -1,5 +1,7 @@
 "use client";
 
+import { ModalPortal } from "@/components/ui/modal-portal";
+
 import { AnimatePresence, motion } from "motion/react";
 import { FolderPlus, Loader2, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -67,10 +69,11 @@ export function CreateFolderDialog({
   }
 
   return (
-    <AnimatePresence>
+    <ModalPortal>
+      <AnimatePresence>
       {open ? (
         <motion.div
-          className="fixed inset-0 z-[100] grid place-items-center bg-[#020611]/75 p-4 backdrop-blur-[3px]"
+          className="tech-modal-overlay fixed inset-0 z-[100] grid place-items-center overflow-y-auto p-3 sm:p-5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -84,7 +87,7 @@ export function CreateFolderDialog({
             role="dialog"
             aria-modal="true"
             aria-labelledby="new-folder-title"
-            className="w-full max-w-md rounded-[28px] border border-white/10 bg-[#0b1220]/95 p-6 shadow-[0_24px_70px_rgba(0,4,14,0.6)] backdrop-blur-2xl"
+            className="tech-modal-surface w-full max-w-md rounded-[28px] border p-5 sm:p-6"
             initial={{ opacity: 0, y: 18, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.97 }}
@@ -165,6 +168,7 @@ export function CreateFolderDialog({
           </motion.section>
         </motion.div>
       ) : null}
-    </AnimatePresence>
+      </AnimatePresence>
+    </ModalPortal>
   );
 }

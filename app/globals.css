@@ -166,6 +166,53 @@
     backdrop-filter: blur(14px);
   }
 
+  .tech-modal-overlay {
+    background:
+      radial-gradient(circle at 50% 8%, rgba(49, 118, 255, 0.11), transparent 34%),
+      rgba(1, 5, 14, 0.84);
+    backdrop-filter: blur(10px) saturate(125%);
+    -webkit-backdrop-filter: blur(10px) saturate(125%);
+    overscroll-behavior: contain;
+  }
+
+  .tech-modal-surface {
+    position: relative;
+    isolation: isolate;
+    color: #eaf3ff;
+    border-color: rgba(105, 178, 225, 0.2) !important;
+    background:
+      linear-gradient(180deg, rgba(12, 23, 40, 0.995), rgba(6, 14, 27, 0.995)) !important;
+    box-shadow:
+      0 30px 90px rgba(0, 3, 12, 0.72),
+      0 0 0 1px rgba(58, 216, 255, 0.035),
+      inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
+    backdrop-filter: blur(24px) saturate(125%);
+    -webkit-backdrop-filter: blur(24px) saturate(125%);
+  }
+
+  .tech-modal-surface::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    border-radius: inherit;
+    background:
+      linear-gradient(90deg, transparent, rgba(48, 215, 255, 0.07), transparent) top / 100% 1px no-repeat,
+      radial-gradient(circle at 12% 0%, rgba(37, 211, 255, 0.06), transparent 24%);
+  }
+
+  .tech-menu-surface {
+    color: #eaf3ff !important;
+    border-color: rgba(105, 178, 225, 0.2) !important;
+    background: rgba(7, 16, 30, 0.985) !important;
+    box-shadow:
+      0 22px 56px rgba(0, 3, 12, 0.68),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+    backdrop-filter: blur(20px) saturate(120%);
+    -webkit-backdrop-filter: blur(20px) saturate(120%);
+  }
+
   .tech-title {
     background: linear-gradient(110deg, #ffffff 0%, #bdeeff 54%, #aab9ff 100%);
     -webkit-background-clip: text;

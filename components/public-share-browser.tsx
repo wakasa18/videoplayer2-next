@@ -1,5 +1,7 @@
 "use client";
 
+import { ModalPortal } from "@/components/ui/modal-portal";
+
 import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowDownToLine,
@@ -845,16 +847,18 @@ function PublicPreview({ token, file, allowDownloads, onClose }: { token: string
   const type = full ? getFileType(full) : "other";
   const previewUrl = file ? `/api/public-shares/${encodeURIComponent(token)}/files/${file.id}/preview` : "";
   return (
-    <AnimatePresence>
-      {file && full ? (
-        <motion.div className="fixed inset-0 z-[100] grid place-items-center bg-[#020711]/78 p-3 backdrop-blur-sm sm:p-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.currentTarget === event.target) onClose(); }}>
+    <ModalPortal>
+      <AnimatePresence>
+        {file && full ? (
+        <motion.div className="tech-modal-overlay fixed inset-0 z-[100] grid place-items-center overflow-y-auto p-2 sm:p-5" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.currentTarget === event.target) onClose(); }}>
           <motion.section className="flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-[24px] border border-cyan-300/15 bg-[#081321] shadow-2xl" initial={{ opacity: 0, y: 24, scale: 0.975 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 18, scale: 0.98 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
             <header className="flex items-center gap-3 border-b border-white/10 px-4 py-3 sm:px-5"><FileTypeIcon file={full} className="size-10 rounded-xl" iconClassName="size-5" /><div className="min-w-0 flex-1"><h2 className="truncate text-sm font-semibold sm:text-base">{file.title}</h2><p className="truncate text-xs text-slate-400">{file.original_filename} · {formatBytes(file.file_size)}</p></div>{allowDownloads ? <a href={`/api/public-shares/${encodeURIComponent(token)}/files/${file.id}/download`} className="grid size-10 place-items-center rounded-full text-slate-400 hover:bg-white/5" aria-label="Download file"><Download className="size-5" /></a> : null}<button type="button" onClick={onClose} className="grid size-10 place-items-center rounded-full text-slate-400 hover:bg-white/5" aria-label="Close preview"><X className="size-5" /></button></header>
             <div className="min-h-0 flex-1 bg-[#050d18] p-2 sm:p-4">{renderPreview(type, previewUrl, file)}</div>
           </motion.section>
         </motion.div>
-      ) : null}
-    </AnimatePresence>
+        ) : null}
+      </AnimatePresence>
+    </ModalPortal>
   );
 }
 
@@ -931,7 +935,7 @@ function ReportModal({ open, supportEmail, publicUrl, shareName, onClose }: { op
 }
 
 function ModalShell({ children, onClose, maxWidth }: { children: React.ReactNode; onClose: () => void; maxWidth: string }) {
-  return <motion.div className="fixed inset-0 z-[110] grid place-items-center bg-[#020711]/78 p-3 backdrop-blur-sm sm:p-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.currentTarget === event.target) onClose(); }}><motion.section className={`max-h-[92vh] w-full overflow-auto rounded-[24px] border border-cyan-300/15 bg-[#081321] shadow-2xl ${maxWidth}`} initial={{ opacity: 0, y: 20, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 14, scale: 0.985 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>{children}</motion.section></motion.div>;
+  return <ModalPortal><motion.div className="tech-modal-overlay fixed inset-0 z-[110] grid place-items-center overflow-y-auto p-2 sm:p-5" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.currentTarget === event.target) onClose(); }}><motion.section className={`tech-modal-surface max-h-[94dvh] w-full overflow-auto rounded-[24px] border ${maxWidth}`} initial={{ opacity: 0, y: 20, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 14, scale: 0.985 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>{children}</motion.section></motion.div></ModalPortal>;
 }
 
 function CloseButton({ onClick, disabled = false }: { onClick: () => void; disabled?: boolean }) {

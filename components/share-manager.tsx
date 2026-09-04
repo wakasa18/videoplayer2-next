@@ -1,5 +1,7 @@
 "use client";
 
+import { ModalPortal } from "@/components/ui/modal-portal";
+
 import { AnimatePresence, motion } from "motion/react";
 import {
   Activity,
@@ -142,7 +144,7 @@ export function ShareManager({ shares }: { shares: ShareListItem[] }) {
                           <MoreVertical className="size-5" />
                         </button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-52 rounded-2xl border-white/10 bg-white/[0.045] p-2 shadow-xl">
+                      <DropdownMenuContent align="end" className="tech-menu-surface w-52 rounded-2xl border p-2">
                         <DropdownMenuItem disabled={!share.public_url} onSelect={() => void copyLink(share)} className={itemClass}><Copy /> Copy link</DropdownMenuItem>
                         {share.public_url ? <DropdownMenuItem asChild className={itemClass}><a href={share.public_url} target="_blank" rel="noreferrer"><ExternalLink /> Open link</a></DropdownMenuItem> : null}
                         <DropdownMenuItem disabled={!share.public_url} onSelect={() => setQrShare(share)} className={itemClass}><QrCode /> Show QR code</DropdownMenuItem>
@@ -263,12 +265,14 @@ function AnalyticsModal({ analytics, loading, onClose }: { analytics: Analytics 
 
 function ModalShell({ title, onClose, wide = false, children }: { title: string; onClose: () => void; wide?: boolean; children: React.ReactNode }) {
   return (
-    <motion.div className="fixed inset-0 z-[110] grid place-items-center bg-[#020611]/75 p-4 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-      <motion.section className={`max-h-[90vh] w-full overflow-y-auto rounded-[28px] border border-white/10 bg-[#0b1220]/95 p-5 shadow-[0_24px_70px_rgba(0,4,14,0.6)] backdrop-blur-2xl sm:p-6 ${wide ? "max-w-3xl" : "max-w-md"}`} initial={{ opacity: 0, y: 20, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: .98 }}>
+    <ModalPortal>
+      <motion.div className="tech-modal-overlay fixed inset-0 z-[110] grid place-items-center overflow-y-auto p-3 sm:p-5" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+      <motion.section className={`tech-modal-surface max-h-[94dvh] w-full overflow-y-auto rounded-[28px] border p-5 sm:p-6 ${wide ? "max-w-3xl" : "max-w-md"}`} initial={{ opacity: 0, y: 20, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: .98 }}>
         <header className="mb-5 flex items-center justify-between gap-3"><h2 className="truncate text-lg font-semibold text-slate-100">{title}</h2><button type="button" onClick={onClose} className="grid size-9 shrink-0 place-items-center rounded-full text-slate-400 hover:bg-white/[0.06]" aria-label="Close"><X className="size-5" /></button></header>
         {children}
       </motion.section>
-    </motion.div>
+      </motion.div>
+    </ModalPortal>
   );
 }
 

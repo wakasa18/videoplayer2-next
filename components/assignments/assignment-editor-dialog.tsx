@@ -1,6 +1,8 @@
 /* eslint-disable react-hooks/set-state-in-effect -- form fields reset when a different assignment is opened */
 "use client";
 
+import { ModalPortal } from "@/components/ui/modal-portal";
+
 import { AnimatePresence, motion } from "motion/react";
 import { ClipboardPlus, Loader2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -95,10 +97,11 @@ export function AssignmentEditorDialog({
   }
 
   return (
-    <AnimatePresence>
+    <ModalPortal>
+      <AnimatePresence>
       {open ? (
         <motion.div
-          className="fixed inset-0 z-[100] grid place-items-center bg-[#020611]/75 p-4 backdrop-blur-[2px]"
+          className="tech-modal-overlay fixed inset-0 z-[100] grid place-items-center overflow-y-auto p-3 sm:p-5"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           onMouseDown={(event) => {
             if (event.currentTarget === event.target && !submitting) onClose();
@@ -106,7 +109,7 @@ export function AssignmentEditorDialog({
         >
           <motion.form
             onSubmit={submit}
-            className="max-h-[94vh] w-full max-w-3xl overflow-auto rounded-[28px] border border-white/10 bg-white/[0.045] shadow-2xl"
+            className="tech-modal-surface max-h-[94dvh] w-full max-w-3xl overflow-auto rounded-[28px] border"
             initial={{ opacity: 0, y: 18, scale: .97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: .98 }}
@@ -141,7 +144,8 @@ export function AssignmentEditorDialog({
           </motion.form>
         </motion.div>
       ) : null}
-    </AnimatePresence>
+      </AnimatePresence>
+    </ModalPortal>
   );
 }
 

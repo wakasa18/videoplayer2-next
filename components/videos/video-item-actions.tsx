@@ -1,5 +1,7 @@
 "use client";
 
+import { ModalPortal } from "@/components/ui/modal-portal";
+
 import { AnimatePresence, motion } from "motion/react";
 import {
   Download,
@@ -107,10 +109,11 @@ export function VideoItemActions({ video, recycled = false }: Props) {
         ) : null}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {dialog ? (
-          <motion.div className="fixed inset-0 z-[120] grid place-items-center bg-[#020611]/75 p-4 backdrop-blur-md" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => event.target === event.currentTarget && !busy && setDialog(null)}>
-            <motion.section className="tech-panel w-full max-w-lg rounded-[28px] p-6" initial={{ opacity: 0, y: 18, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.98 }} transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}>
+      <ModalPortal>
+        <AnimatePresence>
+          {dialog ? (
+            <motion.div className="tech-modal-overlay fixed inset-0 z-[120] grid place-items-center overflow-y-auto p-3 sm:p-5" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => event.target === event.currentTarget && !busy && setDialog(null)}>
+            <motion.section className="tech-modal-surface w-full max-w-lg rounded-[28px] border p-5 sm:p-6" initial={{ opacity: 0, y: 18, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.98 }} transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}>
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h2 className="text-xl font-semibold text-slate-100">{dialog === "edit" ? "Edit video details" : dialog === "trash" ? "Move video to Recycle Bin?" : "Delete video permanently?"}</h2>
@@ -143,8 +146,9 @@ export function VideoItemActions({ video, recycled = false }: Props) {
               </div>
             </motion.section>
           </motion.div>
-        ) : null}
-      </AnimatePresence>
+          ) : null}
+        </AnimatePresence>
+      </ModalPortal>
     </div>
   );
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { ModalPortal } from "@/components/ui/modal-portal";
+
 import { AnimatePresence, motion } from "motion/react";
 import {
   AlertCircle,
@@ -235,10 +237,11 @@ export function VideoUploadDialog({ open, onOpenChange, categories, maxUploadByt
   }
 
   return (
-    <AnimatePresence>
+    <ModalPortal>
+      <AnimatePresence>
       {open ? (
         <motion.div
-          className="fixed inset-0 z-[110] grid place-items-center bg-[#020611]/75 p-3 backdrop-blur-[3px] sm:p-5"
+          className="tech-modal-overlay fixed inset-0 z-[110] grid place-items-center overflow-y-auto p-2 sm:p-5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -248,7 +251,7 @@ export function VideoUploadDialog({ open, onOpenChange, categories, maxUploadByt
             role="dialog"
             aria-modal="true"
             aria-labelledby="video-upload-title"
-            className="flex max-h-[94vh] w-full max-w-3xl flex-col overflow-hidden rounded-[30px] border border-white/10 bg-[#0b1220]/95 shadow-[0_24px_70px_rgba(0,4,14,0.6)] backdrop-blur-2xl"
+            className="tech-modal-surface flex max-h-[94dvh] w-full max-w-3xl flex-col overflow-hidden rounded-[30px] border"
             initial={{ opacity: 0, y: 22, scale: 0.965 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 14, scale: 0.975 }}
@@ -341,7 +344,8 @@ export function VideoUploadDialog({ open, onOpenChange, categories, maxUploadByt
           </motion.section>
         </motion.div>
       ) : null}
-    </AnimatePresence>
+      </AnimatePresence>
+    </ModalPortal>
   );
 }
 
