@@ -1,10 +1,5 @@
-import { AuthShell } from "@/components/auth-shell";
-import { ForgotPasswordForm } from "@/components/forgot-password-form";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return (
-    <AuthShell>
-      <ForgotPasswordForm />
-    </AuthShell>
-  );
+  redirect("/auth/login");
 }
