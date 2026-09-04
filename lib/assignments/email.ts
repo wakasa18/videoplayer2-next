@@ -187,7 +187,7 @@ export async function sendAssignmentTestEmail(input: {
     subject: "Assignment email notifications are working",
     text: [
       "Your assignment email notifications are configured correctly.",
-      "Due-soon reminders, overdue alerts, and enabled daily summaries can now be sent to this address.",
+      "Scheduled assignment reminders and enabled daily summaries can now be sent to this address.",
       settingsUrl ? `Open reminder settings: ${settingsUrl}` : null,
     ]
       .filter(Boolean)
@@ -195,7 +195,7 @@ export async function sendAssignmentTestEmail(input: {
     html: emailShell({
       eyebrow: "Email test successful",
       title: "Assignment notifications are ready",
-      body: "Due-soon reminders, overdue alerts, and enabled daily summaries can now be sent to this address.",
+      body: "Scheduled assignment reminders and enabled daily summaries can now be sent to this address.",
       detailLabel: "Recipient",
       detailValue: input.email,
       actionUrl: settingsUrl,

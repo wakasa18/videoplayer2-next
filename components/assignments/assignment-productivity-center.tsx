@@ -274,7 +274,7 @@ export function AssignmentProductivityCenter({
             />
             <ToggleRow
               label="Email reminders"
-              description="Send due-soon reminders, overdue alerts, and enabled daily summaries to your email."
+              description="Send scheduled assignment reminders and enabled daily summaries to your email."
               checked={preferences.email_enabled}
               onChange={(checked) => {
                 setPreferences((value) => ({ ...value, email_enabled: checked }));
@@ -337,7 +337,7 @@ export function AssignmentProductivityCenter({
             ) : null}
             <ToggleRow
               label="Daily digest"
-              description="Create one summary for due-today and overdue work."
+              description="Create one due-today and overdue summary at the scheduled Philippine time."
               checked={preferences.daily_digest_enabled}
               onChange={(checked) => setPreferences((value) => ({ ...value, daily_digest_enabled: checked }))}
             />

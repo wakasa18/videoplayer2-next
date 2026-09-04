@@ -323,8 +323,9 @@ export async function processAssignmentAutomation(
         : `Scheduled reminder for ${assignment.title}.`;
 
       const inAppEnabled = preference?.in_app_enabled !== false;
+      const browserEnabled = Boolean(preference?.browser_enabled);
       const emailEnabled = Boolean(preference?.email_enabled && preference.email_address);
-      if (!inAppEnabled && !emailEnabled) continue;
+      if (!inAppEnabled && !browserEnabled && !emailEnabled) continue;
 
       const dedupeKey = `reminder:${assignment.id}:${reminderKey}`;
       const inserted = await createNotification(client, {
@@ -529,7 +530,8 @@ async function createDailyDigests(
 
     const emailEnabled = Boolean(preference.email_enabled && preference.email_address);
     const inAppEnabled = preference.in_app_enabled !== false;
-    if (!inAppEnabled && !emailEnabled) continue;
+    const browserEnabled = Boolean(preference.browser_enabled);
+    if (!inAppEnabled && !browserEnabled && !emailEnabled) continue;
 
     const dedupeKey = `digest:${dateKey}`;
     try {

@@ -49,8 +49,10 @@ export function AssignmentNotificationBell() {
         unreadCount: number;
         preferences: AssignmentNotificationPreferences;
       };
-      setNotifications(payload.notifications);
-      setUnreadCount(payload.unreadCount);
+      setNotifications(
+        payload.preferences.in_app_enabled ? payload.notifications : [],
+      );
+      setUnreadCount(payload.preferences.in_app_enabled ? payload.unreadCount : 0);
       setPreferences(payload.preferences);
 
       if (

@@ -61,12 +61,14 @@ export async function getAssignmentNotificationFeed(limit = 12): Promise<{
       .eq("owner_id", userId)
       .is("read_at", null),
   ]);
-  if (!preferences.in_app_enabled) {
+  if (!preferences.in_app_enabled && !preferences.browser_enabled) {
     return { notifications: [], unreadCount: 0, preferences };
   }
   return {
     notifications,
-    unreadCount: unreadResult.count ?? notifications.filter((item) => !item.read_at).length,
+    unreadCount: preferences.in_app_enabled
+      ? unreadResult.count ?? notifications.filter((item) => !item.read_at).length
+      : 0,
     preferences,
   };
 }
