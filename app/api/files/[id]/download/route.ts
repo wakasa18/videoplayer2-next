@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { createAdminClient, getFilesBucket } from "@/lib/supabase/admin";
+import { writeFileAudit } from "@/lib/files/server";
 import { createClient as createSessionClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -57,14 +58,17 @@ export async function GET(
     );
   }
 
+  const accessedAt = new Date().toISOString();
   await client
     .from("important_files")
     .update({
       download_count: Number(file.download_count ?? 0) + 1,
-      last_downloaded_at: new Date().toISOString(),
+      last_downloaded_at: accessedAt,
+      last_opened_at: accessedAt,
     })
     .eq("id", id)
     .eq("owner_id", user.id);
+  await writeFileAudit(client, "file_downloaded", { user_id: user.id }, id);
 
   return NextResponse.redirect(data.signedUrl, {
     status: 307,

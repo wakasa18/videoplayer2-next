@@ -45,6 +45,9 @@ const SHARE_SELECT = [
   "created_by",
   "created_at",
   "updated_at",
+  "password_hash",
+  "password_salt",
+  "password_hint",
 ].join(",");
 
 const PUBLIC_FILE_SELECT = [
@@ -108,7 +111,7 @@ export async function listOwnerShares(requestOrigin?: string): Promise<ShareList
       ? `${base || ""}/share/${encodeURIComponent(token)}`
       : null;
     return {
-      ...share,
+      ...sanitizeShareForClient(share),
       target_name:
         share.share_type === "folder"
           ? share.folder_path?.split("/").at(-1) || "Shared folder"
@@ -165,7 +168,7 @@ export async function getPublicShare(
 
     const publicFile = normalizePublicFile(file as unknown as PublicShareFile);
     return {
-      share,
+      share: sanitizeShareForClient(share),
       targetName: share.share_title || publicFile.title || publicFile.original_filename,
       rootFolder: "",
       currentFolder: "",
@@ -213,7 +216,7 @@ export async function getPublicShare(
   }, null);
 
   return {
-    share,
+    share: sanitizeShareForClient(share),
     targetName: share.share_title || root.split("/").at(-1) || "Shared folder",
     rootFolder: root,
     currentFolder: current,
@@ -439,6 +442,13 @@ function normalizeShare(share: ImportantFileShare): ImportantFileShare {
     view_count: Number(share.view_count ?? 0),
     download_count: Number(share.download_count ?? 0),
   };
+}
+
+function sanitizeShareForClient(share: ImportantFileShare): ImportantFileShare {
+  const safe: ImportantFileShare = { ...share, password_protected: Boolean(share.password_hash) };
+  delete safe.password_hash;
+  delete safe.password_salt;
+  return safe;
 }
 
 function normalizePublicFile(file: PublicShareFile): PublicShareFile {

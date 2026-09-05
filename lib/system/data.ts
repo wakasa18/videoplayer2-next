@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { getEnvironmentDiagnostics, getCanonicalAppUrl, hasServerAdminSecret } from "@/lib/system/env";
-import { PHASE9_RELEASE } from "@/lib/system/release";
+import { PHASE13_RELEASE } from "@/lib/system/release";
 import type {
   DiagnosticStatus,
   StorageAuditSummary,
@@ -35,6 +35,10 @@ const EXPECTED_TABLES = [
   "backup_verifications",
   "quality_runs",
   "quality_web_vitals",
+  "assignment_automation_runs",
+  "workspace_sessions",
+  "workspace_login_history",
+  "workspace_restore_runs",
 ] as const;
 
 export async function getSystemDiagnosticsData(): Promise<SystemDiagnosticsData> {
@@ -109,13 +113,52 @@ export async function getSystemDiagnosticsData(): Promise<SystemDiagnosticsData>
   });
 
   const cronConfigured = Boolean(process.env.CRON_SECRET?.trim());
+  const gmailConfigured = Boolean(process.env.GMAIL_SMTP_USER?.trim() && process.env.GMAIL_SMTP_APP_PASSWORD?.trim());
+  checks.push({
+    id: "smtp",
+    label: "Gmail SMTP",
+    status: gmailConfigured ? "pass" : "fail",
+    summary: gmailConfigured
+      ? "Gmail SMTP credentials are configured for assignment reminder delivery."
+      : "GMAIL_SMTP_USER or GMAIL_SMTP_APP_PASSWORD is missing.",
+  });
+
+  const { data: latestCron } = await client
+    .from("assignment_automation_runs")
+    .select("started_at,finished_at,errors,emails_requested")
+    .eq("run_source", "cron")
+    .order("started_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const cronAgeMinutes = latestCron?.started_at ? Math.floor((Date.now() - new Date(String(latestCron.started_at)).getTime()) / 60_000) : null;
   checks.push({
     id: "automation",
-    label: "Assignment automation",
-    status: cronConfigured ? "pass" : "fail",
-    summary: cronConfigured
-      ? "CRON_SECRET is configured for the daily Vercel maintenance job."
-      : "CRON_SECRET is missing, so scheduled assignment processing will return 503.",
+    label: "Assignment reminder cron",
+    status: !cronConfigured ? "fail" : cronAgeMinutes === null ? "warn" : cronAgeMinutes <= 5 ? "pass" : "warn",
+    summary: !cronConfigured
+      ? "CRON_SECRET is missing, so the secured reminder endpoint cannot run."
+      : cronAgeMinutes === null
+        ? "CRON_SECRET is configured, but no scheduled cron run is recorded yet."
+        : cronAgeMinutes <= 5
+          ? `Supabase Cron checked assignment reminders ${cronAgeMinutes < 1 ? "less than a minute" : `${cronAgeMinutes} minute${cronAgeMinutes === 1 ? "" : "s"}`} ago.`
+          : `The latest assignment cron run was ${cronAgeMinutes} minutes ago. The expected schedule is every minute.`,
+    detail: latestCron?.errors && Array.isArray(latestCron.errors) && latestCron.errors.length ? latestCron.errors.join(" · ") : null,
+  });
+
+  const since24h = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
+  const { count: failedEmailCount } = await client
+    .from("assignment_notifications")
+    .select("id", { count: "exact", head: true })
+    .eq("owner_id", user.id)
+    .eq("email_status", "failed")
+    .gte("created_at", since24h);
+  checks.push({
+    id: "email-delivery",
+    label: "Reminder email delivery",
+    status: Number(failedEmailCount ?? 0) > 0 ? "warn" : "pass",
+    summary: Number(failedEmailCount ?? 0) > 0
+      ? `${failedEmailCount} assignment email${failedEmailCount === 1 ? "" : "s"} failed in the last 24 hours.`
+      : "No failed assignment reminder emails were recorded in the last 24 hours.",
   });
 
   const appUrl = getCanonicalAppUrl();
@@ -139,7 +182,7 @@ export async function getSystemDiagnosticsData(): Promise<SystemDiagnosticsData>
   });
 
   return {
-    release: PHASE9_RELEASE,
+    release: PHASE13_RELEASE,
     checkedAt: new Date().toISOString(),
     overall: overallStatus(checks),
     deployment: {

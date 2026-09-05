@@ -20,6 +20,11 @@ export type ImportantFile = {
   updated_at: string | null;
   deleted_at: string | null;
   recycle_batch_id?: string | null;
+  checksum_sha256?: string | null;
+  checksum_verified_at?: string | null;
+  last_opened_at?: string | null;
+  last_previewed_at?: string | null;
+  last_downloaded_at?: string | null;
 };
 
 export type ImportantFolder = {

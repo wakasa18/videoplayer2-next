@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import { PerformanceMonitor } from "@/components/quality/performance-monitor";
+import { CommandPalette } from "@/components/command-palette";
+import { SessionHeartbeat } from "@/components/security/session-heartbeat";
 import { Sidebar } from "@/components/sidebar";
 import { TopBar } from "@/components/top-bar";
 import type { WorkspaceDefaultModule } from "@/lib/workspace/types";
@@ -74,6 +76,8 @@ export function AppShell({
   return (
     <div className="tech-shell min-h-screen text-slate-100">
       <PerformanceMonitor />
+      <SessionHeartbeat />
+      <CommandPalette />
       <TopBar
         userEmail={userEmail}
         displayName={displayName}

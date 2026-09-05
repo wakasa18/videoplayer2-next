@@ -4,7 +4,7 @@ import { AlertTriangle, Rocket, ShieldCheck } from "lucide-react";
 import { SystemDiagnosticsClient } from "@/components/system/system-diagnostics-client";
 import { getSystemDiagnosticsData } from "@/lib/system/data";
 
-export const metadata = { title: "System Check" };
+export const metadata = { title: "System Health" };
 export const dynamic = "force-dynamic";
 
 export default async function SystemPage() {
@@ -19,13 +19,13 @@ export default async function SystemPage() {
             <div className="max-w-3xl">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-cyan-400/10 px-3 py-1.5 text-xs font-semibold text-cyan-300">
                 <Rocket className="size-4" aria-hidden="true" />
-                Phase 11 production operations
+                Phase 13 system health
               </div>
               <h1 className="text-3xl font-semibold tracking-[-.03em] text-slate-100 sm:text-4xl">
-                System check and deployment
+                System health and automation
               </h1>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400 sm:text-base">
-                Verify environment variables, database migrations, Storage buckets, object links, scheduled automation, and recent application errors before publishing a release.
+                Monitor database access, Storage, Gmail SMTP, assignment cron activity, failed reminder delivery, environment configuration, and recent application errors.
               </p>
             </div>
             <div className="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-emerald-300">

@@ -12,6 +12,7 @@ import {
   Link2,
   MessageSquareText,
   QrCode,
+  KeyRound,
   ShieldCheck,
   UserRound,
   X,
@@ -29,7 +30,13 @@ type ShareDialogProps = {
   targetName: string;
 };
 
-type Result = { id: number; publicUrl: string; targetName: string };
+type Result = {
+  id: number;
+  publicUrl: string;
+  targetName: string;
+  passwordProtected?: boolean;
+  passwordHint?: string | null;
+};
 
 export function ShareDialog({
   open,
@@ -45,6 +52,8 @@ export function ShareDialog({
   const [shareTitle, setShareTitle] = useState("");
   const [shareMessage, setShareMessage] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordHint, setPasswordHint] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<Result | null>(null);
@@ -86,6 +95,8 @@ export function ShareDialog({
           shareTitle,
           shareMessage,
           displayName,
+          password,
+          passwordHint,
         }),
       });
       const payload = (await response.json()) as Result & { error?: string };
@@ -157,10 +168,25 @@ export function ShareDialog({
                   <div>
                     <strong className="block text-sm">Shared link created</strong>
                     <p className="mt-1 text-xs leading-5">
-                      Only people who have this link can open the shared {shareType}.
+                      {result.passwordProtected
+                        ? `This ${shareType} is password protected. Visitors must unlock the link before any shared content is shown.`
+                        : `Only people who have this link can open the shared ${shareType}.`}
                     </p>
                   </div>
                 </div>
+
+                {result.passwordProtected ? (
+                  <div className="flex items-start gap-3 rounded-2xl border border-violet-300/20 bg-violet-400/[0.08] p-4 text-violet-200">
+                    <KeyRound className="mt-0.5 size-5 shrink-0" />
+                    <div>
+                      <strong className="block text-sm">Password required</strong>
+                      <p className="mt-1 text-xs leading-5 text-violet-200/80">
+                        The password itself is never included in the link or displayed publicly.
+                        {result.passwordHint ? ` Hint: ${result.passwordHint}` : ""}
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
 
                 <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-3">
                   <label className="text-xs font-semibold text-slate-400">Public link</label>
@@ -268,6 +294,15 @@ export function ShareDialog({
                       maxLength={100}
                       className={inputClass}
                     />
+                  </Field>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field icon={KeyRound} label="Password protection (optional)">
+                    <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="At least 6 characters" minLength={6} maxLength={128} className={inputClass} />
+                  </Field>
+                  <Field icon={MessageSquareText} label="Password hint (optional)">
+                    <input value={passwordHint} onChange={(event) => setPasswordHint(event.target.value)} placeholder="Shown before unlock" maxLength={120} disabled={!password} className={inputClass} />
                   </Field>
                 </div>
 

@@ -2,7 +2,8 @@
 
 import { FolderPlus, FolderUp, Link2, Recycle, Upload } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { CreateFolderDialog } from "@/components/create-folder-dialog";
 import { UploadDialog } from "@/components/upload-dialog";
@@ -11,8 +12,30 @@ type FilesActionsProps = { currentFolder: string; categories: string[]; maxUploa
 type UploadMode = "files" | "folder";
 
 export function FilesActions({ currentFolder, categories, maxUploadBytes, folderTableAvailable }: FilesActionsProps) {
+  const searchParams = useSearchParams();
   const [uploadMode, setUploadMode] = useState<UploadMode | null>(null);
   const [folderOpen, setFolderOpen] = useState(false);
+
+  useEffect(() => {
+    const command = searchParams.get("command");
+    if (command !== "upload" && command !== "new-folder") return;
+    const timer = window.setTimeout(() => {
+      if (command === "upload") setUploadMode("files");
+      if (command === "new-folder") setFolderOpen(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [searchParams]);
+
+  useEffect(() => {
+    const upload = () => setUploadMode("files");
+    const folder = () => setFolderOpen(true);
+    window.addEventListener("damons:upload-files", upload);
+    window.addEventListener("damons:new-folder", folder);
+    return () => {
+      window.removeEventListener("damons:upload-files", upload);
+      window.removeEventListener("damons:new-folder", folder);
+    };
+  }, []);
   return <>
     <div className="flex flex-wrap items-center gap-2">
       <button type="button" onClick={() => setUploadMode("files")} className="group inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-md active:translate-y-0"><Upload className="size-4 transition-transform group-hover:-translate-y-0.5" /> Upload files</button>

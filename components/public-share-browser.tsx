@@ -314,7 +314,11 @@ export function PublicShareBrowser({
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <TrustBadge icon={<ShieldCheck className="size-4" />} label="Verified link" tone="green" />
-                <TrustBadge icon={<LockKeyhole className="size-4" />} label="Token protected" />
+                {result.share.password_protected ? (
+                  <TrustBadge icon={<LockKeyhole className="size-4" />} label="Password protected" />
+                ) : (
+                  <TrustBadge icon={<LockKeyhole className="size-4" />} label="Token protected" />
+                )}
                 <TrustBadge icon={<ShieldCheck className="size-4" />} label={publicUrl.startsWith("https://") ? "Secure connection" : "Local connection"} />
               </div>
               <h1 className="mt-4 break-words text-3xl font-semibold tracking-[-.03em] sm:text-4xl">

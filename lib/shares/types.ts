@@ -23,6 +23,10 @@ export type ImportantFileShare = {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  password_hash?: string | null;
+  password_salt?: string | null;
+  password_hint?: string | null;
+  password_protected?: boolean;
 };
 
 export type ShareListItem = ImportantFileShare & {

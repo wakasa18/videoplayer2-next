@@ -381,3 +381,60 @@ function buildBreadcrumbs(folder: string) {
 
   return crumbs;
 }
+
+export type FileAuditItem = {
+  id: number;
+  action: string;
+  details: Record<string, unknown>;
+  created_at: string;
+};
+
+export async function getRecentImportantFiles(limit = 60): Promise<ImportantFile[]> {
+  const { client, userId } = await getDataContext();
+  const { data, error } = await client
+    .from("important_files")
+    .select(`${FILE_SELECT},last_opened_at,last_previewed_at,last_downloaded_at,checksum_sha256,checksum_verified_at`)
+    .eq("owner_id", userId)
+    .eq("status", "active")
+    .not("last_opened_at", "is", null)
+    .order("last_opened_at", { ascending: false })
+    .limit(Math.min(Math.max(limit, 1), 200));
+  if (error) throw new Error(`${error.message}. Run database/phase13_selected_features.sql.`);
+  return ((data ?? []) as unknown as ImportantFile[]).map(normalizeFile);
+}
+
+export async function getImportantFileActivity(fileId: number, limit = 30): Promise<FileAuditItem[]> {
+  const { client, userId } = await getDataContext();
+  const { data, error } = await client
+    .from("important_file_audits")
+    .select("id,action,details,created_at")
+    .eq("owner_id", userId)
+    .eq("file_id", fileId)
+    .order("created_at", { ascending: false })
+    .limit(Math.min(Math.max(limit, 1), 100));
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row) => ({
+    id: Number(row.id),
+    action: String(row.action),
+    details: row.details && typeof row.details === "object" ? row.details as Record<string, unknown> : {},
+    created_at: String(row.created_at),
+  }));
+}
+
+export async function getImportantFileIntegrity(fileId: number): Promise<{
+  checksum_sha256: string | null;
+  checksum_verified_at: string | null;
+}> {
+  const { client, userId } = await getDataContext();
+  const { data, error } = await client
+    .from("important_files")
+    .select("checksum_sha256,checksum_verified_at")
+    .eq("owner_id", userId)
+    .eq("id", fileId)
+    .maybeSingle();
+  if (error) return { checksum_sha256: null, checksum_verified_at: null };
+  return {
+    checksum_sha256: data?.checksum_sha256 ? String(data.checksum_sha256) : null,
+    checksum_verified_at: data?.checksum_verified_at ? String(data.checksum_verified_at) : null,
+  };
+}

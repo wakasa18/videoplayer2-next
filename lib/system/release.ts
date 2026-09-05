@@ -1,3 +1,6 @@
+export const PHASE13_RELEASE = "13.0.0";
+export const PHASE13_LABEL = "Phase 13 · Selected workspace features and security hardening";
+
 export const PHASE11_RELEASE = "11.0.0";
 export const PHASE11_LABEL = "Phase 11 · Final QA, performance, and production hardening";
 

@@ -350,6 +350,7 @@ export async function processAssignmentAutomation(
           emailDelivered = true;
           emailedAt = previousEmail;
         } else {
+          await markNotificationEmailAttempt(client, assignment.owner_id, dedupeKey);
           const emailResult = await sendAssignmentReminderEmail({
             email: preference.email_address,
             assignmentId: assignment.id,
@@ -370,6 +371,7 @@ export async function processAssignmentAutomation(
               emailedAt,
             );
           } else {
+            await markNotificationEmailFailed(client, assignment.owner_id, dedupeKey, emailResult.error ?? "Unknown email error.");
             result.errors.push(
               `Email reminder for "${assignment.title}" failed: ${emailResult.error ?? "Unknown email error."}`,
             );
@@ -548,6 +550,7 @@ async function createDailyDigests(
       if (emailEnabled && preference.email_address) {
         const previousEmail = await getNotificationEmailedAt(client, ownerId, dedupeKey);
         if (!previousEmail) {
+          await markNotificationEmailAttempt(client, ownerId, dedupeKey);
           const emailResult = await sendAssignmentDigestEmail({
             email: preference.email_address,
             ownerId,
@@ -574,6 +577,7 @@ async function createDailyDigests(
               new Date().toISOString(),
             );
           } else {
+            await markNotificationEmailFailed(client, ownerId, dedupeKey, emailResult.error ?? "Unknown email error.");
             result.errors.push(
               `Daily assignment email failed: ${emailResult.error ?? "Unknown email error."}`,
             );
@@ -593,12 +597,46 @@ async function getNotificationEmailedAt(
 ): Promise<string | null> {
   const { data, error } = await client
     .from("assignment_notifications")
-    .select("emailed_at")
+    .select("emailed_at,email_status")
     .eq("owner_id", ownerId)
     .eq("dedupe_key", dedupeKey)
     .maybeSingle();
   if (error) throw new Error(error.message);
   return data?.emailed_at ? String(data.emailed_at) : null;
+}
+
+async function markNotificationEmailAttempt(
+  client: SupabaseClient,
+  ownerId: string,
+  dedupeKey: string,
+): Promise<void> {
+  const { data } = await client
+    .from("assignment_notifications")
+    .select("email_attempts")
+    .eq("owner_id", ownerId)
+    .eq("dedupe_key", dedupeKey)
+    .maybeSingle();
+  const attempts = Number(data?.email_attempts ?? 0) + 1;
+  const { error } = await client
+    .from("assignment_notifications")
+    .update({ email_status: attempts > 1 ? "retrying" : "pending", email_attempts: attempts, email_error: null, email_last_attempt_at: new Date().toISOString() })
+    .eq("owner_id", ownerId)
+    .eq("dedupe_key", dedupeKey);
+  if (error) throw new Error(error.message);
+}
+
+async function markNotificationEmailFailed(
+  client: SupabaseClient,
+  ownerId: string,
+  dedupeKey: string,
+  message: string,
+): Promise<void> {
+  const { error } = await client
+    .from("assignment_notifications")
+    .update({ email_status: "failed", email_error: message.slice(0, 2000), email_last_attempt_at: new Date().toISOString() })
+    .eq("owner_id", ownerId)
+    .eq("dedupe_key", dedupeKey);
+  if (error) throw new Error(error.message);
 }
 
 async function markNotificationEmailed(
@@ -609,7 +647,7 @@ async function markNotificationEmailed(
 ): Promise<void> {
   const { error } = await client
     .from("assignment_notifications")
-    .update({ emailed_at: emailedAt })
+    .update({ emailed_at: emailedAt, email_status: "sent", email_error: null, email_last_attempt_at: emailedAt })
     .eq("owner_id", ownerId)
     .eq("dedupe_key", dedupeKey);
   if (error) throw new Error(error.message);

@@ -1,10 +1,15 @@
 import { AlertTriangle, Link2, ShieldX } from "lucide-react";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 import { PublicShareBrowser } from "@/components/public-share-browser";
+import { PublicShareUnlock } from "@/components/public-share-unlock";
 import { getShareArchiveLimits } from "@/lib/shares/archive-limits";
 import { getPublicShare, registerPublicShareOpen } from "@/lib/shares/data";
-import { ShareRequestError } from "@/lib/shares/server";
+import {
+  getPublicSharePasswordGateFromCookie,
+  shareAccessCookieName,
+  ShareRequestError,
+} from "@/lib/shares/server";
 import type { PublicShareResult } from "@/lib/shares/types";
 
 type PageProps = {
@@ -29,20 +34,35 @@ export default async function PublicSharePage({ params, searchParams }: PageProp
 
   let result: PublicShareResult | null = null;
   let failure: unknown = null;
+  let passwordGate: Awaited<ReturnType<typeof getPublicSharePasswordGateFromCookie>> | null = null;
 
   try {
-    result = await getPublicShare(token, path);
-    const requestHeaders = new Headers();
-    for (const name of ["x-forwarded-for", "x-real-ip", "user-agent"]) {
-      const value = headerList.get(name);
-      if (value) requestHeaders.set(name, value);
-    }
-    await registerPublicShareOpen(
-      token,
-      new Request(publicUrl, { headers: requestHeaders }),
-    );
+    const cookieStore = await cookies();
+    const accessCookie = cookieStore.get(shareAccessCookieName(token))?.value ?? null;
+    passwordGate = await getPublicSharePasswordGateFromCookie(token, accessCookie);
   } catch (error) {
     failure = error;
+  }
+
+  if (passwordGate?.required && !passwordGate.unlocked) {
+    return <PublicShareUnlock token={token} hint={passwordGate.hint} />;
+  }
+
+  if (!failure) {
+    try {
+      result = await getPublicShare(token, path);
+      const requestHeaders = new Headers();
+      for (const name of ["x-forwarded-for", "x-real-ip", "user-agent"]) {
+        const value = headerList.get(name);
+        if (value) requestHeaders.set(name, value);
+      }
+      await registerPublicShareOpen(
+        token,
+        new Request(publicUrl, { headers: requestHeaders }),
+      );
+    } catch (error) {
+      failure = error;
+    }
   }
 
   if (result) {

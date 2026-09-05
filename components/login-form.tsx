@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
 import {
   AlertCircle,
   ArrowRight,
@@ -32,17 +31,17 @@ export function LoginForm({
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
     setIsLoading(true);
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
       });
-
-      if (error) throw error;
+      const payload = (await response.json()) as { error?: string };
+      if (!response.ok) throw new Error(payload.error ?? "Unable to sign in.");
 
       router.replace("/dashboard");
       router.refresh();

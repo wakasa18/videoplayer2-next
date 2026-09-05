@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { consumeShareDownload, resolvePublicFile } from "@/lib/shares/data";
-import { recordShareEvent, shareErrorResponse } from "@/lib/shares/server";
+import { assertPublicShareRequestAccess, recordShareEvent, shareErrorResponse } from "@/lib/shares/server";
 import { getFilesBucket } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +13,7 @@ export async function GET(
   try {
     const { token, fileId: rawId } = await context.params;
     const fileId = Number.parseInt(rawId, 10);
+    await assertPublicShareRequestAccess(token, request);
     const { admin, share, file } = await resolvePublicFile(token, fileId, true);
     const safeName = file.original_filename
       .replace(/[\r\n\0]/g, "")

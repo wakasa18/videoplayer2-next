@@ -2,11 +2,14 @@ import { NextResponse } from "next/server";
 
 import {
   buildPublicShareUrl,
+  createSharePasswordHash,
   decryptShareToken,
   requireShareOwnerContext,
   sanitizeDisplayName,
   sanitizeExpiry,
   sanitizeMaxDownloads,
+  sanitizePasswordHint,
+  sanitizeSharePassword,
   sanitizeShareMessage,
   sanitizeShareTitle,
   shareErrorResponse,
@@ -24,6 +27,9 @@ type UpdatePayload = {
   shareTitle?: unknown;
   shareMessage?: unknown;
   displayName?: unknown;
+  password?: unknown;
+  passwordHint?: unknown;
+  clearPassword?: unknown;
 };
 
 export async function PATCH(
@@ -38,7 +44,7 @@ export async function PATCH(
 
     const { data: existing, error: findError } = await client
       .from("important_file_shares")
-      .select("id,token_ciphertext,revoked_at")
+      .select("id,token_ciphertext,revoked_at,password_hash,password_salt,password_hint")
       .eq("id", id)
       .eq("owner_id", user.id)
       .maybeSingle();
@@ -65,6 +71,9 @@ export async function PATCH(
       return NextResponse.json({ success: true, state: "active" });
     }
 
+    const password = sanitizeSharePassword(payload.password);
+    const clearPassword = payload.clearPassword === true;
+    const passwordData = password ? createSharePasswordHash(password) : null;
     const update = {
       expires_at: sanitizeExpiry(payload.expiresAt),
       max_downloads: sanitizeMaxDownloads(payload.maxDownloads),
@@ -72,6 +81,11 @@ export async function PATCH(
       share_title: sanitizeShareTitle(payload.shareTitle),
       share_message: sanitizeShareMessage(payload.shareMessage),
       display_name: sanitizeDisplayName(payload.displayName),
+      ...(clearPassword
+        ? { password_hash: null, password_salt: null, password_hint: null }
+        : passwordData
+          ? { password_hash: passwordData.passwordHash, password_salt: passwordData.passwordSalt, password_hint: sanitizePasswordHint(payload.passwordHint) }
+          : { password_hint: existing.password_hash ? sanitizePasswordHint(payload.passwordHint) ?? existing.password_hint : null }),
       updated_at: new Date().toISOString(),
     };
     const { error } = await client

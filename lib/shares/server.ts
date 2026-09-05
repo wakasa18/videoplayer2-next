@@ -4,7 +4,9 @@ import {
   createCipheriv,
   createDecipheriv,
   createHash,
+  createHmac,
   randomBytes,
+  scryptSync,
   timingSafeEqual,
 } from "node:crypto";
 
@@ -317,4 +319,129 @@ function assertSameOrigin(request: Request): void {
   if (expectedHost && originHost !== expectedHost) {
     throw new ShareRequestError("Cross-site share actions are not allowed.", 403);
   }
+}
+
+
+export function sanitizeSharePassword(value: unknown): string | null {
+  const password = String(value ?? "").trim();
+  if (!password) return null;
+  if (password.length < 6 || password.length > 128) {
+    throw new ShareRequestError("Share passwords must be 6 to 128 characters.");
+  }
+  return password;
+}
+
+export function sanitizePasswordHint(value: unknown): string | null {
+  const hint = String(value ?? "").trim().slice(0, 120);
+  return hint || null;
+}
+
+export function createSharePasswordHash(password: string | null): { passwordHash: string | null; passwordSalt: string | null } {
+  if (!password) return { passwordHash: null, passwordSalt: null };
+  const salt = randomBytes(16).toString("hex");
+  return { passwordHash: scryptSync(password, salt, 64).toString("hex"), passwordSalt: salt };
+}
+
+export function verifySharePassword(password: string, hash: string | null, salt: string | null): boolean {
+  if (!hash || !salt) return true;
+  try {
+    const actual = Buffer.from(scryptSync(password, salt, 64).toString("hex"), "hex");
+    const expected = Buffer.from(hash, "hex");
+    return actual.length === expected.length && timingSafeEqual(actual, expected);
+  } catch {
+    return false;
+  }
+}
+
+export function shareAccessCookieName(token: string): string {
+  return `da_share_${hashShareToken(token).slice(0, 16)}`;
+}
+
+export function shareAccessCookieValue(token: string, passwordHash: string): string {
+  return createHmac("sha256", getSessionSalt()).update(`${hashShareToken(token)}|${passwordHash}`).digest("hex");
+}
+
+type PublicSharePasswordGate = { required: boolean; unlocked: boolean; hint: string | null };
+
+async function resolvePublicSharePasswordGate(
+  token: string,
+  cookieValue: string | null,
+): Promise<PublicSharePasswordGate> {
+  const clean = String(token ?? "").trim();
+  if (!/^[A-Za-z0-9_-]{32,128}$/.test(clean)) {
+    throw new ShareRequestError("Invalid shared link.", 404);
+  }
+
+  const admin = requirePublicAdminClient();
+  const { data, error } = await admin
+    .from("important_file_shares")
+    .select("password_hash,password_hint,revoked_at,expires_at")
+    .eq("token_hash", hashShareToken(clean))
+    .maybeSingle();
+
+  if (error) throw new ShareRequestError(error.message, 500);
+  if (!data) throw new ShareRequestError("Shared link not found.", 404);
+  if (data.revoked_at) throw new ShareRequestError("This shared link has been revoked.", 410);
+  if (data.expires_at && new Date(String(data.expires_at)).getTime() <= Date.now()) {
+    throw new ShareRequestError("This shared link has expired.", 410);
+  }
+
+  const passwordHash = data.password_hash ? String(data.password_hash) : null;
+  if (!passwordHash) return { required: false, unlocked: true, hint: null };
+
+  const expected = shareAccessCookieValue(clean, passwordHash);
+  const unlocked = cookieValue ? safeStringEqual(cookieValue, expected) : false;
+  return {
+    required: true,
+    unlocked,
+    hint: data.password_hint ? String(data.password_hint) : null,
+  };
+}
+
+export async function getPublicSharePasswordGate(
+  token: string,
+  request: Request,
+): Promise<PublicSharePasswordGate> {
+  const clean = String(token ?? "").trim();
+  const cookie = readCookie(
+    request.headers.get("cookie") ?? "",
+    shareAccessCookieName(clean),
+  );
+  return resolvePublicSharePasswordGate(clean, cookie);
+}
+
+export async function getPublicSharePasswordGateFromCookie(
+  token: string,
+  cookieValue: string | null,
+): Promise<PublicSharePasswordGate> {
+  return resolvePublicSharePasswordGate(token, cookieValue);
+}
+
+export async function assertPublicShareRequestAccess(token: string, request: Request): Promise<void> {
+  const gate = await getPublicSharePasswordGate(token, request);
+  if (gate.required && !gate.unlocked) throw new ShareRequestError("Enter the shared-link password to continue.", 401);
+}
+
+export async function verifyPublicSharePassword(token: string, password: string): Promise<{ cookieName: string; cookieValue: string }> {
+  const admin = requirePublicAdminClient();
+  const { data, error } = await admin
+    .from("important_file_shares")
+    .select("password_hash,password_salt")
+    .eq("token_hash", hashShareToken(token))
+    .maybeSingle();
+  if (error) throw new ShareRequestError(error.message, 500);
+  if (!data?.password_hash || !data.password_salt) throw new ShareRequestError("This shared link does not require a password.", 400);
+  if (!verifySharePassword(password, String(data.password_hash), String(data.password_salt))) throw new ShareRequestError("Incorrect shared-link password.", 401);
+  return { cookieName: shareAccessCookieName(token), cookieValue: shareAccessCookieValue(token, String(data.password_hash)) };
+}
+
+function readCookie(header: string, name: string): string | null {
+  const pair = header.split(";").map((item) => item.trim()).find((item) => item.startsWith(`${name}=`));
+  return pair ? decodeURIComponent(pair.slice(name.length + 1)) : null;
+}
+
+function safeStringEqual(a: string, b: string): boolean {
+  const aa = Buffer.from(a);
+  const bb = Buffer.from(b);
+  return aa.length === bb.length && timingSafeEqual(aa, bb);
 }

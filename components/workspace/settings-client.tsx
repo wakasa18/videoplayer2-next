@@ -17,6 +17,8 @@ import {
 import { useRouter } from "next/navigation";
 import { type FormEvent, type ReactNode, useMemo, useState } from "react";
 
+import { BackupRestoreTools } from "@/components/workspace/backup-restore-tools";
+
 import type {
   WorkspaceDefaultModule,
   WorkspaceSettingsData,
@@ -434,6 +436,7 @@ export function WorkspaceSettingsClient({ data }: { data: WorkspaceSettingsData 
             The export route checks your signed-in account and applies owner filters to every query.
           </p>
         </section>
+        <BackupRestoreTools />
       </div>
     </div>
   );

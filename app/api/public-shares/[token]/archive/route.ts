@@ -7,6 +7,7 @@ import {
   listFolderArchiveFiles,
 } from "@/lib/shares/data";
 import {
+  assertPublicShareRequestAccess,
   recordShareEvent,
   requestSessionHash,
   ShareRequestError,
@@ -84,6 +85,7 @@ async function createArchive(
   fileIds: number[],
 ) {
   try {
+    await assertPublicShareRequestAccess(token, request);
     const { admin, share, files, archiveName } = await listFolderArchiveFiles(
       token,
       path,

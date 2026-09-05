@@ -1,5 +1,5 @@
 import { resolvePublicFile } from "@/lib/shares/data";
-import { recordShareEvent, shareErrorResponse } from "@/lib/shares/server";
+import { assertPublicShareRequestAccess, recordShareEvent, shareErrorResponse } from "@/lib/shares/server";
 import { getFilesBucket } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -60,6 +60,7 @@ export async function GET(
   try {
     const { token, fileId: rawId } = await context.params;
     const fileId = Number.parseInt(rawId, 10);
+    await assertPublicShareRequestAccess(token, request);
     const { admin, share, file } = await resolvePublicFile(token, fileId, false);
     const { data, error } = await admin.storage
       .from(getFilesBucket())

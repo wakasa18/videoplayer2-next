@@ -6,6 +6,7 @@ import {
   BookOpenCheck,
   ClipboardList,
   FolderOpen,
+  FileClock,
   FlaskConical,
   Home,
   Link2,
@@ -15,6 +16,7 @@ import {
   RadioTower,
   Rocket,
   Settings,
+  History,
   ShieldCheck,
   Sparkles,
   Wrench,
@@ -37,17 +39,20 @@ type NavigationLink = {
 const workspaceLinks: NavigationLink[] = [
   { href: "/dashboard", label: "Home", icon: Home, exact: true },
   { href: "/dashboard/files", label: "Important Files", icon: FolderOpen },
+  { href: "/dashboard/files/recent", label: "Recent Files", icon: FileClock },
   { href: "/dashboard/files/shares", label: "Shared links", icon: Link2 },
   { href: "/dashboard/assignments", label: "Assignments", icon: ClipboardList },
   { href: "/dashboard/assignments/productivity", label: "Productivity", icon: Sparkles },
+  { href: "/dashboard/assignments/reminders", label: "Reminder History", icon: History },
   { href: "/dashboard/videos", label: "Videos", icon: Video },
   { href: "/dashboard/activity", label: "Activity", icon: Activity },
 ];
 
 const systemLinks: NavigationLink[] = [
+  { href: "/dashboard/security", label: "Security Center", icon: ShieldCheck },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
   { href: "/dashboard/deployment", label: "Deployment", icon: Rocket },
-  { href: "/dashboard/system", label: "System Check", icon: ShieldCheck },
+  { href: "/dashboard/system", label: "System Health", icon: ShieldCheck },
   { href: "/dashboard/maintenance", label: "Maintenance", icon: Wrench },
   { href: "/dashboard/quality", label: "Quality Assurance", icon: FlaskConical },
   { href: "/dashboard/handoff", label: "Final Handoff", icon: BadgeCheck },
@@ -199,7 +204,7 @@ export function Sidebar({
       <div className={isCompact ? "mt-auto px-0 pt-3" : "mt-auto px-1 pt-4"}>
         {isCompact ? (
           <div
-            title="System online · Phase 12 final handoff"
+            title="System online · Selected feature upgrade"
             className="grid place-items-center rounded-xl border border-white/10 bg-white/[0.035] py-3"
           >
             <span className="tech-status-dot size-2.5 rounded-full bg-emerald-400" />
@@ -216,7 +221,7 @@ export function Sidebar({
               </span>
             </div>
             <div className="mt-2 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-slate-500">
-              <Zap className="size-3 text-cyan-300" /> Phase 12 final handoff
+              <Zap className="size-3 text-cyan-300" /> Selected feature upgrade
             </div>
           </div>
         )}
@@ -291,12 +296,13 @@ function NavigationGroup({
 
 function isActivePath(pathname: string, href: string, exact?: boolean) {
   if (href === "/dashboard/files") {
-    return pathname.startsWith(href) && !pathname.startsWith("/dashboard/files/shares");
+    return pathname.startsWith(href) && !pathname.startsWith("/dashboard/files/shares") && !pathname.startsWith("/dashboard/files/recent");
   }
   if (href === "/dashboard/assignments") {
     return (
       pathname.startsWith(href) &&
-      !pathname.startsWith("/dashboard/assignments/productivity")
+      !pathname.startsWith("/dashboard/assignments/productivity") &&
+      !pathname.startsWith("/dashboard/assignments/reminders")
     );
   }
   return exact ? pathname === href : pathname.startsWith(href);

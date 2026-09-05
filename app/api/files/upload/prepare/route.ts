@@ -16,7 +16,6 @@ import {
   titleFromFilename,
   writeFileAudit,
 } from "@/lib/files/server";
-import { getFilesBucket } from "@/lib/supabase/admin";
 import { consumeRateLimit, rateLimitValue } from "@/lib/maintenance/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -31,6 +30,9 @@ type PreparePayload = {
   description?: unknown;
   category?: unknown;
   documentDate?: unknown;
+  checksumSha256?: unknown;
+  duplicateStrategy?: unknown;
+  replaceFileId?: unknown;
 };
 
 export async function POST(request: Request) {
@@ -64,6 +66,12 @@ export async function POST(request: Request) {
     const description = sanitizeText(payload.description, 5000) || null;
     const category = sanitizeText(payload.category, 100) || null;
     const documentDate = sanitizeDate(payload.documentDate);
+    const checksumSha256 = String(payload.checksumSha256 ?? "").trim().toLowerCase();
+    if (checksumSha256 && !/^[a-f0-9]{64}$/.test(checksumSha256)) {
+      throw new FileRequestError("The duplicate-check checksum is invalid.");
+    }
+    const duplicateStrategy = String(payload.duplicateStrategy ?? "");
+    const requestedReplaceId = Number.parseInt(String(payload.replaceFileId ?? ""), 10);
 
     if (folderPath) {
       await ensureFolderHierarchy(client, folderPath, user.id, {
@@ -84,18 +92,33 @@ export async function POST(request: Request) {
 
     let duplicateQuery = client
       .from("important_files")
-      .select("id")
+      .select("id,title,original_filename,file_size,folder_path,checksum_sha256")
       .eq("owner_id", user.id)
       .eq("status", "active")
-      .eq("original_filename", originalName)
-      .limit(1);
-
-    duplicateQuery = folderPath
-      ? duplicateQuery.eq("folder_path", folderPath)
-      : duplicateQuery.is("folder_path", null);
-
+      .eq("file_size", fileSize)
+      .limit(5);
+    if (checksumSha256) duplicateQuery = duplicateQuery.eq("checksum_sha256", checksumSha256);
+    else duplicateQuery = duplicateQuery.eq("original_filename", originalName);
     const { data: duplicateRows } = await duplicateQuery;
-    const duplicate = Boolean(duplicateRows?.length);
+    const duplicateFile = duplicateRows?.[0] ?? null;
+    if (duplicateFile && !["keep_both", "replace"].includes(duplicateStrategy)) {
+      return NextResponse.json({
+        error: "An identical or likely duplicate file already exists.",
+        code: "DUPLICATE",
+        duplicate: {
+          id: Number(duplicateFile.id),
+          title: String(duplicateFile.title ?? duplicateFile.original_filename),
+          originalFilename: String(duplicateFile.original_filename),
+          fileSize: Number(duplicateFile.file_size ?? 0),
+          exact: Boolean(checksumSha256 && duplicateFile.checksum_sha256 === checksumSha256),
+        },
+      }, { status: 409 });
+    }
+    const replaceFileId = duplicateStrategy === "replace" && Number.isInteger(requestedReplaceId)
+      ? requestedReplaceId
+      : duplicateStrategy === "replace" && duplicateFile?.id
+        ? Number(duplicateFile.id)
+        : null;
 
     const { data: pendingFile, error: insertError } = await client
       .from("important_files")
@@ -111,7 +134,8 @@ export async function POST(request: Request) {
         file_extension: extension || null,
         mime_type: mimeType,
         file_size: fileSize,
-        checksum_sha256: null,
+        checksum_sha256: checksumSha256 || null,
+        replacement_of_id: replaceFileId,
         upload_token_hash: uploadTokenHash,
         status: "pending",
         document_date: documentDate,
@@ -131,21 +155,6 @@ export async function POST(request: Request) {
     }
 
     const fileId = Number(pendingFile.id);
-    const { data: signed, error: signedError } = await client.storage
-      .from(getFilesBucket())
-      .createSignedUploadUrl(objectPath, { upsert: false });
-
-    if (signedError || !signed?.signedUrl || !signed.token) {
-      await client
-        .from("important_files")
-        .delete()
-        .eq("id", fileId)
-        .eq("owner_id", user.id);
-      throw new FileRequestError(
-        signedError?.message ?? "Could not prepare the private upload URL.",
-        502,
-      );
-    }
 
     await writeFileAudit(
       client,
@@ -163,10 +172,9 @@ export async function POST(request: Request) {
     return NextResponse.json({
       fileId,
       uploadToken,
-      signedUrl: signed.signedUrl,
-      storageToken: signed.token,
       objectPath,
-      duplicate,
+      duplicate: Boolean(duplicateFile),
+      replaceFileId,
       maxUploadBytes,
     });
   } catch (error) {

@@ -47,7 +47,7 @@ export async function GET(request: Request) {
       client
         .from("important_files")
         .select(
-          "id,title,description,category,folder_path,original_filename,file_extension,mime_type,file_size,status,document_date,expires_at,is_favorite,download_count,created_at,updated_at,deleted_at",
+          "id,title,description,category,folder_path,original_filename,file_extension,mime_type,file_size,status,document_date,expires_at,is_favorite,download_count,checksum_sha256,checksum_verified_at,last_opened_at,last_previewed_at,last_downloaded_at,created_at,updated_at,deleted_at",
         )
         .eq("owner_id", user.id)
         .order("created_at", { ascending: false })
@@ -152,8 +152,8 @@ export async function GET(request: Request) {
 
     const warnings: string[] = [];
     const backup = {
-      schema: "damons-archive-phase12-metadata-backup",
-      version: 4,
+      schema: "damons-archive-phase13-metadata-backup",
+      version: 5,
       generated_at: new Date().toISOString(),
       account: {
         user_id: user.id,

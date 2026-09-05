@@ -4,6 +4,7 @@ import { consumeRateLimit, rateLimitValue } from "@/lib/maintenance/rate-limit";
 
 import {
   buildPublicShareUrl,
+  createSharePasswordHash,
   createShareToken,
   encryptShareToken,
   hashShareToken,
@@ -12,6 +13,8 @@ import {
   sanitizeDisplayName,
   sanitizeExpiry,
   sanitizeMaxDownloads,
+  sanitizePasswordHint,
+  sanitizeSharePassword,
   sanitizeShareMessage,
   sanitizeShareTitle,
   shareErrorResponse,
@@ -31,6 +34,8 @@ type CreateSharePayload = {
   shareTitle?: unknown;
   shareMessage?: unknown;
   displayName?: unknown;
+  password?: unknown;
+  passwordHint?: unknown;
 };
 
 export async function POST(request: Request) {
@@ -46,6 +51,9 @@ export async function POST(request: Request) {
     const shareTitle = sanitizeShareTitle(payload.shareTitle);
     const shareMessage = sanitizeShareMessage(payload.shareMessage);
     const displayName = sanitizeDisplayName(payload.displayName);
+    const password = sanitizeSharePassword(payload.password);
+    const passwordHint = sanitizePasswordHint(payload.passwordHint);
+    const passwordData = createSharePasswordHash(password);
 
     let fileId: number | null = null;
     let folderPath: string | null = null;
@@ -107,19 +115,35 @@ export async function POST(request: Request) {
         share_title: shareTitle,
         share_message: shareMessage,
         display_name: displayName,
+        password_hash: passwordData.passwordHash,
+        password_salt: passwordData.passwordSalt,
+        password_hint: passwordData.passwordHash ? passwordHint : null,
         created_by: user.email ?? user.id,
         created_at: now,
         updated_at: now,
       })
-      .select("id")
+      .select("id,password_hash,password_hint")
       .single();
     if (error) throw new ShareRequestError(error.message, 422);
+
+    const passwordProtected = Boolean(share.password_hash);
+    if (password && !passwordProtected) {
+      // Never return a link that the owner expected to be protected if the
+      // password fields were not persisted by the database.
+      await client.from("important_file_shares").delete().eq("id", Number(share.id)).eq("owner_id", user.id);
+      throw new ShareRequestError(
+        "The shared-link password was not saved. Run the latest Phase 13 Supabase migration and try again.",
+        500,
+      );
+    }
 
     return NextResponse.json({
       success: true,
       id: Number(share.id),
       targetName,
       publicUrl: buildPublicShareUrl(request, token),
+      passwordProtected,
+      passwordHint: passwordProtected ? (share.password_hint ?? null) : null,
     });
   } catch (error) {
     return shareErrorResponse(error);

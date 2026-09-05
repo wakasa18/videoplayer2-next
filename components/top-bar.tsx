@@ -106,6 +106,15 @@ export function TopBar({ userEmail, displayName, onMenuClick }: TopBarProps) {
 }
 
 function pageDetails(pathname: string) {
+  if (pathname.startsWith("/dashboard/files/recent")) {
+    return { title: "Recent Files", searchAction: "/dashboard/files", searchLabel: "Search Important Files" };
+  }
+  if (pathname.startsWith("/dashboard/assignments/reminders")) {
+    return { title: "Reminder History", searchAction: "/dashboard/assignments", searchLabel: "Search assignments" };
+  }
+  if (pathname.startsWith("/dashboard/security")) {
+    return { title: "Security Center", searchAction: "/dashboard/files", searchLabel: "Search Important Files" };
+  }
   if (pathname.startsWith("/dashboard/files/shares")) {
     return {
       title: "Shared links",
@@ -155,7 +164,7 @@ function pageDetails(pathname: string) {
     return { title: "Deployment", searchAction: "/dashboard/files", searchLabel: "Search Important Files" };
   }
   if (pathname.startsWith("/dashboard/system")) {
-    return { title: "System Check", searchAction: "/dashboard/files", searchLabel: "Search Important Files" };
+    return { title: "System Health", searchAction: "/dashboard/files", searchLabel: "Search Important Files" };
   }
   if (pathname.startsWith("/dashboard/maintenance")) {
     return { title: "Maintenance", searchAction: "/dashboard/files", searchLabel: "Search Important Files" };

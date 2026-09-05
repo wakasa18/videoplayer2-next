@@ -21,8 +21,8 @@ import {
   useState,
 } from "react";
 
-import { createClient } from "@/lib/supabase/client";
 import { formatBytes } from "@/lib/files/utils";
+import { sha256ForDuplicateCheck, uploadResumable } from "@/lib/files/resumable-client";
 
 type UploadMode = "files" | "folder";
 type QueueStatus =
@@ -56,8 +56,6 @@ type UploadDialogProps = {
 type PreparedUpload = {
   fileId: number;
   uploadToken: string;
-  signedUrl: string;
-  storageToken: string;
   objectPath: string;
   duplicate: boolean;
 };
@@ -74,7 +72,7 @@ export function UploadDialog({
 }: UploadDialogProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
-  const activeXhrRef = useRef<XMLHttpRequest | null>(null);
+  const activeAbortRef = useRef<AbortController | null>(null);
   const activeTokenRef = useRef<string | null>(null);
   const stopRequestedRef = useRef(false);
 
@@ -183,29 +181,58 @@ export function UploadDialog({
         });
 
         const folderPath = destinationFolder(currentFolder, item.relativePath);
-        const prepareResponse = await fetch("/api/files/upload/prepare", {
+        const checksumSha256 = await sha256ForDuplicateCheck(item.file);
+        const basePayload = {
+          originalName: item.file.name,
+          fileSize: item.file.size,
+          mimeType: item.file.type || "application/octet-stream",
+          folderPath,
+          description,
+          category,
+          documentDate,
+          checksumSha256,
+        };
+
+        let prepareResponse = await fetch("/api/files/upload/prepare", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            originalName: item.file.name,
-            fileSize: item.file.size,
-            mimeType: item.file.type || "application/octet-stream",
-            folderPath,
-            description,
-            category,
-            documentDate,
-          }),
+          body: JSON.stringify(basePayload),
         });
-        const preparePayload = (await prepareResponse.json()) as
-          | PreparedUpload
-          | { error?: string };
+        let preparePayload = (await prepareResponse.json()) as PreparedUpload | {
+          error?: string;
+          code?: string;
+          duplicate?: { id: number; title: string; originalFilename: string; exact: boolean };
+        };
+
+        if (prepareResponse.status === 409 && "code" in preparePayload && preparePayload.code === "DUPLICATE" && preparePayload.duplicate) {
+          updateItem(item.id, { duplicate: true });
+          const duplicateLabel = preparePayload.duplicate.title || preparePayload.duplicate.originalFilename;
+          const replace = window.confirm(`Duplicate detected: “${duplicateLabel}”.
+
+OK = replace the existing file (old copy goes to Recycle Bin).
+Cancel = choose whether to keep both.`);
+          let duplicateStrategy: "replace" | "keep_both" | "skip" = replace ? "replace" : "skip";
+          if (!replace) {
+            duplicateStrategy = window.confirm(`Keep both copies?\n\nOK = keep both.\nCancel = skip this upload.`) ? "keep_both" : "skip";
+          }
+          if (duplicateStrategy === "skip") {
+            updateItem(item.id, { status: "cancelled", progress: 0, error: "Skipped duplicate file." });
+            continue;
+          }
+          prepareResponse = await fetch("/api/files/upload/prepare", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...basePayload,
+              duplicateStrategy,
+              replaceFileId: duplicateStrategy === "replace" ? preparePayload.duplicate.id : null,
+            }),
+          });
+          preparePayload = (await prepareResponse.json()) as PreparedUpload | { error?: string };
+        }
 
         if (!prepareResponse.ok || !("uploadToken" in preparePayload)) {
-          throw new Error(
-            "error" in preparePayload && preparePayload.error
-              ? preparePayload.error
-              : "Could not prepare this upload.",
-          );
+          throw new Error("error" in preparePayload && preparePayload.error ? preparePayload.error : "Could not prepare this upload.");
         }
 
         prepared = preparePayload;
@@ -219,20 +246,18 @@ export function UploadDialog({
           duplicate: prepared.duplicate,
         });
 
-        await uploadWithProgress(
+        const controller = new AbortController();
+        activeAbortRef.current = controller;
+        await uploadResumable(
           item.file,
           prepared,
-          (progress) => {
-            updateItem(item.id, {
-              status: "uploading",
-              progress: Math.max(5, Math.min(94, progress)),
-            });
-          },
-          (xhr) => {
-            activeXhrRef.current = xhr;
-          },
+          (progress) => updateItem(item.id, {
+            status: "uploading",
+            progress: Math.max(5, Math.min(94, Math.round(progress * 0.94))),
+          }),
+          controller.signal,
         );
-        activeXhrRef.current = null;
+        activeAbortRef.current = null;
 
         if (stopRequestedRef.current) {
           throw new DOMException("Upload cancelled", "AbortError");
@@ -276,7 +301,7 @@ export function UploadDialog({
       }
     }
 
-    activeXhrRef.current = null;
+    activeAbortRef.current = null;
     activeTokenRef.current = null;
     setUploading(false);
     router.refresh();
@@ -284,7 +309,7 @@ export function UploadDialog({
 
   async function cancelUpload() {
     stopRequestedRef.current = true;
-    activeXhrRef.current?.abort();
+    activeAbortRef.current?.abort();
     const token = activeTokenRef.current;
     if (token) await cancelPendingUpload(token);
     activeTokenRef.current = null;
@@ -534,7 +559,7 @@ export function UploadDialog({
 
             <footer className="flex flex-col-reverse gap-2 border-t border-white/10 bg-white/[0.04] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
               <p className="text-xs leading-5 text-slate-400">
-                Duplicate names are kept as separate files with private unique storage paths.
+                Uploads resume after temporary network interruptions. Exact duplicates can be replaced, kept, or skipped.
               </p>
               <div className="flex shrink-0 justify-end gap-2">
                 {failedCount > 0 && !uploading ? (
@@ -675,69 +700,6 @@ function destinationFolder(currentFolder: string, relativePath: string): string 
   const parts = relativePath.replace(/\\/g, "/").split("/").filter(Boolean);
   parts.pop();
   return [currentFolder, parts.join("/")].filter(Boolean).join("/");
-}
-
-async function uploadWithProgress(
-  file: File,
-  prepared: PreparedUpload,
-  onProgress: (progress: number) => void,
-  onRequest: (xhr: XMLHttpRequest) => void,
-): Promise<void> {
-  const supabase = createClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const apiKey =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
-    "";
-
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    const formData = new FormData();
-    formData.append("cacheControl", "3600");
-    formData.append("", file);
-
-    xhr.open("PUT", prepared.signedUrl);
-    xhr.setRequestHeader("x-upsert", "false");
-    if (apiKey) xhr.setRequestHeader("apikey", apiKey);
-    const bearer = session?.access_token || apiKey;
-    if (bearer) xhr.setRequestHeader("Authorization", `Bearer ${bearer}`);
-
-    xhr.upload.addEventListener("progress", (event) => {
-      if (!event.lengthComputable) return;
-      onProgress(Math.round((event.loaded / event.total) * 94));
-    });
-    xhr.addEventListener("load", () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        onProgress(94);
-        resolve();
-        return;
-      }
-      reject(new Error(readUploadError(xhr)));
-    });
-    xhr.addEventListener("error", () =>
-      reject(new Error("The browser could not reach Supabase Storage.")),
-    );
-    xhr.addEventListener("abort", () =>
-      reject(new DOMException("Upload cancelled", "AbortError")),
-    );
-
-    onRequest(xhr);
-    xhr.send(formData);
-  });
-}
-
-function readUploadError(xhr: XMLHttpRequest): string {
-  try {
-    const payload = JSON.parse(xhr.responseText) as {
-      message?: string;
-      error?: string;
-    };
-    return payload.message || payload.error || `Storage returned HTTP ${xhr.status}.`;
-  } catch {
-    return xhr.responseText || `Storage returned HTTP ${xhr.status}.`;
-  }
 }
 
 async function cancelPendingUpload(uploadToken: string): Promise<void> {

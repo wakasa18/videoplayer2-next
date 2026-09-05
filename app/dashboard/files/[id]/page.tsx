@@ -5,15 +5,18 @@ import {
   FileKey,
   FolderOpen,
   HardDrive,
+  History,
   Star,
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { FileItemActions } from "@/components/file-item-actions";
+import { FileOpenTracker } from "@/components/file-open-tracker";
+import { FileIntegrityCard } from "@/components/file-integrity-card";
 import { FilePreview } from "@/components/file-preview";
 import { FileTypeIcon } from "@/components/file-type-icon";
-import { getImportantFileById } from "@/lib/files/data";
+import { getImportantFileActivity, getImportantFileById, getImportantFileIntegrity } from "@/lib/files/data";
 import {
   buildFileQuery,
   formatBytes,
@@ -29,7 +32,11 @@ export default async function FileDetailsPage({ params }: FileDetailsPageProps) 
   const id = Number.parseInt((await params).id, 10);
   if (!Number.isInteger(id) || id < 1) notFound();
 
-  const { file } = await getImportantFileById(id);
+  const [{ file }, activity, integrity] = await Promise.all([
+    getImportantFileById(id),
+    getImportantFileActivity(id),
+    getImportantFileIntegrity(id),
+  ]);
   if (!file) notFound();
 
   const backUrl = buildFileQuery(
@@ -49,6 +56,7 @@ export default async function FileDetailsPage({ params }: FileDetailsPageProps) 
 
   return (
     <main className="space-y-5">
+      <FileOpenTracker fileId={file.id} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           href={backUrl}
@@ -147,8 +155,19 @@ export default async function FileDetailsPage({ params }: FileDetailsPageProps) 
               </strong>
             </div>
           ) : null}
+          <FileIntegrityCard fileId={file.id} checksum={integrity.checksum_sha256} verifiedAt={integrity.checksum_verified_at} />
         </aside>
       </div>
+
+      <section className="tech-panel rounded-[28px] p-5 sm:p-6">
+        <div className="flex items-center gap-3">
+          <span className="grid size-10 place-items-center rounded-xl bg-violet-400/10 text-violet-300"><History className="size-5" /></span>
+          <div><h2 className="text-lg font-semibold text-slate-100">File activity</h2><p className="text-xs text-slate-400">Owner-only audit trail for this file.</p></div>
+        </div>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+          {activity.length ? activity.map((item) => <div key={item.id} className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-3.5"><strong className="block text-xs font-semibold uppercase tracking-wider text-cyan-300">{item.action.replaceAll("_", " ")}</strong><span className="mt-1 block text-xs text-slate-500">{new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila" }).format(new Date(item.created_at))}</span></div>) : <p className="text-sm text-slate-400">No activity has been recorded for this file yet.</p>}
+        </div>
+      </section>
     </main>
   );
 }

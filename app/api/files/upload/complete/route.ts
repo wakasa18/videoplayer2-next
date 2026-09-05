@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     const tokenHash = hashUploadToken(uploadToken);
     const { data: file, error: fileError } = await client
       .from("important_files")
-      .select("id,file_path,file_size,mime_type,original_filename,status,owner_id")
+      .select("id,file_path,file_size,mime_type,original_filename,status,owner_id,replacement_of_id")
       .eq("owner_id", user.id)
       .eq("upload_token_hash", tokenHash)
       .eq("status", "pending")
@@ -85,6 +85,17 @@ export async function POST(request: Request) {
     if (updateError) {
       await failUpload(client, user.id, fileId, String(file.file_path));
       throw new FileRequestError(updateError.message, 422);
+    }
+
+    if (file.replacement_of_id) {
+      const recycledAt = new Date().toISOString();
+      await client
+        .from("important_files")
+        .update({ status: "deleted", deleted_at: recycledAt, updated_at: recycledAt })
+        .eq("id", Number(file.replacement_of_id))
+        .eq("owner_id", user.id)
+        .eq("status", "active");
+      await writeFileAudit(client, "file_replaced", { user_id: user.id, replacement_file_id: fileId }, Number(file.replacement_of_id));
     }
 
     await writeFileAudit(
