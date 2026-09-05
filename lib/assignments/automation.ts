@@ -286,7 +286,7 @@ export async function processAssignmentAutomation(
   let reminderQuery = client
     .from("assignments")
     .select(
-      "id,owner_id,title,due_date,due_time,status,reminder_minutes_before,custom_reminder_at,reminder_due_at,reminder_sent_at,snoozed_until,archived_at,deleted_at",
+      "id,owner_id,title,description,due_date,due_time,status,priority,subject_id,subject,reminder_minutes_before,custom_reminder_at,reminder_due_at,reminder_sent_at,snoozed_until,archived_at,deleted_at",
     )
     .in("status", ACTIVE_STATUSES)
     .is("archived_at", null)
@@ -299,6 +299,7 @@ export async function processAssignmentAutomation(
 
   const ownerIds = Array.from(new Set((reminderRows ?? []).map((row) => String(row.owner_id))));
   const preferences = await loadPreferences(client, ownerIds);
+  const subjectLabels = await loadSubjectLabels(client, (reminderRows ?? []) as AssignmentRow[]);
   const now = new Date();
 
   for (const raw of reminderRows ?? []) {
@@ -357,6 +358,11 @@ export async function processAssignmentAutomation(
             title: assignment.title,
             message,
             dueAt: dueAt?.toISOString() ?? null,
+            reminderAt: reminderAt.toISOString(),
+            description: assignment.description ?? null,
+            subject: subjectLabels.get(Number(assignment.subject_id ?? 0)) ?? assignment.subject ?? null,
+            priority: assignment.priority ?? null,
+            status: assignment.status ?? null,
             ownerId: assignment.owner_id,
             overdue,
           });
@@ -479,6 +485,35 @@ async function createNotification(
   if (!error) return true;
   if (error.code === "23505") return false;
   throw new Error(error.message);
+}
+
+async function loadSubjectLabels(
+  client: SupabaseClient,
+  assignments: AssignmentRow[],
+): Promise<Map<number, string>> {
+  const subjectIds = Array.from(
+    new Set(
+      assignments
+        .map((assignment) => Number(assignment.subject_id ?? 0))
+        .filter((id) => Number.isInteger(id) && id > 0),
+    ),
+  );
+  if (subjectIds.length === 0) return new Map();
+
+  const { data, error } = await client
+    .from("assignment_subjects")
+    .select("id,name,code")
+    .in("id", subjectIds);
+  if (error) return new Map();
+
+  return new Map(
+    (data ?? []).map((row) => {
+      const name = String(row.name ?? "").trim();
+      const code = String(row.code ?? "").trim();
+      const label = code && name ? `${code} · ${name}` : code || name || "Subject";
+      return [Number(row.id), label] as const;
+    }),
+  );
 }
 
 async function loadPreferences(

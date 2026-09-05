@@ -28,6 +28,11 @@ type ReminderEmailInput = {
   title: string;
   message: string;
   dueAt: string | null;
+  reminderAt?: string | null;
+  description?: string | null;
+  subject?: string | null;
+  priority?: string | null;
+  status?: string | null;
   ownerId: string;
   overdue: boolean;
 };
@@ -73,31 +78,55 @@ export async function sendAssignmentReminderEmail(
   const assignmentUrl = appUrl
     ? `${appUrl}/dashboard/assignments/${input.assignmentId}`
     : null;
-  const dueLabel = input.dueAt ? formatDateTime(input.dueAt) : "No deadline time";
+  const assignmentsUrl = appUrl ? `${appUrl}/dashboard/assignments` : null;
+  const dueLabel = input.dueAt ? formatDateTime(input.dueAt) : "No deadline set";
+  const reminderLabel = input.reminderAt
+    ? formatDateTime(input.reminderAt)
+    : formatDateTime(new Date().toISOString());
+  const timingLabel = input.dueAt
+    ? relativeDeadlineLabel(input.dueAt)
+    : "Scheduled reminder";
+  const priorityLabel = formatPriority(input.priority);
+  const statusLabel = formatStatus(input.status);
   const subject = input.overdue
     ? `Overdue: ${input.title}`
-    : `Assignment reminder: ${input.title}`;
+    : `Reminder: ${input.title}`;
+
+  const text = [
+    input.overdue ? "ASSIGNMENT OVERDUE" : "ASSIGNMENT REMINDER",
+    input.title,
+    input.message,
+    input.subject ? `Subject: ${input.subject}` : null,
+    `Deadline: ${dueLabel}`,
+    `Timing: ${timingLabel}`,
+    priorityLabel ? `Priority: ${priorityLabel}` : null,
+    statusLabel ? `Status: ${statusLabel}` : null,
+    input.description ? `Notes: ${truncateText(input.description, 500)}` : null,
+    `Reminder scheduled: ${reminderLabel}`,
+    assignmentUrl ? `Open assignment: ${assignmentUrl}` : null,
+    assignmentsUrl ? `All assignments: ${assignmentsUrl}` : null,
+    "Sent by Damon's Archive · Assignment Center",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 
   return sendAssignmentEmail({
     to: input.email,
     subject,
-    text: [
-      input.message,
-      `Deadline: ${dueLabel}`,
-      assignmentUrl ? `Open assignment: ${assignmentUrl}` : null,
-      "This reminder was sent from Damon's Archive.",
-    ]
-      .filter(Boolean)
-      .join("\n\n"),
-    html: emailShell({
-      eyebrow: input.overdue ? "Assignment overdue" : "Assignment reminder",
+    text,
+    html: assignmentReminderHtml({
       title: input.title,
-      body: input.message,
-      detailLabel: "Deadline",
-      detailValue: dueLabel,
+      message: input.message,
+      dueLabel,
+      timingLabel,
+      reminderLabel,
+      description: input.description ?? null,
+      subject: input.subject ?? null,
+      priority: priorityLabel,
+      status: statusLabel,
+      overdue: input.overdue,
       actionUrl: assignmentUrl,
-      actionLabel: "Open assignment",
-      accent: input.overdue ? "#fb7185" : "#22d3ee",
+      assignmentsUrl,
     }),
     webhookPayload: {
       type: "assignment_reminder",
@@ -106,6 +135,11 @@ export async function sendAssignmentReminderEmail(
       title: input.title,
       message: input.message,
       dueAt: input.dueAt,
+      reminderAt: input.reminderAt ?? null,
+      description: input.description ?? null,
+      subject: input.subject ?? null,
+      priority: input.priority ?? null,
+      status: input.status ?? null,
       ownerId: input.ownerId,
       overdue: input.overdue,
       assignmentUrl,
@@ -192,15 +226,19 @@ export async function sendAssignmentTestEmail(input: {
     ]
       .filter(Boolean)
       .join("\n\n"),
-    html: emailShell({
-      eyebrow: "Email test successful",
+    html: assignmentReminderHtml({
       title: "Assignment notifications are ready",
-      body: "Scheduled assignment reminders and enabled daily summaries can now be sent to this address.",
-      detailLabel: "Recipient",
-      detailValue: input.email,
+      message: "Scheduled assignment reminders and enabled daily summaries can now be sent to this address.",
+      dueLabel: "Gmail SMTP connected",
+      timingLabel: "Email delivery ready",
+      reminderLabel: formatDateTime(new Date().toISOString()),
+      description: `Test recipient: ${input.email}`,
+      subject: "Notification test",
+      priority: "Normal",
+      status: "Ready",
+      overdue: false,
       actionUrl: settingsUrl,
-      actionLabel: "Open reminder settings",
-      accent: "#22d3ee",
+      assignmentsUrl: settingsUrl,
     }),
     webhookPayload: {
       type: "assignment_test",
@@ -556,17 +594,178 @@ async function sendWithWebhook(
   }
 }
 
-function emailShell(input: {
-  eyebrow: string;
+function assignmentReminderHtml(input: {
   title: string;
-  body: string;
-  detailLabel: string;
-  detailValue: string;
+  message: string;
+  dueLabel: string;
+  timingLabel: string;
+  reminderLabel: string;
+  description: string | null;
+  subject: string | null;
+  priority: string | null;
+  status: string | null;
+  overdue: boolean;
   actionUrl: string | null;
-  actionLabel: string;
-  accent: string;
+  assignmentsUrl: string | null;
 }): string {
-  return `<!doctype html><html><body style="margin:0;background:#020617;font-family:Arial,sans-serif;color:#e2e8f0"><div style="padding:32px 16px"><div style="max-width:620px;margin:0 auto;border:1px solid #1e293b;border-radius:24px;background:#08111f;overflow:hidden"><div style="height:4px;background:${input.accent}"></div><div style="padding:28px"><div style="font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${input.accent}">${escapeHtml(input.eyebrow)}</div><h1 style="margin:12px 0 0;font-size:28px;line-height:1.2;color:#f8fafc">${escapeHtml(input.title)}</h1><p style="margin:16px 0 0;font-size:15px;line-height:1.7;color:#cbd5e1">${escapeHtml(input.body)}</p><div style="margin-top:22px;padding:16px;border:1px solid #1e293b;border-radius:16px;background:#0f172a"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#64748b">${escapeHtml(input.detailLabel)}</div><div style="margin-top:6px;font-size:15px;font-weight:700;color:#f8fafc">${escapeHtml(input.detailValue)}</div></div>${input.actionUrl ? `<a href="${escapeHtml(input.actionUrl)}" style="display:inline-block;margin-top:24px;padding:12px 18px;border-radius:999px;background:linear-gradient(135deg,#22d3ee,#4f46e5);color:#fff;font-size:14px;font-weight:700;text-decoration:none">${escapeHtml(input.actionLabel)}</a>` : ""}<p style="margin:24px 0 0;font-size:12px;line-height:1.6;color:#64748b">You received this because email reminders are enabled in Damon's Archive.</p></div></div></div></body></html>`;
+  const accent = input.overdue ? "#fb7185" : "#22d3ee";
+  const accentSoft = input.overdue ? "#3b1422" : "#083344";
+  const eyebrow = input.overdue ? "Assignment overdue" : "Assignment reminder";
+  const preheader = input.overdue
+    ? `${input.title} has passed its deadline.`
+    : `${input.title} — ${input.timingLabel}.`;
+  const description = input.description?.trim()
+    ? `<tr><td style="padding:0 28px 24px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:separate;border-spacing:0;background:#0b1526;border:1px solid #1e2b3f;border-radius:16px"><tr><td style="padding:16px 18px"><div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:#718096">Notes</div><div style="margin-top:8px;font-size:14px;line-height:1.65;color:#cbd5e1">${escapeHtmlMultiline(truncateText(input.description, 700))}</div></td></tr></table></td></tr>`
+    : "";
+  const subjectRow = input.subject
+    ? detailCell("Subject", input.subject)
+    : detailCell("Reminder", input.reminderLabel);
+  const secondaryRow = input.subject
+    ? detailCell("Reminder", input.reminderLabel)
+    : "";
+
+  return `<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="supported-color-schemes" content="dark light">
+  <title>${escapeHtml(input.title)}</title>
+</head>
+<body style="margin:0;padding:0;background:#020617;font-family:Arial,Helvetica,sans-serif;color:#e2e8f0">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">${escapeHtml(preheader)}</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;background:#020617;border-collapse:collapse">
+    <tr>
+      <td align="center" style="padding:28px 12px">
+        <table role="presentation" width="620" cellspacing="0" cellpadding="0" style="width:100%;max-width:620px;border-collapse:separate;border-spacing:0;background:#07111f;border:1px solid #1b2a3d;border-radius:24px;overflow:hidden">
+          <tr>
+            <td style="padding:20px 28px;border-bottom:1px solid #172338;background:#081421">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse">
+                <tr>
+                  <td style="vertical-align:middle">
+                    <div style="font-size:11px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#67e8f9">Damon's Archive</div>
+                    <div style="margin-top:4px;font-size:13px;font-weight:700;color:#94a3b8">Assignment Center</div>
+                  </td>
+                  <td align="right" style="vertical-align:middle">
+                    <span style="display:inline-block;padding:7px 11px;border:1px solid ${accent};border-radius:999px;background:${accentSoft};font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:${accent}">${escapeHtml(eyebrow)}</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr><td style="height:4px;background:${accent};font-size:0;line-height:0">&nbsp;</td></tr>
+          <tr>
+            <td style="padding:30px 28px 18px">
+              <div style="font-size:12px;font-weight:800;letter-spacing:.10em;text-transform:uppercase;color:${accent}">${escapeHtml(input.timingLabel)}</div>
+              <h1 style="margin:10px 0 0;font-size:30px;line-height:1.2;letter-spacing:-.02em;color:#f8fafc;font-weight:800">${escapeHtml(input.title)}</h1>
+              <p style="margin:14px 0 0;font-size:15px;line-height:1.7;color:#aebed0">${escapeHtml(input.message)}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 28px 18px">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:separate;border-spacing:0;background:#0c1728;border:1px solid #203148;border-radius:18px">
+                <tr>
+                  <td style="padding:18px 20px">
+                    <div style="font-size:11px;font-weight:800;letter-spacing:.10em;text-transform:uppercase;color:#718096">Deadline</div>
+                    <div style="margin-top:7px;font-size:19px;line-height:1.4;font-weight:800;color:#f8fafc">${escapeHtml(input.dueLabel)}</div>
+                    <div style="margin-top:6px;font-size:13px;font-weight:700;color:${accent}">${escapeHtml(input.timingLabel)}</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 28px 18px">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:separate;border-spacing:10px 0;margin-left:-10px;width:calc(100% + 20px)">
+                <tr>
+                  ${subjectRow}
+                  ${detailCell("Priority", input.priority || "Normal", input.priority === "High" ? "#fbbf24" : "#cbd5e1")}
+                </tr>
+              </table>
+            </td>
+          </tr>
+          ${secondaryRow ? `<tr><td style="padding:0 28px 18px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse"><tr>${secondaryRow}${detailCell("Status", input.status || "To do")}</tr></table></td></tr>` : `<tr><td style="padding:0 28px 18px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse"><tr>${detailCell("Status", input.status || "To do")}</tr></table></td></tr>`}
+          ${description}
+          <tr>
+            <td style="padding:2px 28px 28px">
+              ${input.actionUrl ? `<table role="presentation" cellspacing="0" cellpadding="0" style="border-collapse:separate"><tr><td bgcolor="#22d3ee" style="border-radius:12px;background:#22d3ee"><a href="${escapeHtml(input.actionUrl)}" style="display:inline-block;padding:13px 20px;font-size:14px;font-weight:800;color:#06202a;text-decoration:none">Open assignment</a></td></tr></table>` : ""}
+              ${input.assignmentsUrl ? `<p style="margin:16px 0 0;font-size:12px;line-height:1.6;color:#64748b">You can also <a href="${escapeHtml(input.assignmentsUrl)}" style="color:#67e8f9;text-decoration:none;font-weight:700">view all assignments</a> in your workspace.</p>` : ""}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:18px 28px;border-top:1px solid #172338;background:#050d18">
+              <p style="margin:0;font-size:11px;line-height:1.65;color:#64748b">This automated reminder was sent because email reminders are enabled in Damon's Archive. Deadline and reminder times are shown in Philippine Time (PHT).</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+function detailCell(label: string, value: string, valueColor = "#e2e8f0"): string {
+  return `<td width="50%" style="padding:0 0 0 10px;vertical-align:top"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:separate;border-spacing:0;background:#091525;border:1px solid #1b2a3d;border-radius:14px"><tr><td style="padding:14px 15px"><div style="font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#64748b">${escapeHtml(label)}</div><div style="margin-top:6px;font-size:13px;line-height:1.5;font-weight:700;color:${valueColor}">${escapeHtml(value)}</div></td></tr></table></td>`;
+}
+
+function relativeDeadlineLabel(value: string): string {
+  const due = new Date(value);
+  if (Number.isNaN(due.getTime())) return "Scheduled reminder";
+  const delta = due.getTime() - Date.now();
+  if (Math.abs(delta) < 60_000) return "Due now";
+  const duration = humanDuration(Math.abs(delta));
+  return delta < 0 ? `Overdue by ${duration}` : `Due in ${duration}`;
+}
+
+function humanDuration(milliseconds: number): string {
+  const totalMinutes = Math.max(1, Math.round(milliseconds / 60_000));
+  const days = Math.floor(totalMinutes / 1440);
+  const hours = Math.floor((totalMinutes % 1440) / 60);
+  const minutes = totalMinutes % 60;
+  if (days > 0) return hours > 0 ? `${days}d ${hours}h` : `${days} day${days === 1 ? "" : "s"}`;
+  if (hours > 0) return minutes > 0 ? `${hours}h ${minutes}m` : `${hours} hour${hours === 1 ? "" : "s"}`;
+  return `${minutes} minute${minutes === 1 ? "" : "s"}`;
+}
+
+function formatPriority(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const normalized = value.toLowerCase();
+  if (normalized === "high") return "High";
+  if (normalized === "medium") return "Medium";
+  if (normalized === "low") return "Low";
+  return titleCase(value);
+}
+
+function formatStatus(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const labels: Record<string, string> = {
+    to_do: "To do",
+    in_progress: "In progress",
+    blocked: "Blocked",
+    submitted: "Submitted",
+    done: "Done",
+  };
+  return labels[value] ?? titleCase(value.replace(/_/g, " "));
+}
+
+function titleCase(value: string): string {
+  return value
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function truncateText(value: string, maxLength: number): string {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (normalized.length <= maxLength) return normalized;
+  return `${normalized.slice(0, Math.max(0, maxLength - 1)).trimEnd()}…`;
+}
+
+function escapeHtmlMultiline(value: string): string {
+  return escapeHtml(value).replace(/\r?\n/g, "<br>");
 }
 
 function appBaseUrl(): string | null {
@@ -577,11 +776,11 @@ function appBaseUrl(): string | null {
 function formatDateTime(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("en-PH", {
+  return `${new Intl.DateTimeFormat("en-PH", {
     dateStyle: "medium",
     timeStyle: "short",
     timeZone: "Asia/Manila",
-  }).format(date);
+  }).format(date)} PHT`;
 }
 
 function formatDateKey(value: string): string {
