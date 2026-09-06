@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
@@ -15,6 +15,14 @@ export const metadata: Metadata = {
     template: "%s · Damon's Archive",
   },
   description: "A private workspace for files, assignments, and videos.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, title: "Damon's Archive", statusBarStyle: "black-translucent" },
+  icons: { apple: "/icons/icon-192.png" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#07101d",
+  viewportFit: "cover",
 };
 
 const inter = Inter({

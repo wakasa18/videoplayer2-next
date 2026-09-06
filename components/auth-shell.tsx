@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { MotionConfig, motion } from "motion/react";
 import { Cpu, Database, HardDrive, ShieldCheck } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -12,6 +12,7 @@ const securitySignals = [
 
 export function AuthShell({ children }: { children: ReactNode }) {
   return (
+    <MotionConfig reducedMotion="user">
     <main className="relative flex min-h-svh w-full items-center justify-center overflow-hidden px-4 py-6 sm:px-6 md:p-10">
       <div
         aria-hidden="true"
@@ -40,7 +41,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
         <motion.section
           initial={{ opacity: 0, x: -18 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
           className="hidden lg:block"
         >
           <div className="mb-8 flex items-center gap-3">
@@ -86,7 +87,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
             className="mb-5 flex items-center gap-3 lg:hidden"
           >
             <span className="tech-logo-pulse grid size-11 place-items-center rounded-2xl border border-cyan-300/25 bg-[linear-gradient(135deg,rgba(35,211,255,0.95),rgba(78,101,255,0.95))] text-[#04101d] shadow-[0_10px_28px_rgba(40,145,255,0.28)]">
@@ -105,12 +106,13 @@ export function AuthShell({ children }: { children: ReactNode }) {
           <motion.div
             initial={{ opacity: 0, y: 16, scale: 0.985 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.48, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.3, delay: 0.04, ease: [0.22, 1, 0.36, 1] }}
           >
             {children}
           </motion.div>
         </div>
       </div>
     </main>
+    </MotionConfig>
   );
 }

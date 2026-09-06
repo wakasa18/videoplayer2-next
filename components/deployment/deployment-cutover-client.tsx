@@ -148,7 +148,7 @@ export function DeploymentCutoverClient({ data }: { data: DeploymentDashboardDat
             <span className="font-semibold text-cyan-300">{percent}%</span>
           </div>
           <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-white/[0.05]">
-            <div className="h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] transition-all" style={{ width: `${percent}%` }} />
+            <div className="h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] transition-[width] duration-300 ease-out" style={{ width: `${percent}%` }} />
           </div>
         </div>
 

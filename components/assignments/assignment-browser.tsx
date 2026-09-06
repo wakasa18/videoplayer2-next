@@ -25,7 +25,7 @@ import {
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { AssignmentBoard } from "@/components/assignments/assignment-board";
 import { AssignmentEditorDialog } from "@/components/assignments/assignment-editor-dialog";
@@ -37,6 +37,7 @@ import type {
   AssignmentTab,
   AssignmentView,
 } from "@/lib/assignments/types";
+import { mergeOfflineAssignments } from "@/lib/mobile/offline-store";
 import {
   buildAssignmentQuery,
   priorityLabel,
@@ -81,6 +82,10 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
       filters.subjectId,
   );
 
+  useEffect(() => {
+    mergeOfflineAssignments(result.assignments);
+  }, [result.assignments]);
+
   async function runBulk(action: string, status?: string) {
     if (bulkBusy || selectedIds.length === 0) return;
     if (action === "trash" && !window.confirm(`Move ${selectedIds.length} assignments to the Recycle Bin?`)) return;
@@ -107,7 +112,7 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
       <motion.section
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.045] p-6 shadow-sm sm:p-8"
+        className="overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.045] p-4 shadow-sm sm:rounded-[28px] sm:p-8"
       >
         <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
@@ -121,12 +126,12 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base">
               Create and organize assignments with recurring schedules, reusable templates, reminder notifications, subtasks, notes, subjects, and linked files.
             </p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              <button type="button" onClick={() => setCreating(true)} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-white transition hover:brightness-110"><Plus className="size-4" />New assignment</button>
-              <button type="button" onClick={() => setManagingSubjects(true)} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06]"><Settings2 className="size-4" />Subjects</button>
-              <Link href="/dashboard/assignments/productivity" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-cyan-300/20 bg-white/[0.04] px-5 text-sm font-semibold text-cyan-300 transition hover:bg-cyan-400/10"><BellRing className="size-4" />Productivity</Link>
-              <Link href="/dashboard/assignments/archive" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06]"><Archive className="size-4" />Archive</Link>
-              <Link href="/dashboard/assignments/recycle" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06]"><Trash2 className="size-4" />Recycle Bin</Link>
+            <div className="mt-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+              <button type="button" onClick={() => setCreating(true)} className="inline-flex min-h-11 w-full items-center justify-center gap-2 sm:w-auto rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-white transition hover:brightness-110"><Plus className="size-4" />New assignment</button>
+              <button type="button" onClick={() => setManagingSubjects(true)} className="inline-flex min-h-11 w-full items-center justify-center gap-2 sm:w-auto rounded-full border border-white/10 bg-white/[0.045] px-5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06]"><Settings2 className="size-4" />Subjects</button>
+              <Link href="/dashboard/assignments/productivity" className="inline-flex min-h-11 w-full items-center justify-center gap-2 sm:w-auto rounded-full border border-cyan-300/20 bg-white/[0.04] px-5 text-sm font-semibold text-cyan-300 transition hover:bg-cyan-400/10"><BellRing className="size-4" />Productivity</Link>
+              <Link href="/dashboard/assignments/archive" className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] sm:w-auto"><Archive className="size-4" />Archive</Link>
+              <Link href="/dashboard/assignments/recycle" className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] sm:w-auto"><Trash2 className="size-4" />Recycle Bin</Link>
             </div>
           </div>
 
@@ -346,7 +351,7 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
       </section>
 
       {filters.view === "list" && selectedIds.length > 0 ? (
-        <div className="sticky top-20 z-30 flex flex-wrap items-center gap-2 rounded-[20px] border border-cyan-300/20 bg-white/[0.045] p-3 shadow-lg">
+        <div className="sticky top-[calc(4.75rem+env(safe-area-inset-top))] z-30 flex flex-wrap items-center gap-2 rounded-[20px] border border-cyan-300/20 bg-white/[0.045] p-3 shadow-lg">
           <strong className="mr-auto text-sm text-cyan-300">{selectedIds.length} selected</strong>
           <BulkButton label="Mark in progress" disabled={bulkBusy} onClick={() => runBulk("status", "in_progress")} />
           <BulkButton label="Mark done" disabled={bulkBusy} onClick={() => runBulk("status", "done")} />

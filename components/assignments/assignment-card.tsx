@@ -2,6 +2,8 @@
 
 import {
   CalendarDays,
+  CheckCircle2,
+  CircleDot,
   Clock3,
   FileText,
   ListChecks,
@@ -11,8 +13,10 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { AssignmentItemActions } from "@/components/assignments/assignment-item-actions";
+import { MobileSwipeActions } from "@/components/mobile/swipe-actions";
 import type {
   AssignmentItem,
   AssignmentSubject,
@@ -58,17 +62,33 @@ export function AssignmentCard({
   selected = false,
   onSelectedChange,
 }: AssignmentCardProps) {
+  const router = useRouter();
   const overdue = isAssignmentOverdue(assignment);
   const progress = assignment.subtask_total
     ? Math.round((assignment.subtask_done / assignment.subtask_total) * 100)
     : 0;
 
-  return (
+  async function setStatus(status: "in_progress" | "done") {
+    try {
+      const response = await fetch(`/api/assignments/${assignment.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "status", status }),
+      });
+      const payload = await response.json().catch(() => ({})) as { error?: string };
+      if (!response.ok) throw new Error(payload.error ?? "The assignment could not be updated.");
+      router.refresh();
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : "The assignment could not be updated.");
+    }
+  }
+
+  const card = (
     <motion.article
       initial={{ opacity: 0, y: 14, scale: 0.985 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay: Math.min(index, 18) * 0.028, duration: 0.24 }}
-      whileHover={{ y: -2 }}
+      transition={{ delay: Math.min(index, 8) * 0.018, duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -1 }}
       className={`group relative overflow-visible rounded-[22px] border bg-white/[0.045] shadow-sm transition-colors hover:border-cyan-300/35 hover:shadow-md ${
         overdue ? "border-red-300/25" : "border-white/10"
       } ${selected ? "ring-4 ring-cyan-300/15" : ""}`}
@@ -98,10 +118,7 @@ export function AssignmentCard({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span
-                className="inline-flex max-w-full items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold"
-                style={{ backgroundColor: `${assignment.subject_color}16`, color: assignment.subject_color }}
-              >
+              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold" style={{ backgroundColor: `${assignment.subject_color}16`, color: assignment.subject_color }}>
                 <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: assignment.subject_color }} />
                 <span className="truncate">{assignment.subject_code || assignment.subject_name}</span>
               </span>
@@ -115,10 +132,7 @@ export function AssignmentCard({
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-slate-400">
-          <span className={`inline-flex items-center gap-1.5 ${overdue ? "text-red-300" : ""}`}>
-            {assignment.due_time ? <Clock3 className="size-3.5" /> : <CalendarDays className="size-3.5" />}
-            {overdue ? "Overdue · " : ""}{formatAssignmentDue(assignment.due_date, assignment.due_time)}
-          </span>
+          <span className={`inline-flex items-center gap-1.5 ${overdue ? "text-red-300" : ""}`}>{assignment.due_time ? <Clock3 className="size-3.5" /> : <CalendarDays className="size-3.5" />}{overdue ? "Overdue · " : ""}{formatAssignmentDue(assignment.due_date, assignment.due_time)}</span>
           {assignment.recurrence ? <span className="inline-flex items-center gap-1.5"><Repeat2 className="size-3.5" />{recurrenceLabel(assignment.recurrence)}</span> : null}
           {assignment.note_count > 0 ? <span className="inline-flex items-center gap-1.5"><StickyNote className="size-3.5" />{assignment.note_count}</span> : null}
           {assignment.attachment_count > 0 ? <span className="inline-flex items-center gap-1.5"><Paperclip className="size-3.5" />{assignment.attachment_count}</span> : null}
@@ -127,10 +141,20 @@ export function AssignmentCard({
         {assignment.subtask_total > 0 ? (
           <div className="mt-4">
             <div className="mb-1.5 flex items-center justify-between gap-3 text-[11px] font-semibold text-slate-400"><span className="inline-flex items-center gap-1.5"><ListChecks className="size-3.5" />{assignment.subtask_done}/{assignment.subtask_total} subtasks</span><span>{progress}%</span></div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.08]"><motion.span initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ delay: 0.14 + Math.min(index, 10) * 0.02, duration: 0.45 }} className="block h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]" /></div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.08]"><motion.span initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ delay: 0.08 + Math.min(index, 6) * 0.015, duration: 0.3 }} className="block h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]" /></div>
           </div>
         ) : null}
       </Link>
     </motion.article>
+  );
+
+  if (!manageable) return card;
+  return (
+    <MobileSwipeActions
+      leftActions={[{ label: "Done", icon: <CheckCircle2 className="size-5" />, onClick: () => void setStatus("done"), tone: "green" }]}
+      rightActions={[{ label: "Progress", icon: <CircleDot className="size-5" />, onClick: () => void setStatus("in_progress"), tone: "cyan" }]}
+    >
+      {card}
+    </MobileSwipeActions>
   );
 }

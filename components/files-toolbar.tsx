@@ -31,13 +31,13 @@ export function FilesToolbar({ filters, categories }: FilesToolbarProps) {
             />
           </label>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Link
               href={buildFileQuery(filters, {
                 favorite: !filters.favorite,
                 page: 1,
               })}
-              className={`tech-interactive inline-flex min-h-11 items-center justify-center gap-2 rounded-full border px-4 text-sm font-semibold ${
+              className={`tech-interactive inline-flex min-h-11 flex-1 items-center justify-center sm:flex-none gap-2 rounded-full border px-4 text-sm font-semibold ${
                 filters.favorite
                   ? "border-amber-300/25 bg-amber-400/10 text-amber-200"
                   : "border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/[0.07]"
@@ -50,7 +50,7 @@ export function FilesToolbar({ filters, categories }: FilesToolbarProps) {
               Favorites
             </Link>
 
-            <div className="flex rounded-full border border-white/10 bg-white/[0.03] p-1">
+            <div className="ml-auto flex shrink-0 rounded-full border border-white/10 bg-white/[0.03] p-1">
               <Link
                 href={buildFileQuery(filters, { view: "grid", page: 1 })}
                 className={`grid size-9 place-items-center rounded-full transition ${

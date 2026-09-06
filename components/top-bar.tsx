@@ -21,9 +21,9 @@ export function TopBar({ userEmail, displayName, onMenuClick }: TopBarProps) {
   const searchLabel = page.searchLabel;
 
   return (
-    <header className="tech-topbar-enter sticky top-0 z-40 border-b border-white/[0.08] bg-[#050a13]/88 backdrop-blur-2xl supports-[backdrop-filter]:bg-[#050a13]/76">
+    <header className="tech-topbar-enter sticky top-0 z-40 border-b pt-[env(safe-area-inset-top)] border-white/[0.08] bg-[#050a13]/88 backdrop-blur-2xl supports-[backdrop-filter]:bg-[#050a13]/76">
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-[linear-gradient(90deg,transparent,rgba(49,211,255,0.28),rgba(88,102,255,0.18),transparent)]" />
-      <div className="mx-auto flex min-h-[4.5rem] max-w-[1720px] items-center gap-2.5 px-3 sm:px-5 lg:gap-3 lg:px-6">
+      <div className="mx-auto flex min-h-[4.25rem] max-w-[1720px] items-center gap-2 px-2.5 sm:min-h-[4.5rem] sm:gap-2.5 sm:px-5 lg:gap-3 lg:px-6">
         <button
           type="button"
           aria-label="Open navigation"
@@ -34,7 +34,7 @@ export function TopBar({ userEmail, displayName, onMenuClick }: TopBarProps) {
         </button>
 
         <div className="flex shrink-0 items-center gap-2.5 sm:gap-3">
-          <span className="tech-logo-pulse grid size-10 place-items-center rounded-xl border border-cyan-300/25 bg-[linear-gradient(135deg,rgba(35,211,255,0.95),rgba(78,101,255,0.95))] text-[#04101d] shadow-[0_10px_28px_rgba(40,145,255,0.24)] sm:size-11 sm:rounded-2xl">
+          <span className="tech-logo-pulse grid size-10 max-[350px]:hidden place-items-center rounded-xl border border-cyan-300/25 bg-[linear-gradient(135deg,rgba(35,211,255,0.95),rgba(78,101,255,0.95))] text-[#04101d] shadow-[0_10px_28px_rgba(40,145,255,0.24)] sm:size-11 sm:rounded-2xl">
             <Cpu className="size-5" aria-hidden="true" />
           </span>
           <div className="hidden sm:block">
@@ -85,7 +85,7 @@ export function TopBar({ userEmail, displayName, onMenuClick }: TopBarProps) {
           <div
             title={`${accountLabel} · ${userEmail}`}
             aria-label={`Signed in as ${accountLabel}`}
-            className="flex h-10 items-center rounded-xl border border-white/[0.09] bg-white/[0.035] p-1 pr-1 sm:h-11 sm:pr-2.5"
+            className="flex h-10 items-center rounded-xl max-[380px]:hidden border border-white/[0.09] bg-white/[0.035] p-1 pr-1 sm:h-11 sm:pr-2.5"
           >
             <span className="tech-avatar-pulse grid size-8 place-items-center rounded-lg border border-cyan-200/20 bg-[linear-gradient(135deg,#27d3ff,#526dff)] text-xs font-bold text-[#04101d] shadow-[0_8px_22px_rgba(44,149,255,0.18)] sm:size-9 sm:rounded-xl sm:text-sm">
               {initial}
@@ -106,6 +106,9 @@ export function TopBar({ userEmail, displayName, onMenuClick }: TopBarProps) {
 }
 
 function pageDetails(pathname: string) {
+  if (pathname.startsWith("/dashboard/tools")) {
+    return { title: "Tools", searchAction: "/dashboard/files", searchLabel: "Search Important Files" };
+  }
   if (pathname.startsWith("/dashboard/files/recent")) {
     return { title: "Recent Files", searchAction: "/dashboard/files", searchLabel: "Search Important Files" };
   }

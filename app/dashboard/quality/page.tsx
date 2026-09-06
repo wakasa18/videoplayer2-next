@@ -42,7 +42,7 @@ export default async function QualityPage() {
   } catch (error) {
     return (
       <main className="grid min-h-[68vh] place-items-center">
-        <section className="tech-panel w-full max-w-2xl rounded-[28px] p-8">
+        <section className="tech-panel w-full max-w-2xl rounded-[22px] p-5 sm:rounded-[28px] sm:p-8">
           <span className="grid size-14 place-items-center rounded-2xl bg-amber-400/10 text-amber-300">
             <AlertTriangle className="size-7" aria-hidden="true" />
           </span>

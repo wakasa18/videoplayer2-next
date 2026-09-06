@@ -47,7 +47,7 @@ export function DashboardReveal({ children, index = 0 }: { children: ReactNode; 
     <motion.div
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.06, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ delay: Math.min(index, 6) * 0.025, duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>
@@ -82,7 +82,7 @@ export function DashboardStatCard({
           </strong>
         </div>
         <span
-          className={`grid size-11 shrink-0 place-items-center rounded-2xl border transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 ${tints[tint]}`}
+          className={`grid size-11 shrink-0 place-items-center rounded-2xl border transition-transform duration-200 group-hover:scale-105 group-hover:rotate-1 ${tints[tint]}`}
         >
           <Icon className="size-5" aria-hidden="true" />
         </span>
@@ -103,14 +103,14 @@ export function DashboardStatCard({
     <motion.div
       initial={{ opacity: 0, y: 16, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay: 0.08 + index * 0.055, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ delay: 0.04 + Math.min(index, 6) * 0.025, duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
     >
       {href ? (
-        <Link href={href} className="tech-panel tech-interactive group block h-full rounded-[24px] p-5">
+        <Link href={href} className="tech-panel tech-interactive group block h-full rounded-[20px] p-4 sm:rounded-[24px] sm:p-5">
           {content}
         </Link>
       ) : (
-        <article className="tech-panel group h-full rounded-[24px] p-5">{content}</article>
+        <article className="tech-panel group h-full rounded-[20px] p-4 sm:rounded-[24px] sm:p-5">{content}</article>
       )}
     </motion.div>
   );
@@ -137,17 +137,17 @@ export function DashboardQuickLink({
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.3 + index * 0.08, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ delay: 0.08 + Math.min(index, 6) * 0.03, duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
     >
-      <Link href={href} className="tech-panel tech-interactive group block rounded-[24px] p-6">
+      <Link href={href} className="tech-panel tech-interactive group block rounded-[20px] p-4 sm:rounded-[24px] sm:p-6">
         <span
-          className={`grid size-12 place-items-center rounded-2xl border transition-transform duration-300 group-hover:scale-110 ${tints[tint]}`}
+          className={`grid size-12 place-items-center rounded-2xl border transition-transform duration-200 group-hover:scale-105 ${tints[tint]}`}
         >
           <Icon className="size-5" aria-hidden="true" />
         </span>
         <h2 className="mt-4 flex items-center gap-1.5 text-lg font-semibold text-slate-100">
           {title}
-          <span className="text-cyan-300 opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100">
+          <span className="text-cyan-300 opacity-0 transition-[transform,opacity] duration-200 group-hover:translate-x-1 group-hover:opacity-100">
             →
           </span>
         </h2>

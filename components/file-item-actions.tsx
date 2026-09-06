@@ -1,9 +1,9 @@
 "use client";
 
-import { Download, Eye, FilePenLine, FolderInput, Info, MoreVertical, Share2, Star, Trash2 } from "lucide-react";
+import { CloudDownload, Download, Eye, FilePenLine, FolderInput, Info, MoreVertical, Share2, Star, Trash2, WifiOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { FileManagementDialog } from "@/components/file-management-dialog";
 import { ShareDialog } from "@/components/share-dialog";
@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { ImportantFile } from "@/lib/files/types";
+import { cacheFileForOffline, isFileAvailableOffline, removeOfflineFile } from "@/lib/mobile/offline-files";
 
 type FileItemActionsProps = {
   file: ImportantFile;
@@ -28,6 +29,14 @@ export function FileItemActions({ file, onPreview }: FileItemActionsProps) {
   const [mode, setMode] = useState<DialogMode>(null);
   const [busy, setBusy] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [offlineBusy, setOfflineBusy] = useState(false);
+  const [offlineReady, setOfflineReady] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    void isFileAvailableOffline(file.id).then((value) => active && setOfflineReady(value));
+    return () => { active = false; };
+  }, [file.id]);
 
   async function toggleFavorite() {
     if (busy) return;
@@ -48,6 +57,25 @@ export function FileItemActions({ file, onPreview }: FileItemActionsProps) {
     }
   }
 
+  async function toggleOffline() {
+    if (offlineBusy) return;
+    setOfflineBusy(true);
+    try {
+      if (offlineReady) {
+        await removeOfflineFile(file.id);
+        setOfflineReady(false);
+      } else {
+        if (!navigator.onLine) throw new Error("Connect to the internet once to download this private offline copy.");
+        await cacheFileForOffline(file);
+        setOfflineReady(true);
+      }
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : "Could not update offline access.");
+    } finally {
+      setOfflineBusy(false);
+    }
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -56,10 +84,13 @@ export function FileItemActions({ file, onPreview }: FileItemActionsProps) {
             <MoreVertical className="size-5" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56 rounded-2xl border-white/10 bg-[#0b1220]/95 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl">
+        <DropdownMenuContent align="end" className="w-60 rounded-2xl border-white/10 bg-[#0b1220]/95 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl">
           {onPreview ? <DropdownMenuItem onSelect={onPreview} className={itemClass}><Eye /> Preview</DropdownMenuItem> : null}
           <DropdownMenuItem asChild className={itemClass}><Link href={`/dashboard/files/${file.id}`}><Info /> Details</Link></DropdownMenuItem>
           <DropdownMenuItem asChild className={itemClass}><a href={`/api/files/${file.id}/download`}><Download /> Download</a></DropdownMenuItem>
+          <DropdownMenuItem disabled={offlineBusy} onSelect={() => void toggleOffline()} className={itemClass}>
+            {offlineReady ? <WifiOff /> : <CloudDownload />} {offlineReady ? "Remove offline copy" : "Available offline"}
+          </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setShareOpen(true)} className={itemClass}><Share2 /> Share</DropdownMenuItem>
           <DropdownMenuSeparator className="bg-white/10" />
           <DropdownMenuItem onSelect={() => setMode("edit")} className={itemClass}><FilePenLine /> Edit details</DropdownMenuItem>

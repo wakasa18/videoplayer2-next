@@ -33,12 +33,12 @@ export function BulkFileActions({ selectedIds, onClear }: { selectedIds: number[
 
   if (!selectedIds.length) return null;
   return (
-    <div className="sticky top-[5.25rem] z-20 mb-3 flex flex-wrap items-center gap-2 rounded-2xl border border-cyan-300/20 bg-[#0a1524]/96 p-2.5 shadow-[0_18px_45px_rgba(0,0,0,.35)] backdrop-blur-xl">
+    <div className="sticky top-[calc(4.75rem+env(safe-area-inset-top))] z-30 mb-3 flex flex-wrap items-center gap-2 rounded-2xl border border-cyan-300/20 bg-[#0a1524]/96 p-2.5 shadow-[0_18px_45px_rgba(0,0,0,.35)] backdrop-blur-xl">
       <span className="px-2 text-xs font-semibold text-cyan-100">{selectedIds.length} selected</span>
       <button disabled={busy} onClick={() => void run("favorite", { favorite: true })} className={buttonClass}><Star className="size-4" /> Star</button>
       <button disabled={busy} onClick={move} className={buttonClass}><FolderInput className="size-4" /> Move</button>
       <button disabled={busy} onClick={() => void run("trash")} className={`${buttonClass} text-red-300`}><Trash2 className="size-4" /> Recycle</button>
-      <button disabled={busy} onClick={onClear} className="ml-auto grid size-9 place-items-center rounded-xl text-slate-400 hover:bg-white/[.06]"><X className="size-4" /></button>
+      <button disabled={busy} onClick={onClear} className="ml-auto grid size-9 shrink-0 place-items-center rounded-xl text-slate-400 hover:bg-white/[.06]"><X className="size-4" /></button>
       {busy ? <Loader2 className="size-4 animate-spin text-cyan-300" /> : null}
     </div>
   );

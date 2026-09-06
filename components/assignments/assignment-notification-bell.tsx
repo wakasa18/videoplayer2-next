@@ -172,7 +172,7 @@ export function AssignmentNotificationBell() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
               transition={{ duration: 0.16 }}
-              className="tech-menu-surface fixed inset-x-3 top-[68px] z-[160] max-h-[min(76dvh,620px)] overflow-hidden rounded-[24px] border sm:absolute sm:inset-x-auto sm:right-0 sm:top-12 sm:w-[390px]"
+              className="tech-menu-surface fixed inset-x-3 top-[calc(68px+env(safe-area-inset-top))] z-[160] max-h-[min(76dvh,620px)] overflow-hidden rounded-[24px] border sm:absolute sm:inset-x-auto sm:right-0 sm:top-12 sm:w-[390px]"
             >
               <header className="flex items-center gap-3 border-b border-white/10 px-4 py-4">
                 <span className="grid size-10 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300">

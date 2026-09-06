@@ -23,6 +23,8 @@ import {
 
 import { formatBytes } from "@/lib/files/utils";
 import { sha256ForDuplicateCheck, uploadResumable } from "@/lib/files/resumable-client";
+import { compressMobileUpload } from "@/lib/mobile/compression";
+import { enqueueMobileUpload } from "@/lib/mobile/offline-store";
 
 type UploadMode = "files" | "folder";
 type QueueStatus =
@@ -83,6 +85,7 @@ export function UploadDialog({
   const [uploading, setUploading] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [globalError, setGlobalError] = useState("");
+  const [mobileCompression, setMobileCompression] = useState(true);
 
   const totalBytes = useMemo(
     () => queue.reduce((total, item) => total + item.file.size, 0),
@@ -172,6 +175,7 @@ export function UploadDialog({
       if (item.status === "complete") continue;
 
       let prepared: PreparedUpload | null = null;
+      const folderPath = destinationFolder(currentFolder, item.relativePath);
       try {
         updateItem(item.id, {
           status: "preparing",
@@ -180,12 +184,12 @@ export function UploadDialog({
           duplicate: false,
         });
 
-        const folderPath = destinationFolder(currentFolder, item.relativePath);
-        const checksumSha256 = await sha256ForDuplicateCheck(item.file);
+        const uploadFile = mobileCompression ? await compressMobileUpload(item.file) : item.file;
+        const checksumSha256 = await sha256ForDuplicateCheck(uploadFile);
         const basePayload = {
-          originalName: item.file.name,
-          fileSize: item.file.size,
-          mimeType: item.file.type || "application/octet-stream",
+          originalName: uploadFile.name,
+          fileSize: uploadFile.size,
+          mimeType: uploadFile.type || "application/octet-stream",
           folderPath,
           description,
           category,
@@ -249,7 +253,7 @@ Cancel = choose whether to keep both.`);
         const controller = new AbortController();
         activeAbortRef.current = controller;
         await uploadResumable(
-          item.file,
+          uploadFile,
           prepared,
           (progress) => updateItem(item.id, {
             status: "uploading",
@@ -287,14 +291,30 @@ Cancel = choose whether to keep both.`);
           await cancelPendingUpload(prepared.uploadToken);
         }
         activeTokenRef.current = null;
+        const queuedForRetry = !cancelled && shouldQueueForRetry(caught);
+        if (queuedForRetry) {
+          try {
+            await enqueueMobileUpload({
+              file: item.file,
+              folderPath,
+              description,
+              category: category || "Mobile Upload",
+              compress: mobileCompression,
+            });
+          } catch {
+            // Keep the original upload error when IndexedDB is unavailable.
+          }
+        }
         updateItem(item.id, {
           status: cancelled ? "cancelled" : "error",
           progress: 0,
           error: cancelled
             ? "Upload cancelled."
-            : caught instanceof Error
-              ? caught.message
-              : "Upload failed.",
+            : queuedForRetry
+              ? "Connection lost. Saved to the retry queue and will resume when online."
+              : caught instanceof Error
+                ? caught.message
+                : "Upload failed.",
         });
 
         if (cancelled) break;
@@ -491,6 +511,14 @@ Cancel = choose whether to keep both.`);
                       />
                     </label>
                   </div>
+
+                  <label className="mt-4 flex items-center gap-3 rounded-xl border border-cyan-300/15 bg-cyan-300/[0.04] p-3 lg:hidden">
+                    <input type="checkbox" checked={mobileCompression} disabled={uploading} onChange={(event) => setMobileCompression(event.target.checked)} className="size-4 accent-cyan-300" />
+                    <span>
+                      <strong className="block text-xs font-semibold text-slate-200">Smart mobile compression + retry</strong>
+                      <span className="mt-0.5 block text-[11px] leading-4 text-slate-500">Large photos are compressed before upload. Network failures are saved to a persistent retry queue.</span>
+                    </span>
+                  </label>
 
                   <div className="mt-5 overflow-hidden rounded-[22px] border border-white/10">
                     <div className="flex items-center justify-between gap-3 bg-white/[0.035] px-4 py-3">
@@ -694,6 +722,12 @@ function statusCopy(status: QueueStatus): string {
     default:
       return "Ready";
   }
+}
+
+function shouldQueueForRetry(error: unknown) {
+  if (typeof navigator !== "undefined" && !navigator.onLine) return true;
+  const message = error instanceof Error ? error.message.toLowerCase() : "";
+  return message.includes("fetch") || message.includes("network") || message.includes("connection") || message.includes("offline");
 }
 
 function destinationFolder(currentFolder: string, relativePath: string): string {

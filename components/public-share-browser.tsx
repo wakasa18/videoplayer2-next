@@ -264,41 +264,45 @@ export function PublicShareBrowser({
   }
 
   const hasFilters = Boolean(normalizedQuery) || typeFilter !== "all";
+  const singleFile = !isFolder ? result.files[0] ?? null : null;
+  const shareHeading = result.share.share_title?.trim() || result.targetName;
+  const hasCustomHeading = Boolean(result.share.share_title?.trim()) && shareHeading !== result.targetName;
 
   return (
-    <div className="public-share-ui tech-shell min-h-screen text-slate-100">
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#050a13]/82 backdrop-blur-2xl">
-        <div className="mx-auto flex min-h-16 max-w-[1580px] items-center gap-3 px-4 sm:px-6">
-          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[linear-gradient(135deg,#23d8ff,#4d72ff)] text-[#04111f] shadow-[0_10px_26px_rgba(35,216,255,.18)]">
+    <div className="public-share-ui tech-shell min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_82%_0%,rgba(52,96,255,.13),transparent_28%),radial-gradient(circle_at_12%_22%,rgba(31,214,255,.08),transparent_24%)] text-slate-100">
+      <header className="sticky top-0 z-40 border-b border-cyan-200/10 bg-[#050b15]/94 backdrop-blur-xl">
+        <div className="mx-auto flex min-h-16 max-w-[1360px] items-center gap-3 px-4 sm:px-6 lg:px-8">
+          <span className="grid size-10 shrink-0 place-items-center rounded-[13px] border border-cyan-100/15 bg-[linear-gradient(135deg,#23d8ff,#4d72ff)] text-[#04111f] shadow-[0_8px_24px_rgba(35,216,255,.2)]">
             <LockKeyhole className="size-5" />
           </span>
           <div className="min-w-0 flex-1">
-            <strong className="block truncate text-sm font-semibold sm:text-base">
+            <strong className="block truncate text-sm font-semibold tracking-[-.01em] sm:text-base">
               Damon&apos;s Archive
             </strong>
-            <span className="block text-xs text-slate-400">
+            <span className="flex items-center gap-1.5 text-[11px] text-slate-400 sm:text-xs">
+              <span className="size-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,.7)]" />
               Secure public share
             </span>
           </div>
           <button
             type="button"
             onClick={() => setShowReport(true)}
-            className="hidden min-h-10 items-center gap-2 rounded-full border border-cyan-300/15 bg-[#0b1627]/90 px-4 text-sm font-semibold text-slate-100 transition hover:border-cyan-300/30 hover:bg-[#102039] md:inline-flex"
+            className="hidden min-h-10 items-center gap-2 rounded-full border border-cyan-300/15 bg-[#0b1627] px-4 text-sm font-semibold text-slate-200 transition-colors hover:border-cyan-300/30 hover:bg-[#102039] md:inline-flex"
           >
             <CircleHelp className="size-4" /> Report issue
           </button>
           <button
             type="button"
             onClick={() => void copyPageLink()}
-            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-cyan-300/15 bg-[#0b1627]/90 px-4 text-sm font-semibold text-slate-100 transition hover:border-cyan-300/30 hover:bg-[#102039]"
+            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-cyan-300/15 bg-[#0b1627] px-3.5 text-sm font-semibold text-slate-100 transition-colors hover:border-cyan-300/30 hover:bg-[#102039] sm:px-4"
           >
-            {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+            {copied ? <Check className="size-4 text-emerald-300" /> : <Copy className="size-4" />}
             <span className="hidden sm:inline">{copied ? "Copied" : "Copy link"}</span>
           </button>
           <button
             type="button"
             onClick={() => setShowQr(true)}
-            className="grid size-10 place-items-center rounded-full border border-cyan-300/15 bg-[#0b1627]/90 text-slate-100 transition hover:border-cyan-300/30 hover:bg-[#102039]"
+            className="grid size-10 shrink-0 place-items-center rounded-full border border-cyan-300/15 bg-[#0b1627] text-slate-100 transition-colors hover:border-cyan-300/30 hover:bg-[#102039]"
             aria-label="Show QR code"
           >
             <QrCode className="size-5" />
@@ -307,338 +311,370 @@ export function PublicShareBrowser({
       </header>
 
       <main
-        className={`mx-auto max-w-[1580px] space-y-5 px-4 py-6 sm:px-6 sm:py-8 ${isFolder && allowDownloads ? "pb-32 sm:pb-8" : ""}`}
+        className={`mx-auto max-w-[1360px] space-y-5 px-4 py-5 sm:px-6 sm:py-7 lg:px-8 ${isFolder && allowDownloads ? "pb-32 sm:pb-8" : ""}`}
       >
-        <section className="tech-panel overflow-hidden rounded-[28px] p-6 sm:p-8">
-          <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
-            <div className="min-w-0 flex-1">
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.28, ease: "easeOut" }}
+          className="relative overflow-hidden rounded-[24px] border border-cyan-200/10 bg-[#081321]/96 p-5 shadow-[0_24px_80px_rgba(0,4,14,.3)] sm:p-7 lg:p-8"
+        >
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(49,211,255,.7),rgba(84,111,255,.55),transparent)]" />
+          <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_520px] xl:items-end">
+            <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <TrustBadge icon={<ShieldCheck className="size-4" />} label="Verified link" tone="green" />
+                <TrustBadge icon={<ShieldCheck className="size-3.5" />} label="Verified link" tone="green" />
                 {result.share.password_protected ? (
-                  <TrustBadge icon={<LockKeyhole className="size-4" />} label="Password protected" />
+                  <TrustBadge icon={<LockKeyhole className="size-3.5" />} label="Password protected" />
                 ) : (
-                  <TrustBadge icon={<LockKeyhole className="size-4" />} label="Token protected" />
+                  <TrustBadge icon={<LockKeyhole className="size-3.5" />} label="Token protected" />
                 )}
-                <TrustBadge icon={<ShieldCheck className="size-4" />} label={publicUrl.startsWith("https://") ? "Secure connection" : "Local connection"} />
+                <TrustBadge icon={<ShieldCheck className="size-3.5" />} label={publicUrl.startsWith("https://") ? "Encrypted connection" : "Local connection"} />
               </div>
-              <h1 className="mt-4 break-words text-3xl font-semibold tracking-[-.03em] sm:text-4xl">
-                {result.targetName}
+
+              <p className="mt-5 text-[11px] font-semibold uppercase tracking-[.18em] text-cyan-300/80">
+                {isFolder ? "Shared collection" : "Shared file"}
+              </p>
+              <h1 className="mt-2 max-w-4xl break-words text-[clamp(1.7rem,4vw,2.65rem)] font-semibold leading-[1.08] tracking-[-.035em] [overflow-wrap:anywhere]">
+                {shareHeading}
               </h1>
+              {hasCustomHeading ? (
+                <p className="mt-2 break-words text-sm text-slate-400 [overflow-wrap:anywhere]">
+                  {result.targetName}
+                </p>
+              ) : null}
               {result.share.display_name ? (
-                <p className="mt-2 text-sm font-medium text-slate-400">
-                  Shared by {result.share.display_name}
+                <p className="mt-3 text-sm text-slate-400">
+                  Shared by <span className="font-semibold text-slate-200">{result.share.display_name}</span>
                 </p>
               ) : null}
               {result.share.share_message ? (
-                <p className="mt-4 max-w-3xl whitespace-pre-wrap rounded-2xl border border-white/10 bg-[#0d192b]/75 p-4 text-sm leading-6 text-slate-300">
+                <p className="mt-5 max-w-3xl whitespace-pre-wrap rounded-2xl border border-cyan-200/10 bg-[#0b192a] p-4 text-sm leading-6 text-slate-300">
                   {result.share.share_message}
                 </p>
               ) : null}
-              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-400">
-                <MetaItem icon={<CalendarDays className="size-4" />} label={`Last updated ${formatDate(result.lastUpdatedAt)}`} />
-                <MetaItem icon={<Clock3 className="size-4" />} label={`Expires ${result.share.expires_at ? formatDateTime(result.share.expires_at) : "never"}`} />
+
+              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2.5 text-xs text-slate-400">
+                <MetaItem icon={<CalendarDays className="size-4" />} label={`Updated ${formatDate(result.lastUpdatedAt)}`} />
+                <MetaItem icon={<Clock3 className="size-4" />} label={result.share.expires_at ? `Expires ${formatDateTime(result.share.expires_at)}` : "No expiration"} />
                 <MetaItem icon={<Eye className="size-4" />} label={`${result.share.view_count.toLocaleString()} view${result.share.view_count === 1 ? "" : "s"}`} />
-                <MetaItem icon={<Download className="size-4" />} label={remainingDownloads === null ? `${result.share.download_count.toLocaleString()} downloads` : `${remainingDownloads.toLocaleString()} downloads remaining`} />
+                <MetaItem icon={<Download className="size-4" />} label={remainingDownloads === null ? `${result.share.download_count.toLocaleString()} download${result.share.download_count === 1 ? "" : "s"}` : `${remainingDownloads.toLocaleString()} downloads remaining`} />
               </div>
             </div>
-            <div className="grid w-full grid-cols-2 gap-3 sm:grid-cols-4 xl:max-w-3xl">
-              <Stat label="Files" value={result.totalFiles.toLocaleString()} />
-              <Stat label="Size" value={formatBytes(result.totalBytes)} />
-              <Stat label="Access" value={allowDownloads ? "Downloads allowed" : "Preview only"} />
-              <Stat label="Preview" value="Supported files" />
+
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 xl:grid-cols-2">
+              <Stat label="Items" value={result.totalFiles.toLocaleString()} />
+              <Stat label="Total size" value={formatBytes(result.totalBytes)} />
+              <Stat label="Access" value={allowDownloads ? "Download enabled" : "Preview only"} />
+              <Stat label="Protection" value={result.share.password_protected ? "Password + token" : "Secure token"} />
             </div>
           </div>
-        </section>
-
-        {isFolder ? (
-          <nav
-            className="tech-panel-soft flex items-center gap-1 overflow-x-auto rounded-[18px] px-3 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            aria-label="Shared folder breadcrumb"
-          >
-            <span className="inline-flex shrink-0 items-center gap-2 px-2 text-sm font-semibold text-slate-300">
-              <Folder className="size-4 text-cyan-300" /> Shared folder
-            </span>
-            {result.breadcrumbs.map((crumb, index) => (
-              <span key={crumb.path} className="flex items-center gap-1">
-                <ChevronRight className="size-4 shrink-0 text-slate-500" />
-                <Link
-                  href={sharePath(token, crumb.path)}
-                  aria-current={index === result.breadcrumbs.length - 1 ? "page" : undefined}
-                  className={`whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition ${
-                    index === result.breadcrumbs.length - 1
-                      ? "bg-cyan-400/10 text-cyan-200"
-                      : "text-slate-400 hover:bg-white/5"
-                  }`}
-                >
-                  {crumb.label}
-                </Link>
-              </span>
-            ))}
-          </nav>
-        ) : null}
+        </motion.section>
 
         {error ? (
-          <div className="rounded-2xl border border-red-300/25 bg-red-400/10 p-4 text-sm text-red-300">
+          <div className="rounded-2xl border border-red-300/25 bg-red-400/10 p-4 text-sm text-red-200 shadow-[0_12px_36px_rgba(127,29,29,.12)]">
             {error}
           </div>
         ) : null}
 
-        {isFolder && allowDownloads ? (
-          <section className="fixed inset-x-3 bottom-3 z-50 flex flex-col gap-3 tech-panel rounded-[20px] border border-cyan-300/20 p-4 shadow-2xl backdrop-blur-xl sm:sticky sm:inset-x-auto sm:top-20 sm:z-30 sm:flex-row sm:items-center sm:justify-between sm:shadow-sm">
-            <div className="flex min-w-0 items-center gap-3">
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-cyan-300/15 bg-cyan-400/10 text-cyan-200">
-                <FileCheck2 className="size-5" />
+        {!isFolder && singleFile ? (
+          <SingleFileSpotlight
+            token={token}
+            file={singleFile}
+            allowDownloads={allowDownloads}
+            downloading={downloadingFileId === singleFile.id}
+            passwordProtected={Boolean(result.share.password_protected)}
+            expiresAt={result.share.expires_at}
+            onPreview={() => setPreviewFile(singleFile)}
+            onInfo={() => setInfoFile(singleFile)}
+            onDownload={() => markSingleDownload(singleFile.id)}
+            onCopyShare={() => void copyPageLink()}
+            copied={copied}
+          />
+        ) : null}
+
+        {isFolder ? (
+          <>
+            <nav
+              className="flex items-center gap-1 overflow-x-auto rounded-[18px] border border-cyan-200/10 bg-[#081321]/92 px-3 py-2 shadow-[0_12px_30px_rgba(0,5,15,.18)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              aria-label="Shared folder breadcrumb"
+            >
+              <span className="inline-flex shrink-0 items-center gap-2 px-2 text-sm font-semibold text-slate-300">
+                <Folder className="size-4 text-cyan-300" /> Shared folder
               </span>
-              <div className="min-w-0">
-                <strong className="block truncate text-sm text-cyan-100">
-                  {selected.size
-                    ? `${selected.size} selected · ${formatBytes(selectedBytes)}`
-                    : "Select files to download together"}
-                </strong>
-                <small className={`mt-1 block text-xs ${selected.size && !selectedArchiveAllowed ? "font-semibold text-red-300" : "text-slate-400"}`}>
-                  {selected.size && !selectedArchiveAllowed
-                    ? `Selection exceeds the ${archiveLimits.maxFiles}-file / ${formatBytes(archiveLimits.maxBytes)} ZIP limit.`
-                    : !folderArchiveAllowed
-                      ? `This folder is too large for one ZIP. Select up to ${archiveLimits.maxFiles} files and ${formatBytes(archiveLimits.maxBytes)}.`
-                      : `ZIP limit: ${archiveLimits.maxFiles} files and ${formatBytes(archiveLimits.maxBytes)}.`}
-                </small>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-              {selected.size ? (
-                <button
-                  type="button"
-                  onClick={() => setSelected(new Set())}
-                  className="min-h-10 rounded-full border border-cyan-300/20 bg-[#0d192b] px-4 text-sm font-semibold text-cyan-200 hover:bg-[#13243b]"
-                >
-                  Clear
-                </button>
-              ) : null}
-              <button
-                type="button"
-                disabled={!selected.size || downloading || !selectedArchiveAllowed}
-                onClick={() =>
-                  setDownloadPlan({
-                    kind: "selected",
-                    count: selectedFiles.length,
-                    bytes: selectedBytes,
-                  })
-                }
-                title={!selectedArchiveAllowed ? "The selection exceeds the ZIP limit." : undefined}
-                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-4 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <ArrowDownToLine className="size-4" />
-                <span>{downloading ? "Preparing…" : "Download selected"}</span>
-              </button>
-              <button
-                type="button"
-                disabled={downloading || !folderArchiveAllowed}
-                onClick={() =>
-                  setDownloadPlan({
-                    kind: "folder",
-                    count: result.currentTotalFiles,
-                    bytes: result.currentTotalBytes,
-                  })
-                }
-                title={!folderArchiveAllowed ? "This folder exceeds the ZIP limit. Open a smaller folder or select fewer files." : undefined}
-                className="col-span-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-cyan-300/20 bg-[#0d192b] px-4 text-sm font-semibold text-cyan-200 hover:bg-[#13243b] transition hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-50 sm:col-span-1"
-              >
-                <Download className="size-4" /> Download folder
-              </button>
-            </div>
-          </section>
-        ) : null}
-
-        {result.folders.length ? (
-          <section className="space-y-3">
-            <SectionTitle title="Folders" count={filteredFolders.length} />
-            {filteredFolders.length ? (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {filteredFolders.map((folder, index) => (
-                  <motion.article
-                    key={folder.path}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: Math.min(index, 12) * 0.035 }}
-                    className="rounded-[22px] border border-white/10 bg-[#0b1627]/88 shadow-[0_14px_34px_rgba(0,5,15,.26)] transition hover:border-cyan-300/25 hover:bg-[#0e1b30]"
+              {result.breadcrumbs.map((crumb, index) => (
+                <span key={crumb.path} className="flex items-center gap-1">
+                  <ChevronRight className="size-4 shrink-0 text-slate-600" />
+                  <Link
+                    href={sharePath(token, crumb.path)}
+                    aria-current={index === result.breadcrumbs.length - 1 ? "page" : undefined}
+                    className={`whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition-colors ${
+                      index === result.breadcrumbs.length - 1
+                        ? "bg-cyan-400/10 text-cyan-200"
+                        : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+                    }`}
                   >
-                    <Link
-                      href={sharePath(token, folder.path)}
-                      className="group flex min-h-28 items-center gap-4 p-4"
-                    >
-                      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-200 transition group-hover:scale-105">
-                        <Folder className="size-6 fill-current" />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <strong className="block truncate text-sm font-semibold" title={folder.name}>
-                          {folder.name}
-                        </strong>
-                        <small className="mt-1 block text-xs text-slate-400">
-                          {folder.fileCount.toLocaleString()} file{folder.fileCount === 1 ? "" : "s"} · {formatBytes(folder.totalBytes)}
-                        </small>
-                      </span>
-                      <ChevronRight className="size-5 text-slate-500 transition group-hover:translate-x-0.5 group-hover:text-cyan-300" />
-                    </Link>
-                  </motion.article>
-                ))}
-              </div>
-            ) : (
-              <EmptySearch kind="folder" />
-            )}
-          </section>
-        ) : null}
+                    {crumb.label}
+                  </Link>
+                </span>
+              ))}
+            </nav>
 
-        <section className="space-y-4">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <SectionTitle
-                title={isFolder ? "Files in this location" : "Shared file"}
-                count={filteredFiles.length}
-              />
-              <p className="mt-1 text-xs text-slate-400">
-                Showing {filteredFiles.length.toLocaleString()} of {result.files.length.toLocaleString()} files
-              </p>
-            </div>
-            {isFolder && allowDownloads && result.files.length ? (
-              <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-[#071321] px-4 text-sm font-semibold text-slate-100 hover:bg-white/10">
-                <input
-                  type="checkbox"
-                  checked={allVisibleSelected}
-                  onChange={toggleAllVisible}
-                  className="size-4 accent-[#1a73e8]"
-                />
-                Select all visible
-              </label>
-            ) : null}
-          </div>
-
-          {result.files.length || result.folders.length ? (
-            <div className="tech-panel-soft rounded-[22px] p-3 sm:p-4">
-              <div className="grid gap-3 lg:grid-cols-[minmax(240px,1fr)_180px_190px_auto]">
-                <label className="relative block">
-                  <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-                  <input
-                    value={query}
-                    onChange={(event) => setQuery(event.target.value)}
-                    placeholder="Search files and folders"
-                    className="min-h-11 w-full rounded-xl border border-white/10 bg-[#071321] pl-10 pr-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-cyan-300/40 focus:bg-[#09192b] focus:ring-4 focus:ring-cyan-400/10"
-                  />
-                </label>
-                <label className="relative">
-                  <SlidersHorizontal className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-                  <select
-                    value={typeFilter}
-                    onChange={(event) => setTypeFilter(event.target.value as FileFilter)}
-                    className="min-h-11 w-full appearance-none rounded-xl border border-white/10 bg-[#071321] pl-10 pr-8 text-sm font-medium text-slate-100 outline-none focus:border-cyan-300/40 focus:ring-4 focus:ring-cyan-400/10"
-                  >
-                    <option value="all">All file types</option>
-                    <option value="documents">Documents</option>
-                    <option value="archives">Archives</option>
-                    <option value="images">Images</option>
-                    <option value="videos">Videos</option>
-                    <option value="audio">Audio</option>
-                    <option value="other">Other</option>
-                  </select>
-                </label>
-                <select
-                  value={sort}
-                  onChange={(event) => setSort(event.target.value as FileSort)}
-                  className="min-h-11 w-full rounded-xl border border-white/10 bg-[#071321] px-3 text-sm font-medium text-slate-100 outline-none focus:border-cyan-300/40 focus:ring-4 focus:ring-cyan-400/10"
-                  aria-label="Sort files"
-                >
-                  <option value="name-asc">Name A–Z</option>
-                  <option value="name-desc">Name Z–A</option>
-                  <option value="newest">Newest first</option>
-                  <option value="oldest">Oldest first</option>
-                  <option value="size-desc">Largest first</option>
-                  <option value="size-asc">Smallest first</option>
-                </select>
-                <div className="flex items-center gap-2">
-                  {hasFilters ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setQuery("");
-                        setTypeFilter("all");
-                      }}
-                      className="min-h-11 flex-1 rounded-xl border border-white/10 px-3 text-sm font-semibold text-slate-300 hover:bg-white/10 lg:flex-none"
-                    >
-                      Clear filters
-                    </button>
-                  ) : null}
-                  <div className="ml-auto inline-flex rounded-xl border border-white/10 bg-[#071321] p-1">
-                    <button
-                      type="button"
-                      onClick={() => setView("grid")}
-                      className={`grid size-9 place-items-center rounded-lg transition ${view === "grid" ? "bg-cyan-400/15 text-cyan-200 shadow-sm" : "text-slate-400 hover:bg-white/10"}`}
-                      aria-label="Grid view"
-                    >
-                      <Grid2X2 className="size-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setView("list")}
-                      className={`grid size-9 place-items-center rounded-lg transition ${view === "list" ? "bg-cyan-400/15 text-cyan-200 shadow-sm" : "text-slate-400 hover:bg-white/10"}`}
-                      aria-label="List view"
-                    >
-                      <List className="size-4" />
-                    </button>
+            {allowDownloads ? (
+              <section className="fixed inset-x-3 bottom-3 z-50 flex flex-col gap-3 rounded-[20px] border border-cyan-300/20 bg-[#071321]/98 p-4 shadow-[0_20px_60px_rgba(0,0,0,.5)] sm:sticky sm:inset-x-auto sm:top-20 sm:z-30 sm:flex-row sm:items-center sm:justify-between sm:shadow-[0_14px_36px_rgba(0,5,15,.24)]">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-cyan-300/15 bg-cyan-400/10 text-cyan-200">
+                    <FileCheck2 className="size-5" />
+                  </span>
+                  <div className="min-w-0">
+                    <strong className="block truncate text-sm text-cyan-100">
+                      {selected.size
+                        ? `${selected.size} selected · ${formatBytes(selectedBytes)}`
+                        : "Select files for a ZIP download"}
+                    </strong>
+                    <small className={`mt-1 block text-xs ${selected.size && !selectedArchiveAllowed ? "font-semibold text-red-300" : "text-slate-400"}`}>
+                      {selected.size && !selectedArchiveAllowed
+                        ? `Selection exceeds the ${archiveLimits.maxFiles}-file / ${formatBytes(archiveLimits.maxBytes)} ZIP limit.`
+                        : !folderArchiveAllowed
+                          ? `Folder is too large for one ZIP. Select up to ${archiveLimits.maxFiles} files and ${formatBytes(archiveLimits.maxBytes)}.`
+                          : `ZIP limit: ${archiveLimits.maxFiles} files · ${formatBytes(archiveLimits.maxBytes)}.`}
+                    </small>
                   </div>
                 </div>
-              </div>
-            </div>
-          ) : null}
+                <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+                  {selected.size ? (
+                    <button
+                      type="button"
+                      onClick={() => setSelected(new Set())}
+                      className="min-h-10 rounded-full border border-cyan-300/20 bg-[#0d192b] px-4 text-sm font-semibold text-cyan-200 transition-colors hover:bg-[#13243b]"
+                    >
+                      Clear
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    disabled={!selected.size || downloading || !selectedArchiveAllowed}
+                    onClick={() =>
+                      setDownloadPlan({
+                        kind: "selected",
+                        count: selectedFiles.length,
+                        bytes: selectedBytes,
+                      })
+                    }
+                    title={!selectedArchiveAllowed ? "The selection exceeds the ZIP limit." : undefined}
+                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-4 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <ArrowDownToLine className="size-4" />
+                    <span>{downloading ? "Preparing…" : "Download selected"}</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={downloading || !folderArchiveAllowed}
+                    onClick={() =>
+                      setDownloadPlan({
+                        kind: "folder",
+                        count: result.currentTotalFiles,
+                        bytes: result.currentTotalBytes,
+                      })
+                    }
+                    title={!folderArchiveAllowed ? "This folder exceeds the ZIP limit. Open a smaller folder or select fewer files." : undefined}
+                    className="col-span-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-cyan-300/20 bg-[#0d192b] px-4 text-sm font-semibold text-cyan-200 transition-colors hover:bg-[#13243b] disabled:cursor-not-allowed disabled:opacity-50 sm:col-span-1"
+                  >
+                    <Download className="size-4" /> Download folder
+                  </button>
+                </div>
+              </section>
+            ) : null}
 
-          {filteredFiles.length ? (
-            <div
-              className={
-                view === "grid"
-                  ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                  : "space-y-3"
-              }
-            >
-              {filteredFiles.map((file, index) => (
-                <SharedFileCard
-                  key={file.id}
-                  token={token}
-                  file={file}
-                  view={view}
-                  index={index}
-                  selected={selected.has(file.id)}
-                  selectionEnabled={isFolder && allowDownloads}
-                  allowDownloads={allowDownloads}
-                  downloading={downloadingFileId === file.id}
-                  copied={copiedFileId === file.id}
-                  onToggle={() => toggleFile(file.id)}
-                  onPreview={() => setPreviewFile(file)}
-                  onInfo={() => setInfoFile(file)}
-                  onCopy={() => void copyFileLink(file)}
-                  onDownload={() => markSingleDownload(file.id)}
-                />
-              ))}
-            </div>
-          ) : result.files.length ? (
-            <EmptySearch kind="file" />
-          ) : (
-            <div className="grid min-h-60 place-items-center rounded-[24px] border border-dashed border-cyan-300/20 bg-[#0b1627]/70 p-8 text-center">
-              <div>
-                <Folder className="mx-auto size-10 text-cyan-300" />
-                <h3 className="mt-4 font-semibold">This folder is empty</h3>
-                <p className="mt-2 text-sm text-slate-400">
-                  There are no shared files in this location.
-                </p>
-              </div>
-            </div>
-          )}
-        </section>
+            {result.folders.length ? (
+              <section className="space-y-3">
+                <SectionTitle title="Folders" count={filteredFolders.length} />
+                {filteredFolders.length ? (
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {filteredFolders.map((folder, index) => (
+                      <motion.article
+                        key={folder.path}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: Math.min(index, 10) * 0.025 }}
+                        className="group rounded-[20px] border border-cyan-200/10 bg-[#0a1728] shadow-[0_12px_32px_rgba(0,5,15,.2)] transition-colors hover:border-cyan-300/25 hover:bg-[#0d1c30]"
+                      >
+                        <Link
+                          href={sharePath(token, folder.path)}
+                          className="flex min-h-24 items-center gap-4 p-4"
+                        >
+                          <span className="grid size-11 shrink-0 place-items-center rounded-2xl border border-cyan-200/10 bg-cyan-400/10 text-cyan-200">
+                            <Folder className="size-5 fill-current" />
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <strong className="block truncate text-sm font-semibold" title={folder.name}>
+                              {folder.name}
+                            </strong>
+                            <small className="mt-1 block text-xs text-slate-400">
+                              {folder.fileCount.toLocaleString()} file{folder.fileCount === 1 ? "" : "s"} · {formatBytes(folder.totalBytes)}
+                            </small>
+                          </span>
+                          <ChevronRight className="size-5 text-slate-600 transition-transform group-hover:translate-x-0.5 group-hover:text-cyan-300" />
+                        </Link>
+                      </motion.article>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptySearch kind="folder" />
+                )}
+              </section>
+            ) : null}
 
-        <footer className="flex flex-col items-center justify-center gap-3 py-5 text-center text-xs text-slate-500 sm:flex-row">
+            <section className="space-y-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <SectionTitle title="Files in this location" count={filteredFiles.length} />
+                  <p className="mt-1 text-xs text-slate-400">
+                    Showing {filteredFiles.length.toLocaleString()} of {result.files.length.toLocaleString()} files
+                  </p>
+                </div>
+                {allowDownloads && result.files.length ? (
+                  <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-full border border-cyan-200/10 bg-[#081321] px-4 text-sm font-semibold text-slate-100 transition-colors hover:bg-[#0d1c30]">
+                    <input
+                      type="checkbox"
+                      checked={allVisibleSelected}
+                      onChange={toggleAllVisible}
+                      className="size-4 accent-[#1a73e8]"
+                    />
+                    Select all visible
+                  </label>
+                ) : null}
+              </div>
+
+              {result.files.length || result.folders.length ? (
+                <div className="rounded-[20px] border border-cyan-200/10 bg-[#081321]/94 p-3 shadow-[0_12px_32px_rgba(0,5,15,.18)] sm:p-4">
+                  <div className="grid gap-3 lg:grid-cols-[minmax(240px,1fr)_180px_190px_auto]">
+                    <label className="relative block">
+                      <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                      <input
+                        value={query}
+                        onChange={(event) => setQuery(event.target.value)}
+                        placeholder="Search this share"
+                        className="min-h-11 w-full rounded-xl border border-cyan-200/10 bg-[#050f1c] pl-10 pr-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-cyan-300/40 focus:bg-[#09192b] focus:ring-4 focus:ring-cyan-400/10"
+                      />
+                    </label>
+                    <label className="relative">
+                      <SlidersHorizontal className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                      <select
+                        value={typeFilter}
+                        onChange={(event) => setTypeFilter(event.target.value as FileFilter)}
+                        className="min-h-11 w-full appearance-none rounded-xl border border-cyan-200/10 bg-[#050f1c] pl-10 pr-8 text-sm font-medium text-slate-100 outline-none focus:border-cyan-300/40 focus:ring-4 focus:ring-cyan-400/10"
+                      >
+                        <option value="all">All file types</option>
+                        <option value="documents">Documents</option>
+                        <option value="archives">Archives</option>
+                        <option value="images">Images</option>
+                        <option value="videos">Videos</option>
+                        <option value="audio">Audio</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </label>
+                    <select
+                      value={sort}
+                      onChange={(event) => setSort(event.target.value as FileSort)}
+                      className="min-h-11 w-full rounded-xl border border-cyan-200/10 bg-[#050f1c] px-3 text-sm font-medium text-slate-100 outline-none focus:border-cyan-300/40 focus:ring-4 focus:ring-cyan-400/10"
+                      aria-label="Sort files"
+                    >
+                      <option value="name-asc">Name A–Z</option>
+                      <option value="name-desc">Name Z–A</option>
+                      <option value="newest">Newest first</option>
+                      <option value="oldest">Oldest first</option>
+                      <option value="size-desc">Largest first</option>
+                      <option value="size-asc">Smallest first</option>
+                    </select>
+                    <div className="flex items-center gap-2">
+                      {hasFilters ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setQuery("");
+                            setTypeFilter("all");
+                          }}
+                          className="min-h-11 flex-1 rounded-xl border border-cyan-200/10 px-3 text-sm font-semibold text-slate-300 transition-colors hover:bg-white/5 lg:flex-none"
+                        >
+                          Clear
+                        </button>
+                      ) : null}
+                      <div className="ml-auto inline-flex rounded-xl border border-cyan-200/10 bg-[#050f1c] p-1">
+                        <button
+                          type="button"
+                          onClick={() => setView("grid")}
+                          className={`grid size-9 place-items-center rounded-lg transition-colors ${view === "grid" ? "bg-cyan-400/15 text-cyan-200" : "text-slate-400 hover:bg-white/5"}`}
+                          aria-label="Grid view"
+                        >
+                          <Grid2X2 className="size-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setView("list")}
+                          className={`grid size-9 place-items-center rounded-lg transition-colors ${view === "list" ? "bg-cyan-400/15 text-cyan-200" : "text-slate-400 hover:bg-white/5"}`}
+                          aria-label="List view"
+                        >
+                          <List className="size-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {filteredFiles.length ? (
+                <div
+                  className={
+                    view === "grid"
+                      ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                      : "space-y-3"
+                  }
+                >
+                  {filteredFiles.map((file, index) => (
+                    <SharedFileCard
+                      key={file.id}
+                      token={token}
+                      file={file}
+                      view={view}
+                      index={index}
+                      selected={selected.has(file.id)}
+                      selectionEnabled={allowDownloads}
+                      allowDownloads={allowDownloads}
+                      downloading={downloadingFileId === file.id}
+                      copied={copiedFileId === file.id}
+                      onToggle={() => toggleFile(file.id)}
+                      onPreview={() => setPreviewFile(file)}
+                      onInfo={() => setInfoFile(file)}
+                      onCopy={() => void copyFileLink(file)}
+                      onDownload={() => markSingleDownload(file.id)}
+                    />
+                  ))}
+                </div>
+              ) : result.files.length ? (
+                <EmptySearch kind="file" />
+              ) : (
+                <div className="grid min-h-56 place-items-center rounded-[22px] border border-dashed border-cyan-300/20 bg-[#081321]/80 p-8 text-center">
+                  <div>
+                    <Folder className="mx-auto size-10 text-cyan-300" />
+                    <h3 className="mt-4 font-semibold">This folder is empty</h3>
+                    <p className="mt-2 text-sm text-slate-400">
+                      There are no shared files in this location.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </section>
+          </>
+        ) : null}
+
+        <footer className="flex flex-col items-center justify-center gap-2.5 py-5 text-center text-xs text-slate-500 sm:flex-row">
           <span className="inline-flex items-center gap-2">
-            <ShieldCheck className="size-4" /> Files are served through temporary private Storage URLs.
+            <ShieldCheck className="size-4 text-cyan-400/80" /> Files are served through temporary private Storage URLs.
           </span>
           <span className="hidden sm:inline">•</span>
-          <button type="button" onClick={() => setShowReport(true)} className="font-semibold text-cyan-300 hover:text-cyan-200 hover:underline">
-            Report a problem with this share
+          <button type="button" onClick={() => setShowReport(true)} className="font-semibold text-cyan-300 transition-colors hover:text-cyan-200 hover:underline">
+            Report a problem
           </button>
         </footer>
       </main>
@@ -674,6 +710,193 @@ export function PublicShareBrowser({
         shareName={result.targetName}
         onClose={() => setShowReport(false)}
       />
+    </div>
+  );
+}
+
+
+function SingleFileSpotlight({
+  token,
+  file,
+  allowDownloads,
+  downloading,
+  passwordProtected,
+  expiresAt,
+  copied,
+  onPreview,
+  onInfo,
+  onDownload,
+  onCopyShare,
+}: {
+  token: string;
+  file: PublicShareFile;
+  allowDownloads: boolean;
+  downloading: boolean;
+  passwordProtected: boolean;
+  expiresAt: string | null;
+  copied: boolean;
+  onPreview: () => void;
+  onInfo: () => void;
+  onDownload: () => void;
+  onCopyShare: () => void;
+}) {
+  const full = asImportantFile(file);
+  const previewable = canPreviewFile(full);
+  const downloadUrl = `/api/public-shares/${encodeURIComponent(token)}/files/${file.id}/download`;
+  const extension = (file.file_extension || "FILE").toUpperCase();
+
+  return (
+    <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_330px]">
+      <motion.article
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="relative overflow-hidden rounded-[24px] border border-cyan-200/10 bg-[#091625] shadow-[0_20px_60px_rgba(0,5,15,.28)]"
+      >
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(37,215,255,.55),transparent)]" />
+        <div className="grid gap-0 md:grid-cols-[230px_minmax(0,1fr)]">
+          <button
+            type="button"
+            disabled={!previewable}
+            onClick={onPreview}
+            className="group relative flex min-h-52 flex-col items-center justify-center border-b border-cyan-200/10 bg-[radial-gradient(circle_at_50%_26%,rgba(37,215,255,.14),transparent_34%),linear-gradient(145deg,#0d1d32,#07111e)] p-7 text-center disabled:cursor-default md:min-h-[330px] md:border-b-0 md:border-r"
+          >
+            <FileTypeIcon
+              file={full}
+              className="size-20 rounded-[24px] shadow-[0_18px_42px_rgba(0,0,0,.28)] transition-transform duration-200 group-hover:scale-[1.03]"
+              iconClassName="size-9"
+            />
+            <span className="mt-4 rounded-full border border-cyan-200/10 bg-[#06101d] px-3 py-1.5 text-[10px] font-bold tracking-[.12em] text-cyan-100/80">
+              {extension}
+            </span>
+            <span className="mt-3 text-xs text-slate-500">
+              {previewable ? "Tap to preview" : "Preview unavailable"}
+            </span>
+          </button>
+
+          <div className="flex min-w-0 flex-col p-5 sm:p-6 lg:p-7">
+            <div className="flex items-start gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-semibold uppercase tracking-[.16em] text-cyan-300/70">
+                  Shared item
+                </p>
+                <h2 className="mt-2 break-words text-xl font-semibold leading-tight tracking-[-.025em] text-slate-50 sm:text-2xl [overflow-wrap:anywhere]">
+                  {file.title}
+                </h2>
+                {file.description ? (
+                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-400">
+                    {file.description}
+                  </p>
+                ) : null}
+              </div>
+              <button
+                type="button"
+                onClick={onInfo}
+                className="grid size-10 shrink-0 place-items-center rounded-full border border-cyan-200/10 bg-[#071321] text-slate-400 transition-colors hover:border-cyan-300/25 hover:text-cyan-200"
+                aria-label="View file information"
+              >
+                <Info className="size-4" />
+              </button>
+            </div>
+
+            <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
+              <CompactInfo label="File size" value={formatBytes(file.file_size)} />
+              <CompactInfo label="File type" value={extension} />
+              <CompactInfo label="Updated" value={formatDate(file.updated_at ?? file.created_at)} />
+              <CompactInfo label="Original name" value={file.original_filename || file.title} />
+            </div>
+
+            <div className="mt-auto grid gap-2.5 pt-6 sm:grid-cols-2">
+              {previewable ? (
+                <button
+                  type="button"
+                  onClick={onPreview}
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-cyan-200/15 bg-[#0d1b2e] px-4 text-sm font-semibold text-cyan-100 transition-colors hover:border-cyan-300/30 hover:bg-[#12243b]"
+                >
+                  <Eye className="size-4" /> Preview file
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onInfo}
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-cyan-200/15 bg-[#0d1b2e] px-4 text-sm font-semibold text-slate-200 transition-colors hover:bg-[#12243b]"
+                >
+                  <Info className="size-4" /> File details
+                </button>
+              )}
+              {allowDownloads ? (
+                <a
+                  href={downloadUrl}
+                  onClick={onDownload}
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-4 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(45,150,255,.2)] transition hover:brightness-110"
+                >
+                  <Download className="size-4" /> {downloading ? "Starting…" : "Download"}
+                </a>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </motion.article>
+
+      <aside className="rounded-[24px] border border-cyan-200/10 bg-[#081321]/96 p-5 shadow-[0_18px_52px_rgba(0,5,15,.22)] sm:p-6">
+        <div className="flex items-center gap-3">
+          <span className="grid size-11 place-items-center rounded-2xl border border-emerald-300/15 bg-emerald-400/10 text-emerald-200">
+            <ShieldCheck className="size-5" />
+          </span>
+          <div>
+            <h2 className="text-sm font-semibold text-slate-100">Secure access</h2>
+            <p className="mt-0.5 text-xs text-slate-500">Share security and availability</p>
+          </div>
+        </div>
+
+        <div className="mt-5 space-y-2.5">
+          <AccessRow icon={<ShieldCheck className="size-4" />} label="Link status" value="Verified" tone="green" />
+          <AccessRow icon={<LockKeyhole className="size-4" />} label="Protection" value={passwordProtected ? "Password protected" : "Secure token"} />
+          <AccessRow icon={<Download className="size-4" />} label="Downloads" value={allowDownloads ? "Allowed" : "Disabled"} />
+          <AccessRow icon={<Clock3 className="size-4" />} label="Expiration" value={expiresAt ? formatDateTime(expiresAt) : "Never"} />
+        </div>
+
+        <div className="mt-5 grid gap-2">
+          <button
+            type="button"
+            onClick={onCopyShare}
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-cyan-200/10 bg-[#0b192b] px-4 text-sm font-semibold text-slate-200 transition-colors hover:border-cyan-300/25 hover:bg-[#102039]"
+          >
+            {copied ? <Check className="size-4 text-emerald-300" /> : <Copy className="size-4" />}
+            {copied ? "Link copied" : "Copy share link"}
+          </button>
+          <button
+            type="button"
+            onClick={onInfo}
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-cyan-200/10 px-4 text-sm font-semibold text-slate-400 transition-colors hover:bg-white/5 hover:text-slate-200"
+          >
+            <Info className="size-4" /> View file details
+          </button>
+        </div>
+      </aside>
+    </section>
+  );
+}
+
+function CompactInfo({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-xl border border-cyan-200/10 bg-[#06101d] px-3.5 py-3">
+      <span className="block text-[10px] font-semibold uppercase tracking-[.12em] text-slate-500">{label}</span>
+      <strong className="mt-1 block truncate text-xs font-semibold text-slate-200" title={value}>{value}</strong>
+    </div>
+  );
+}
+
+function AccessRow({ icon, label, value, tone = "blue" }: { icon: React.ReactNode; label: string; value: string; tone?: "blue" | "green" }) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-cyan-200/10 bg-[#06101d] px-3.5 py-3">
+      <span className={`grid size-8 shrink-0 place-items-center rounded-lg ${tone === "green" ? "bg-emerald-400/10 text-emerald-300" : "bg-cyan-400/10 text-cyan-200"}`}>
+        {icon}
+      </span>
+      <div className="min-w-0 flex-1">
+        <span className="block text-[10px] font-semibold uppercase tracking-[.11em] text-slate-500">{label}</span>
+        <strong className="mt-0.5 block truncate text-xs font-semibold text-slate-200" title={value}>{value}</strong>
+      </div>
     </div>
   );
 }
@@ -999,11 +1222,11 @@ function decodeFilename(disposition: string): string | null {
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3"><span className="block text-xs font-medium text-slate-400">{label}</span><strong className="mt-1 block truncate text-sm font-semibold text-slate-100 sm:text-base" title={value}>{value}</strong></div>;
+  return <div className="min-w-0 rounded-2xl border border-cyan-200/10 bg-[#06101d] px-4 py-3.5"><span className="block text-[10px] font-semibold uppercase tracking-[.11em] text-slate-500">{label}</span><strong className="mt-1.5 block break-words text-sm font-semibold leading-5 text-slate-100" title={value}>{value}</strong></div>;
 }
 
 function SectionTitle({ title, count }: { title: string; count: number }) {
-  return <div className="flex items-center gap-3"><h2 className="text-lg font-semibold">{title}</h2><span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300">{count.toLocaleString()}</span></div>;
+  return <div className="flex items-center gap-3"><h2 className="text-lg font-semibold tracking-[-.015em]">{title}</h2><span className="rounded-full border border-cyan-200/10 bg-[#081321] px-2.5 py-1 text-xs font-semibold text-slate-300">{count.toLocaleString()}</span></div>;
 }
 
 function TrustBadge({ icon, label, tone = "blue" }: { icon: React.ReactNode; label: string; tone?: "blue" | "green" }) {
@@ -1011,7 +1234,7 @@ function TrustBadge({ icon, label, tone = "blue" }: { icon: React.ReactNode; lab
 }
 
 function MetaItem({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return <span className="inline-flex items-center gap-1.5">{icon}{label}</span>;
+  return <span className="inline-flex items-center gap-1.5"><span className="text-cyan-300/75">{icon}</span>{label}</span>;
 }
 
 function EmptySearch({ kind }: { kind: "file" | "folder" }) {

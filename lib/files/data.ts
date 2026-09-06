@@ -438,3 +438,35 @@ export async function getImportantFileIntegrity(fileId: number): Promise<{
     checksum_verified_at: data?.checksum_verified_at ? String(data.checksum_verified_at) : null,
   };
 }
+
+export async function getToolArchiveFiles(limit = 300): Promise<
+  Array<{
+    id: number;
+    title: string;
+    originalFilename: string;
+    mimeType: string;
+    fileSize: number;
+    folderPath: string;
+    extension: string;
+  }>
+> {
+  const { client, userId } = await getDataContext();
+  const { data, error } = await client
+    .from("important_files")
+    .select("id,title,original_filename,mime_type,file_size,folder_path,file_extension,created_at")
+    .eq("owner_id", userId)
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .limit(Math.max(1, Math.min(300, limit)));
+
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row) => ({
+    id: Number(row.id),
+    title: String(row.title ?? row.original_filename ?? `File ${row.id}`),
+    originalFilename: String(row.original_filename ?? `file-${row.id}`),
+    mimeType: String(row.mime_type ?? "application/octet-stream"),
+    fileSize: Number(row.file_size ?? 0),
+    folderPath: normalizeFolderPath(String(row.folder_path ?? "")),
+    extension: String(row.file_extension ?? "").toLowerCase(),
+  }));
+}

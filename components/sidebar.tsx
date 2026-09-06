@@ -4,6 +4,7 @@ import {
   Activity,
   BadgeCheck,
   BookOpenCheck,
+  Boxes,
   ClipboardList,
   FolderOpen,
   FileClock,
@@ -41,6 +42,7 @@ const workspaceLinks: NavigationLink[] = [
   { href: "/dashboard/files", label: "Important Files", icon: FolderOpen },
   { href: "/dashboard/files/recent", label: "Recent Files", icon: FileClock },
   { href: "/dashboard/files/shares", label: "Shared links", icon: Link2 },
+  { href: "/dashboard/tools", label: "Tools", icon: Boxes },
   { href: "/dashboard/assignments", label: "Assignments", icon: ClipboardList },
   { href: "/dashboard/assignments/productivity", label: "Productivity", icon: Sparkles },
   { href: "/dashboard/assignments/reminders", label: "Reminder History", icon: History },
@@ -93,7 +95,7 @@ export function Sidebar({
       className={
         mobile
           ? "flex h-full w-full flex-col overflow-hidden rounded-[1.5rem] border border-cyan-200/15 bg-[#07101d]/98 text-slate-100 shadow-[0_30px_80px_rgba(0,0,0,0.5)]"
-          : `tech-sidebar-enter tech-panel sticky top-[5.55rem] hidden h-[calc(100dvh-6.45rem)] shrink-0 flex-col rounded-[1.35rem] py-3.5 transition-[width,padding] duration-300 ease-[cubic-bezier(.16,1,.3,1)] lg:flex ${
+          : `tech-sidebar-enter tech-panel sticky top-[5.55rem] hidden h-[calc(100dvh-6.45rem)] shrink-0 flex-col rounded-[1.35rem] py-3.5 transition-[width,padding] duration-[220ms] ease-[cubic-bezier(.16,1,.3,1)] lg:flex ${
               isCompact ? "w-[5.35rem] px-2.5" : "w-[17rem] px-3"
             }`
       }
@@ -264,7 +266,7 @@ function NavigationGroup({
               aria-current={active ? "page" : undefined}
               title={collapsed ? linkLabel : undefined}
               aria-label={collapsed ? linkLabel : undefined}
-              className={`group relative flex items-center rounded-xl border text-sm font-medium transition-all ${
+              className={`group relative flex items-center rounded-xl border text-sm font-medium transition-[color,background-color,border-color,box-shadow,transform] duration-[180ms] ${
                 collapsed ? "h-11 justify-center px-0" : "gap-3 px-3.5 py-2.5"
               } ${
                 active

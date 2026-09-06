@@ -29,6 +29,11 @@
     --chart-4: 35 94% 60%;
     --chart-5: 335 88% 64%;
     --radius: 0.9rem;
+    --motion-fast: 140ms;
+    --motion-base: 180ms;
+    --motion-slow: 280ms;
+    --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --motion-spring-ease: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .dark {
@@ -85,22 +90,23 @@
   }
 
   body.high-tech-theme::before {
+    inset: -54px;
     background-image:
       linear-gradient(rgba(100, 164, 224, 0.045) 1px, transparent 1px),
       linear-gradient(90deg, rgba(100, 164, 224, 0.045) 1px, transparent 1px);
     background-size: 54px 54px;
     mask-image: linear-gradient(to bottom, black 0%, black 72%, transparent 100%);
-    animation: techGridDrift 24s linear infinite;
+    animation: techGridDrift 36s linear infinite;
+    will-change: transform;
   }
 
   body.high-tech-theme::after {
     z-index: -1;
-    opacity: 0.6;
+    opacity: 0.56;
     background:
       linear-gradient(90deg, transparent 0%, rgba(39, 211, 255, 0.045) 48%, transparent 54%),
       radial-gradient(circle at 50% 0%, rgba(91, 115, 255, 0.12), transparent 42%);
-    background-size: 180% 100%, 100% 100%;
-    animation: signalSweep 12s ease-in-out infinite;
+    animation: signalBreath 10s ease-in-out infinite;
   }
 
   ::selection {
@@ -261,10 +267,20 @@
     position: absolute;
     left: 0;
     right: 0;
-    top: -80px;
-    height: 80px;
-    background: linear-gradient(to bottom, transparent, rgba(58, 216, 255, 0.045), transparent);
-    animation: panelScan 9s ease-in-out infinite;
+    top: -42%;
+    height: 42%;
+    background: linear-gradient(to bottom, transparent, rgba(58, 216, 255, 0.055), transparent);
+    opacity: 0;
+    transform: translate3d(0, -110%, 0);
+    transition: transform 560ms var(--motion-spring-ease), opacity var(--motion-fast) ease;
+  }
+
+  .group:hover .tech-scanline::after,
+  .group:focus-within .tech-scanline::after,
+  .tech-panel:hover .tech-scanline::after,
+  .tech-panel:focus-within .tech-scanline::after {
+    opacity: 0.75;
+    transform: translate3d(0, 340%, 0);
   }
 }
 
@@ -370,20 +386,13 @@
 }
 
 @keyframes techGridDrift {
-  from { background-position: 0 0, 0 0; }
-  to { background-position: 54px 54px, 54px 54px; }
+  from { transform: translate3d(-54px, -54px, 0); }
+  to { transform: translate3d(0, 0, 0); }
 }
 
-@keyframes signalSweep {
-  0%, 100% { background-position: 150% 0, 0 0; opacity: 0.42; }
-  50% { background-position: -50% 0, 0 0; opacity: 0.72; }
-}
-
-@keyframes panelScan {
-  0%, 18% { transform: translateY(-100%); opacity: 0; }
-  24% { opacity: 1; }
-  55% { transform: translateY(calc(100vh + 120px)); opacity: 0; }
-  100% { transform: translateY(calc(100vh + 120px)); opacity: 0; }
+@keyframes signalBreath {
+  0%, 100% { opacity: 0.42; }
+  50% { opacity: 0.62; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -565,57 +574,51 @@
 /* High-tech motion system V2. */
 @layer components {
   .tech-topbar-enter {
-    animation: techTopbarDrop 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: techTopbarDrop 320ms var(--motion-spring-ease) both;
   }
 
   .tech-sidebar-enter {
-    animation: techSidebarReveal 580ms cubic-bezier(0.16, 1, 0.3, 1) 70ms both;
+    animation: techSidebarReveal 360ms var(--motion-spring-ease) 35ms both;
   }
 
   .tech-page-transition {
     transform-origin: 50% 0;
   }
 
-  .tech-page-transition > * {
-    animation: techContentRise 440ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
   .tech-page-transition article {
     transition:
-      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
-      border-color 220ms ease,
-      box-shadow 220ms ease,
-      background-color 220ms ease;
+      border-color var(--motion-base) ease,
+      box-shadow var(--motion-base) ease,
+      background-color var(--motion-base) ease;
   }
 
   .tech-page-transition article:hover {
-    transform: translateY(-3px);
     border-color: rgba(62, 215, 255, 0.26) !important;
     box-shadow:
-      0 18px 38px rgba(0, 7, 22, 0.34),
+      0 16px 34px rgba(0, 7, 22, 0.3),
       0 0 0 1px rgba(53, 211, 255, 0.05) inset;
   }
 
   .tech-nav-stagger > * {
     opacity: 0;
-    animation: techNavItemIn 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: techNavItemIn 220ms var(--motion-ease) both;
   }
 
-  .tech-nav-stagger > :nth-child(1) { animation-delay: 90ms; }
-  .tech-nav-stagger > :nth-child(2) { animation-delay: 120ms; }
-  .tech-nav-stagger > :nth-child(3) { animation-delay: 150ms; }
-  .tech-nav-stagger > :nth-child(4) { animation-delay: 180ms; }
-  .tech-nav-stagger > :nth-child(5) { animation-delay: 210ms; }
-  .tech-nav-stagger > :nth-child(6) { animation-delay: 240ms; }
-  .tech-nav-stagger > :nth-child(7) { animation-delay: 270ms; }
-  .tech-nav-stagger > :nth-child(8) { animation-delay: 300ms; }
-  .tech-nav-stagger > :nth-child(9) { animation-delay: 330ms; }
-  .tech-nav-stagger > :nth-child(10) { animation-delay: 360ms; }
-  .tech-nav-stagger > :nth-child(11) { animation-delay: 390ms; }
+  .tech-nav-stagger > :nth-child(1) { animation-delay: 24ms; }
+  .tech-nav-stagger > :nth-child(2) { animation-delay: 42ms; }
+  .tech-nav-stagger > :nth-child(3) { animation-delay: 60ms; }
+  .tech-nav-stagger > :nth-child(4) { animation-delay: 78ms; }
+  .tech-nav-stagger > :nth-child(5) { animation-delay: 96ms; }
+  .tech-nav-stagger > :nth-child(6) { animation-delay: 114ms; }
+  .tech-nav-stagger > :nth-child(7) { animation-delay: 132ms; }
+  .tech-nav-stagger > :nth-child(8) { animation-delay: 150ms; }
+  .tech-nav-stagger > :nth-child(9) { animation-delay: 168ms; }
+  .tech-nav-stagger > :nth-child(10) { animation-delay: 186ms; }
+  .tech-nav-stagger > :nth-child(11) { animation-delay: 204ms; }
 
   .tech-logo-pulse {
     position: relative;
-    animation: techLogoFloat 5s ease-in-out infinite;
+    animation: techLogoFloat 8s ease-in-out infinite;
   }
 
   .tech-logo-pulse::after {
@@ -625,11 +628,12 @@
     z-index: -1;
     border-radius: 1.15rem;
     background: radial-gradient(circle, rgba(46, 213, 255, 0.22), transparent 68%);
-    animation: techHaloPulse 3.6s ease-in-out infinite;
+    animation: techHaloPulse 5.6s ease-in-out infinite;
   }
 
   .tech-avatar-pulse {
-    animation: techAvatarGlow 4.2s ease-in-out infinite;
+    box-shadow: 0 8px 22px rgba(44, 149, 255, 0.24);
+    transition: box-shadow var(--motion-base) ease, transform var(--motion-base) var(--motion-ease);
   }
 
   .tech-search-focus {
@@ -646,12 +650,16 @@
     width: 25%;
     pointer-events: none;
     background: linear-gradient(90deg, transparent, rgba(90, 221, 255, 0.08), transparent);
-    transform: skewX(-14deg);
-    animation: techSearchSweep 8s ease-in-out infinite;
+    opacity: 0;
+    transform: translateX(-135%) skewX(-14deg);
+  }
+
+  .tech-search-focus:focus-within::after {
+    animation: techSearchSweep 760ms var(--motion-spring-ease) 1;
   }
 
   .tech-active-pulse {
-    animation: techActiveIndicator 2.2s ease-in-out infinite;
+    animation: techActiveIndicator 3.2s ease-in-out infinite;
   }
 
   .tech-interactive {
@@ -659,11 +667,11 @@
     isolation: isolate;
     overflow: hidden;
     transition:
-      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
-      border-color 220ms ease,
-      background-color 220ms ease,
-      box-shadow 220ms ease,
-      filter 220ms ease;
+      transform var(--motion-base) var(--motion-ease),
+      border-color var(--motion-base) ease,
+      background-color var(--motion-base) ease,
+      box-shadow var(--motion-base) ease,
+      filter var(--motion-base) ease;
   }
 
   .tech-interactive::after {
@@ -674,7 +682,7 @@
     pointer-events: none;
     background: linear-gradient(110deg, transparent 28%, rgba(255, 255, 255, 0.11) 48%, transparent 68%);
     transform: translateX(-135%);
-    transition: transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 520ms var(--motion-spring-ease);
   }
 
   .tech-interactive:hover::after {
@@ -682,13 +690,13 @@
   }
 
   .tech-interactive:hover {
-    transform: translateY(-2px) scale(1.008);
+    transform: translateY(-1px) scale(1.004);
     border-color: rgba(80, 211, 255, 0.3);
     box-shadow: 0 14px 34px rgba(0, 9, 25, 0.36);
   }
 
   .tech-interactive:active {
-    transform: translateY(0) scale(0.975);
+    transform: translateY(0) scale(0.985);
     transition-duration: 90ms;
   }
 
@@ -705,13 +713,22 @@
     inset: 0;
     pointer-events: none;
     border-radius: inherit;
-    background: linear-gradient(120deg, transparent 12%, rgba(74, 216, 255, 0.035) 45%, transparent 70%);
-    background-size: 240% 100%;
-    animation: techPanelLight 12s ease-in-out infinite;
+    background: linear-gradient(120deg, transparent 14%, rgba(74, 216, 255, 0.045) 46%, transparent 70%);
+    opacity: 0;
+    transform: translate3d(-110%, 0, 0);
+    transition: transform 620ms var(--motion-spring-ease), opacity var(--motion-fast) ease;
+  }
+
+  .tech-panel:hover::after,
+  .tech-panel:focus-within::after,
+  .tech-panel-soft:hover::after,
+  .tech-panel-soft:focus-within::after {
+    opacity: 0.7;
+    transform: translate3d(110%, 0, 0);
   }
 
   .tech-status-dot {
-    animation: techStatusPulse 2.4s ease-in-out infinite;
+    box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.08), 0 0 14px rgba(45, 212, 191, 0.34);
   }
 }
 
@@ -719,13 +736,13 @@
   body.high-tech-theme button:not(:disabled):active,
   body.high-tech-theme a[href]:active,
   body.high-tech-theme [role="button"]:not([aria-disabled="true"]):active {
-    transform: scale(0.975);
+    transform: scale(0.985);
   }
 
   body.high-tech-theme [data-state="open"][role="menu"],
   body.high-tech-theme [data-state="open"][role="dialog"],
   body.high-tech-theme [data-state="open"][data-radix-popper-content-wrapper] > * {
-    animation: techMenuPop 210ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: techMenuPop 170ms var(--motion-spring-ease) both;
     transform-origin: var(--radix-dropdown-menu-content-transform-origin, center top);
   }
 
@@ -734,24 +751,18 @@
   }
 
   body.high-tech-theme .animate-spin {
-    animation-duration: 820ms !important;
-    filter: drop-shadow(0 0 5px rgba(50, 214, 255, 0.42));
+    animation-duration: 760ms !important;
   }
 }
 
 @keyframes techTopbarDrop {
-  from { opacity: 0; transform: translateY(-14px); backdrop-filter: blur(0); }
-  to { opacity: 1; transform: translateY(0); backdrop-filter: blur(24px); }
+  from { opacity: 0; transform: translate3d(0, -8px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 @keyframes techSidebarReveal {
-  from { opacity: 0; transform: translateX(-16px) scale(0.985); }
-  to { opacity: 1; transform: translateX(0) scale(1); }
-}
-
-@keyframes techContentRise {
-  from { opacity: 0; transform: translateY(10px) scale(0.994); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translate3d(-10px, 0, 0) scale(0.99); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
 }
 
 @keyframes techNavItemIn {
@@ -769,11 +780,6 @@
   50% { opacity: 0.9; transform: scale(1.08); }
 }
 
-@keyframes techAvatarGlow {
-  0%, 100% { box-shadow: 0 8px 22px rgba(44, 149, 255, 0.2); }
-  50% { box-shadow: 0 10px 28px rgba(44, 191, 255, 0.38); }
-}
-
 @keyframes techSearchSweep {
   0%, 52% { transform: translateX(-135%) skewX(-14deg); opacity: 0; }
   60% { opacity: 1; }
@@ -781,19 +787,8 @@
 }
 
 @keyframes techActiveIndicator {
-  0%, 100% { opacity: 0.72; box-shadow: 0 0 8px rgba(63, 224, 255, 0.55); }
-  50% { opacity: 1; box-shadow: 0 0 18px rgba(63, 224, 255, 0.95); }
-}
-
-@keyframes techPanelLight {
-  0%, 35% { background-position: 130% 0; opacity: 0.3; }
-  60% { opacity: 0.8; }
-  85%, 100% { background-position: -130% 0; opacity: 0.3; }
-}
-
-@keyframes techStatusPulse {
-  0%, 100% { box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.08), 0 0 12px rgba(45, 212, 191, 0.28); }
-  50% { box-shadow: 0 0 0 6px rgba(45, 212, 191, 0.04), 0 0 22px rgba(45, 212, 191, 0.55); }
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
 }
 
 @keyframes techMenuPop {
@@ -809,7 +804,6 @@
 @media (prefers-reduced-motion: reduce) {
   .tech-topbar-enter,
   .tech-sidebar-enter,
-  .tech-page-transition > *,
   .tech-nav-stagger > *,
   .tech-logo-pulse,
   .tech-logo-pulse::after,
@@ -855,5 +849,284 @@
   :where(a, button, input, select, textarea, [tabindex]):focus-visible {
     outline: 2px solid rgba(103, 232, 249, 0.88);
     outline-offset: 3px;
+  }
+}
+
+@layer components {
+  .tool-input {
+    min-height: 2.75rem;
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 0.75rem;
+    background: rgba(8, 17, 31, 0.90);
+    padding: 0.65rem 0.8rem;
+    color: rgb(226 232 240);
+    font-size: 0.75rem;
+    line-height: 1rem;
+    transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+  }
+
+  .tool-input::placeholder {
+    color: rgb(71 85 105);
+  }
+
+  .tool-input:hover {
+    border-color: rgba(103, 232, 249, 0.18);
+  }
+
+  .tool-input:focus {
+    border-color: rgba(103, 232, 249, 0.36);
+    box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.06);
+    outline: none;
+  }
+
+  .tool-input:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .tool-primary-button,
+  .tool-secondary-button,
+  .tool-ghost-button,
+  .tool-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease, filter 160ms ease, color 160ms ease;
+  }
+
+  .tool-primary-button {
+    min-height: 2.75rem;
+    border-radius: 0.8rem;
+    border: 1px solid rgba(103, 232, 249, 0.20);
+    background: linear-gradient(135deg, rgba(42, 212, 255, 0.90), rgba(78, 108, 255, 0.94));
+    padding: 0.65rem 1rem;
+    color: white;
+    font-size: 0.75rem;
+    box-shadow: 0 12px 28px rgba(20, 107, 190, 0.20);
+  }
+
+  .tool-primary-button:hover:not(:disabled) {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+  }
+
+  .tool-primary-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+    box-shadow: none;
+  }
+
+  .tool-secondary-button {
+    min-height: 2.75rem;
+    border-radius: 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.65rem 1rem;
+    color: rgb(203 213 225);
+    font-size: 0.75rem;
+  }
+
+  .tool-secondary-button:hover:not(:disabled) {
+    border-color: rgba(103, 232, 249, 0.20);
+    background: rgba(103, 232, 249, 0.06);
+    color: rgb(207 250 254);
+  }
+
+  .tool-secondary-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+
+  .tool-ghost-button {
+    min-height: 2.25rem;
+    border-radius: 0.65rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.45rem 0.7rem;
+    color: rgb(148 163 184);
+    font-size: 0.7rem;
+  }
+
+  .tool-ghost-button:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgb(226 232 240);
+  }
+
+  .tool-icon-button {
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: 0 0 auto;
+    border-radius: 0.7rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    color: rgb(148 163 184);
+  }
+
+  .tool-icon-button:hover {
+    border-color: rgba(103, 232, 249, 0.20);
+    background: rgba(103, 232, 249, 0.06);
+    color: rgb(165 243 252);
+  }
+}
+
+/* Phase 14B: mobile responsive hardening */
+@media (max-width: 639px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+  }
+
+  body.high-tech-theme {
+    background:
+      radial-gradient(circle at 88% -6%, rgba(39, 91, 215, 0.18), transparent 32%),
+      radial-gradient(circle at -12% 34%, rgba(0, 210, 255, 0.08), transparent 28%),
+      linear-gradient(145deg, #050812 0%, #07101d 50%, #091426 100%);
+  }
+
+  body.high-tech-theme::before {
+    background-size: 42px 42px;
+    opacity: 0.72;
+  }
+
+  .tech-page-transition,
+  .tech-panel,
+  .tech-panel-soft,
+  .tech-modal-surface,
+  .tech-menu-surface {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .tech-panel,
+  .tech-panel-soft {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .tech-modal-overlay {
+    padding-left: max(0.375rem, env(safe-area-inset-left));
+    padding-right: max(0.375rem, env(safe-area-inset-right));
+  }
+
+  .tech-modal-surface {
+    max-width: calc(100vw - max(0.75rem, env(safe-area-inset-left) + env(safe-area-inset-right)));
+    max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 0.75rem);
+    overflow-x: hidden;
+  }
+
+  .tech-menu-surface {
+    max-width: calc(100vw - 1rem);
+  }
+
+  /* Prevent iOS from zooming the viewport when a form control receives focus. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  /* Long filenames, URLs, hashes and diagnostic values should wrap instead of widening the page. */
+  code,
+  pre,
+  dd,
+  p,
+  li {
+    overflow-wrap: anywhere;
+  }
+
+  pre {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .tool-input {
+    font-size: 16px;
+  }
+
+  .tool-primary-button,
+  .tool-secondary-button {
+    min-height: 2.875rem;
+  }
+
+  /* Swipe actions sit under an opaque surface so amber/cyan actions never bleed through glass cards. */
+  .mobile-swipe-shell {
+    contain: paint;
+    box-shadow: 0 14px 36px rgba(0, 4, 13, 0.28);
+  }
+
+  .mobile-swipe-surface {
+    isolation: isolate;
+    -webkit-user-drag: none;
+  }
+
+  .mobile-swipe-surface > * {
+    background-color: #081321;
+  }
+
+  /* Keep touch targets comfortable and remove desktop hover motion on touchscreens. */
+  button,
+  a[href],
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Mobile keeps interaction motion, but pauses decorative loops to reduce GPU/battery load. */
+  body.high-tech-theme::before,
+  body.high-tech-theme::after,
+  .tech-logo-pulse,
+  .tech-logo-pulse::after,
+  .tech-active-pulse {
+    animation: none !important;
+  }
+
+  body.high-tech-theme::before {
+    transform: translate3d(-18px, -18px, 0);
+    will-change: auto;
+  }
+
+  .tech-panel::after,
+  .tech-panel-soft::after,
+  .tech-scanline::after {
+    display: none;
+  }
+
+  .mobile-bottom-nav {
+    contain: layout paint style;
+    transform: translateZ(0);
+    min-height: 3.65rem;
+  }
+
+  @media (max-width: 359px) {
+    .mobile-bottom-nav {
+      left: 0.5rem;
+      right: 0.5rem;
+    }
+  }
+
+  .mobile-upload-action {
+    backface-visibility: hidden;
+    transform: translateZ(0);
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .tech-interactive:hover {
+    transform: none;
+    box-shadow: inherit;
+  }
+
+  .tech-interactive:hover::after {
+    transform: translateX(-135%);
+  }
+
+  .tech-panel::after,
+  .tech-panel-soft::after,
+  .tech-scanline::after {
+    display: none;
   }
 }

@@ -50,7 +50,7 @@ export default async function VideosPage({ searchParams }: Props) {
 
   return (
     <main className="space-y-5">
-      <section className="tech-panel relative overflow-hidden rounded-[28px] p-6 sm:p-8">
+      <section className="tech-panel relative overflow-hidden rounded-[22px] p-4 sm:rounded-[28px] sm:p-8">
         <div className="tech-scanline" aria-hidden="true" />
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
@@ -60,7 +60,7 @@ export default async function VideosPage({ searchParams }: Props) {
           </div>
           <div className="space-y-4">
             <VideoLibraryActions categories={result.categories} maxUploadBytes={maxUploadBytes} />
-            <div className="grid grid-cols-3 gap-3"><Summary label="Videos" value={result.totalVideos.toLocaleString()} /><Summary label="Storage" value={formatBytes(result.totalBytes)} /><Summary label="Views" value={result.totalViews.toLocaleString()} /></div>
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3"><Summary label="Videos" value={result.totalVideos.toLocaleString()} /><Summary label="Views" value={result.totalViews.toLocaleString()} /><div className="col-span-2 sm:col-span-1"><Summary label="Storage" value={formatBytes(result.totalBytes)} /></div></div>
           </div>
         </div>
       </section>
@@ -69,7 +69,7 @@ export default async function VideosPage({ searchParams }: Props) {
       {result.truncated ? <div className="flex items-start gap-3 rounded-[18px] border border-amber-300/25 bg-amber-400/10 p-4 text-sm text-amber-300"><AlertTriangle className="mt-0.5 size-5 shrink-0" /><p>This version loads the first 5,000 active videos. Database-side pagination can be added later for larger libraries.</p></div> : null}
 
       <section className="space-y-3">
-        <div className="flex items-center justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[.08em] text-slate-400">Library</p><h2 className="mt-1 text-lg font-semibold text-slate-100">{filters.favorite ? "Favorites" : "All videos"}</h2></div><span className="rounded-full bg-white/[0.05] px-3 py-1.5 text-xs font-semibold text-slate-400">{result.totalVideos} result{result.totalVideos === 1 ? "" : "s"}</span></div>
+        <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[.08em] text-slate-400">Library</p><h2 className="mt-1 text-lg font-semibold text-slate-100">{filters.favorite ? "Favorites" : "All videos"}</h2></div><span className="rounded-full bg-white/[0.05] px-3 py-1.5 text-xs font-semibold text-slate-400">{result.totalVideos} result{result.totalVideos === 1 ? "" : "s"}</span></div>
         {result.videos.length ? (
           filters.view === "grid" ? (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">{result.videos.map((video, index) => <VideoCard key={video.id} video={video} index={index} />)}</div>
@@ -85,7 +85,7 @@ export default async function VideosPage({ searchParams }: Props) {
 }
 
 function Summary({ label, value }: { label: string; value: string }) {
-  return <div className="min-w-24 rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3"><span className="block text-xs font-medium text-slate-400">{label}</span><strong className="mt-1 block truncate text-lg font-semibold text-slate-100">{value}</strong></div>;
+  return <div className="h-full min-w-0 rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3"><span className="block text-xs font-medium text-slate-400">{label}</span><strong className="mt-1 block truncate text-lg font-semibold text-slate-100">{value}</strong></div>;
 }
 function VideoListRow({ video }: { video: VideoRecord; index: number }) {
   return <article className="flex items-center gap-4 border-b border-white/10 p-4 last:border-b-0 hover:bg-white/[0.06]"><Link href={`/dashboard/videos/${video.id}`} className="grid size-14 shrink-0 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300"><Film className="size-6" /></Link><Link href={`/dashboard/videos/${video.id}`} className="min-w-0 flex-1"><h3 className="truncate text-sm font-semibold text-slate-100">{video.title}</h3><p className="mt-1 truncate text-xs text-slate-400">{video.original_filename}</p><div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400"><span>{formatBytes(video.file_size)}</span><span>{formatDuration(video.duration_seconds)}</span><span>{formatDate(video.created_at)}</span><span className="inline-flex items-center gap-1"><Eye className="size-3.5" />{video.view_count}</span></div></Link><VideoItemActions video={video} /></article>;

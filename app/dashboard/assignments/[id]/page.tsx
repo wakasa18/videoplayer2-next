@@ -66,7 +66,7 @@ export default async function AssignmentDetailsPage({ params }: AssignmentDetail
       </Link>
 
       <section
-        className="overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.045] p-6 shadow-sm sm:p-8"
+        className="overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.045] p-4 shadow-sm sm:rounded-[28px] sm:p-8"
         style={{ borderTopWidth: 5, borderTopColor: assignment.subject_color }}
       >
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -105,7 +105,7 @@ export default async function AssignmentDetailsPage({ params }: AssignmentDetail
             </div>
           </div>
           <div
-            className={`min-w-[230px] rounded-[22px] border p-4 ${
+            className={`w-full min-w-0 rounded-[20px] border p-4 sm:min-w-[230px] lg:w-auto ${
               overdue
                 ? "border-red-300/25 bg-red-400/10"
                 : "border-cyan-300/20 bg-white/[0.04]"

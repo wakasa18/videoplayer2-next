@@ -3,6 +3,7 @@
 import {
   Activity,
   BellRing,
+  Boxes,
   Command,
   FileClock,
   FolderOpen,
@@ -41,6 +42,7 @@ const COMMANDS: PaletteCommand[] = [
   { id: "assignments", label: "Assignments", detail: "Open assignment workspace", keywords: "assignments tasks deadline", icon: BellRing, shortcut: "Alt+A", href: "/dashboard/assignments" },
   { id: "reminders", label: "Reminder History", detail: "Review sent and failed reminder emails", keywords: "reminder email failed history cron", icon: BellRing, href: "/dashboard/assignments/reminders" },
   { id: "videos", label: "Videos", detail: "Open video library", keywords: "videos media", icon: Video, shortcut: "Alt+V", href: "/dashboard/videos" },
+  { id: "tools", label: "Archive Tools", detail: "File converter, image toolkit, and ZIP manager", keywords: "tools converter image archive zip extract", icon: Boxes, shortcut: "Alt+T", href: "/dashboard/tools" },
   { id: "activity", label: "Activity", detail: "Review workspace activity", keywords: "activity audit events", icon: Activity, href: "/dashboard/activity" },
   { id: "security", label: "Security Center", detail: "Sessions and login history", keywords: "security sessions login history devices", icon: ShieldCheck, href: "/dashboard/security" },
   { id: "system", label: "System Health", detail: "Check database, Storage, cron, and email health", keywords: "system health cron smtp database", icon: Wrench, href: "/dashboard/system" },
@@ -89,6 +91,7 @@ export function CommandPalette() {
         r: "/dashboard/files/recent",
         a: "/dashboard/assignments",
         v: "/dashboard/videos",
+        t: "/dashboard/tools",
       };
       if (shortcutMap[key]) {
         event.preventDefault();
@@ -157,7 +160,7 @@ export function CommandPalette() {
               </div>
               <footer className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-white/10 px-4 py-3 text-[10px] text-slate-500 sm:px-5">
                 <span className="inline-flex items-center gap-1.5"><Keyboard className="size-3.5" /> Keyboard shortcuts</span>
-                <span>Alt+F files</span><span>Alt+A assignments</span><span>Alt+U upload</span><span>Alt+N folder</span>
+                <span>Alt+F files</span><span>Alt+A assignments</span><span>Alt+T tools</span><span>Alt+U upload</span><span>Alt+N folder</span>
               </footer>
             </section>
           </div>

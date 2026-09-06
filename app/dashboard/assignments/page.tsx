@@ -25,7 +25,7 @@ export default async function AssignmentsPage({ searchParams }: AssignmentsPageP
   if (!result) {
     return (
       <main className="grid min-h-[68vh] place-items-center">
-        <section className="w-full max-w-2xl rounded-[28px] border border-amber-300/25 bg-white/[0.045] p-7 shadow-sm sm:p-9">
+        <section className="w-full max-w-2xl rounded-[28px] border border-amber-300/25 bg-white/[0.045] p-5 shadow-sm sm:p-9">
           <span className="grid size-14 place-items-center rounded-2xl bg-amber-400/10 text-amber-300">
             <AlertTriangle className="size-7" aria-hidden="true" />
           </span>

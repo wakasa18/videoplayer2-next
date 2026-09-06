@@ -46,7 +46,7 @@ export function VideoToolbar({ filters, categories }: { filters: VideoFilters; c
         </div>
       </div>
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
-        <Link href={buildVideoQuery(filters, { favorite: !filters.favorite, page: 1 })} className={`tech-interactive inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold ${filters.favorite ? "border-amber-300/25 bg-amber-400/10 text-amber-200" : "border-white/10 bg-white/[0.04] text-slate-400 hover:bg-white/[0.07]"}`}>
+        <Link href={buildVideoQuery(filters, { favorite: !filters.favorite, page: 1 })} className={`tech-interactive inline-flex min-h-10 flex-1 items-center justify-center gap-2 sm:flex-none rounded-full border px-4 text-sm font-semibold ${filters.favorite ? "border-amber-300/25 bg-amber-400/10 text-amber-200" : "border-white/10 bg-white/[0.04] text-slate-400 hover:bg-white/[0.07]"}`}>
           <Star className={`size-4 ${filters.favorite ? "fill-current" : ""}`} />
           {filters.favorite ? "Showing starred" : "Starred only"}
         </Link>

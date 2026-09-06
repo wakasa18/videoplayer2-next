@@ -56,7 +56,7 @@ export function FolderCard({ folder, filters, index }: FolderCardProps) {
       className={`tech-panel tech-interactive relative flex min-h-28 items-center overflow-hidden rounded-[22px] text-card-foreground transition ${dragOver ? "border-cyan-300/50 bg-cyan-300/[.08] ring-2 ring-cyan-300/25" : ""}`}
       initial={{ opacity: 0, y: 12, scale: 0.985 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay: Math.min(index, 12) * 0.035, duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ delay: Math.min(index, 8) * 0.018, duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
     >
       <Link href={buildFileQuery(filters, { folder: folder.path, page: 1 })} className="group flex min-w-0 flex-1 items-center gap-4 p-4 pr-2">
         <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-cyan-300/20 bg-cyan-400/10 text-cyan-300 transition-transform duration-300 group-hover:scale-105">

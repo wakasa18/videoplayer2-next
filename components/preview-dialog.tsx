@@ -40,7 +40,7 @@ export function PreviewDialog({ file, open, onClose }: PreviewDialogProps) {
       <AnimatePresence>
       {open ? (
         <motion.div
-          className="tech-modal-overlay fixed inset-0 z-[100] grid place-items-center overflow-y-auto p-2 sm:p-5"
+          className="tech-modal-overlay fixed inset-0 z-[100] grid place-items-center overflow-y-auto p-1.5 sm:p-5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -52,7 +52,7 @@ export function PreviewDialog({ file, open, onClose }: PreviewDialogProps) {
             role="dialog"
             aria-modal="true"
             aria-label={`Preview ${file.title}`}
-            className="tech-modal-surface flex max-h-[94dvh] w-full max-w-6xl flex-col overflow-hidden rounded-[1.4rem] border"
+            className="tech-modal-surface flex h-[calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-.75rem)] max-h-none w-full max-w-6xl flex-col overflow-hidden rounded-[1.15rem] border sm:h-auto sm:max-h-[94dvh] sm:rounded-[1.4rem]"
             initial={{ opacity: 0, y: 18, scale: 0.985 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 14, scale: 0.988 }}
