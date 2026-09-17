@@ -5,7 +5,6 @@ import { ensureNextOccurrence } from "@/lib/assignments/automation";
 import {
   assignmentErrorResponse,
   AssignmentRequestError,
-  normalizeCompletedAt,
   requireAssignmentWriteContext,
   sanitizeStatus,
   writeAssignmentAudit,
@@ -30,20 +29,21 @@ export async function POST(request: Request) {
 
     if (action === "status") {
       const status = sanitizeStatus(payload.status);
-      const { data, error } = await client
-        .from("assignments")
-        .update({
+      const completed = status === "done" || status === "submitted";
+      const updatedIds: number[] = [];
+      // Preserve existing completion dates, just like an individual status edit.
+      // Separate conditional updates avoid resetting already completed tasks.
+      for (const preserveDate of completed ? [true, false] : [false]) {
+        let query = client.from("assignments").update({
           status,
-          completed_at: normalizeCompletedAt(status),
+          ...(!preserveDate ? { completed_at: completed ? now : null } : {}),
           updated_at: now,
-        })
-        .in("id", ids)
-        .eq("owner_id", user.id)
-        .is("deleted_at", null)
-        .is("archived_at", null)
-        .select("id");
-      if (error) throw new AssignmentRequestError(error.message, 422);
-      const updatedIds = (data ?? []).map((row) => Number(row.id));
+        }).in("id", ids).eq("owner_id", user.id).is("deleted_at", null).is("archived_at", null);
+        if (completed) query = preserveDate ? query.not("completed_at", "is", null) : query.is("completed_at", null);
+        const { data, error } = await query.select("id");
+        if (error) throw new AssignmentRequestError(error.message, 422);
+        updatedIds.push(...(data ?? []).map((row) => Number(row.id)));
+      }
       let recurrencesCreated = 0;
       if (status === "done" || status === "submitted") {
         for (const assignmentId of updatedIds) {
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
         status,
         recurrences_created: recurrencesCreated,
       });
-      return NextResponse.json({ success: true, count: data?.length ?? 0, recurrencesCreated });
+      return NextResponse.json({ success: true, count: updatedIds.length, recurrencesCreated });
     }
 
     if (action === "archive" || action === "trash" || action === "restore") {

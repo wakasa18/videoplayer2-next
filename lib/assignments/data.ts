@@ -3,7 +3,6 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type {
-  AssignmentAnalytics,
   AssignmentAttachment,
   AssignmentBrowserResult,
   AssignmentCollectionResult,
@@ -13,20 +12,15 @@ import type {
   AssignmentNote,
   AssignmentSubject,
   AssignmentSubtask,
-  AssignmentSummary,
 } from "@/lib/assignments/types";
 import {
-  ACTIVE_ASSIGNMENT_STATUSES,
-  addDays,
   calendarMonthBounds,
-  compareAssignments,
-  currentDateKey,
-  isAssignmentCompleted,
   normalizePriority,
   normalizeStatus,
 } from "@/lib/assignments/utils";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient as createSessionClient } from "@/lib/supabase/server";
+import { applyFilters, buildAnalytics, buildSummary } from "./browser-logic";
 
 const SNAPSHOT_LIMIT = 5001;
 const CHILD_LIMIT = 20_000;
@@ -65,41 +59,47 @@ async function getDataContext(): Promise<DataContext> {
   };
 }
 
+async function loadOwnedAssignments(client: SupabaseClient, userId: string, mode: "active" | "archived" | "recycle"): Promise<RawRow[]> {
+  const rows: RawRow[] = [];
+  // Scope before paging, including when a service-role client bypasses RLS.
+  // Small ranges also respect PostgREST's response-size cap.
+  while (rows.length < SNAPSHOT_LIMIT) {
+    let query = client.from("assignments").select("*").eq("owner_id", userId);
+    if (mode === "recycle") query = query.not("deleted_at", "is", null);
+    else {
+      query = query.is("deleted_at", null);
+      query = mode === "archived" ? query.not("archived_at", "is", null) : query.is("archived_at", null);
+    }
+    const count = Math.min(500, SNAPSHOT_LIMIT - rows.length);
+    const { data, error } = await query
+      .order(mode === "active" ? "created_at" : mode === "recycle" ? "deleted_at" : "archived_at", { ascending: false })
+      .order("id", { ascending: false })
+      .range(rows.length, rows.length + count - 1);
+    if (error) throw new Error(error.message);
+    if (!data?.length) break;
+    rows.push(...data as RawRow[]);
+  }
+  return rows;
+}
+
 export async function getAssignmentsBrowser(
   filters: AssignmentFilters,
 ): Promise<AssignmentBrowserResult> {
   const { client, userId, accessMode } = await getDataContext();
-  const { data, error } = await client
-    .from("assignments")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(SNAPSHOT_LIMIT);
-
-  if (error) {
-    throw new Error(
-      accessMode === "session"
-        ? `${error.message}. Configure SUPABASE_SERVICE_ROLE_KEY or authenticated SELECT policies for the assignments tables.`
-        : error.message,
-    );
-  }
-
-  const allRows = (data ?? []) as RawRow[];
-  const hasOwnerColumn = allRows.some((row) =>
-    Object.prototype.hasOwnProperty.call(row, "owner_id"),
-  );
-  const rawRows = allRows.filter((row) =>
-    hasOwnerColumn ? stringOrNull(row.owner_id) === userId : true,
-  );
+  const rawRows = await loadOwnedAssignments(client, userId, "active");
   const truncated = rawRows.length >= SNAPSHOT_LIMIT;
-  const activeRows = rawRows
-    .slice(0, SNAPSHOT_LIMIT - 1)
-    .filter((row) => !stringOrNull(row.deleted_at) && !stringOrNull(row.archived_at));
+  const activeRows = rawRows.slice(0, SNAPSHOT_LIMIT - 1);
 
   const related = await loadRelatedData(client, userId, activeRows);
   const items = hydrateAssignments(activeRows, related);
-  const summary = buildSummary(items);
-  const analytics = buildAnalytics(items);
-  const filtered = applyFilters(items, filters);
+  const now = new Date();
+  const summary = buildSummary(items, now);
+  const analytics = buildAnalytics(items, now);
+  let filtered = applyFilters(items, filters, now);
+  if (filters.view === "calendar") {
+    const bounds = calendarMonthBounds(filters.month);
+    filtered = filtered.filter((item) => item.due_date && item.due_date >= bounds.start && item.due_date <= bounds.end);
+  }
   const totalResults = filtered.length;
   const totalPages = Math.max(1, Math.ceil(totalResults / filters.perPage));
   const page = Math.min(filters.page, totalPages);
@@ -108,26 +108,14 @@ export async function getAssignmentsBrowser(
   if (filters.view === "list") {
     const start = (page - 1) * filters.perPage;
     assignments = filtered.slice(start, start + filters.perPage);
-  } else if (filters.view === "calendar") {
-    const bounds = calendarMonthBounds(filters.month);
-    assignments = filtered
-      .filter(
-        (assignment) =>
-          assignment.due_date &&
-          assignment.due_date >= bounds.start &&
-          assignment.due_date <= bounds.end,
-      )
-      .slice(0, 1000);
   } else {
     assignments = filtered.slice(0, 1000);
   }
 
-  const legacySingleUserMode = !hasOwnerColumn;
-
   return {
     assignments,
     subjects: related.subjects.filter((subject) => !subject.is_archived),
-    filters,
+    filters: { ...filters, page },
     summary,
     analytics,
     totalResults,
@@ -135,7 +123,7 @@ export async function getAssignmentsBrowser(
     page,
     truncated,
     accessMode,
-    legacySingleUserMode,
+    legacySingleUserMode: false,
     optionalTablesMissing: related.missingTables,
   };
 }
@@ -146,15 +134,15 @@ export async function getAssignmentDetails(id: number): Promise<AssignmentDetail
     .from("assignments")
     .select("*")
     .eq("id", id)
+    .eq("owner_id", userId)
     .maybeSingle();
 
   if (error) throw new Error(error.message);
   if (!data) return null;
 
   const row = data as RawRow;
-  const hasOwnerColumn = Object.prototype.hasOwnProperty.call(row, "owner_id");
   const ownerId = stringOrNull(row.owner_id);
-  if (hasOwnerColumn && ownerId !== userId) return null;
+  if (ownerId !== userId) return null;
   if (stringOrNull(row.deleted_at) || stringOrNull(row.archived_at)) return null;
 
   const related = await loadRelatedData(client, userId, [row]);
@@ -192,22 +180,7 @@ export async function getAssignmentCollection(
   mode: "archived" | "recycle",
 ): Promise<AssignmentCollectionResult> {
   const { client, userId, accessMode } = await getDataContext();
-  const { data, error } = await client
-    .from("assignments")
-    .select("*")
-    .order(mode === "recycle" ? "deleted_at" : "archived_at", { ascending: false })
-    .limit(SNAPSHOT_LIMIT);
-
-  if (error) throw new Error(error.message);
-
-  const rows = ((data ?? []) as RawRow[]).filter((row) => {
-    const hasOwnerColumn = Object.prototype.hasOwnProperty.call(row, "owner_id");
-    const ownerId = stringOrNull(row.owner_id);
-    if (hasOwnerColumn && ownerId !== userId) return false;
-    const deletedAt = stringOrNull(row.deleted_at);
-    const archivedAt = stringOrNull(row.archived_at);
-    return mode === "recycle" ? Boolean(deletedAt) : Boolean(archivedAt) && !deletedAt;
-  });
+  const rows = await loadOwnedAssignments(client, userId, mode);
 
   const related = await loadRelatedData(client, userId, rows);
   return {
@@ -226,6 +199,7 @@ export async function getAssignmentSubjects(): Promise<AssignmentSubject[]> {
     "assignment_subjects",
     "id,owner_id,name,code,instructor,color,schedule,semester,is_archived",
     missingTables,
+    userId,
   );
 
   return rows
@@ -259,6 +233,7 @@ async function loadRelatedData(
     "assignment_subjects",
     "id,owner_id,name,code,instructor,color,schedule,semester,is_archived",
     missingTables,
+    userId,
   );
   const subjects = subjectsResult
     .filter((row) => {
@@ -327,6 +302,8 @@ async function loadRelatedData(
     const { data, error } = await client
       .from("important_files")
       .select("id,owner_id,title,original_filename,mime_type,file_size,status")
+      .eq("owner_id", userId)
+      .eq("status", "active")
       .in("id", fileIds)
       .limit(CHILD_LIMIT);
     if (!error) {
@@ -354,8 +331,9 @@ async function safeSelect(
   table: string,
   columns: string,
   missingTables: string[],
+  userId: string,
 ): Promise<RawRow[]> {
-  const { data, error } = await client.from(table).select(columns).limit(CHILD_LIMIT);
+  const { data, error } = await client.from(table).select(columns).eq("owner_id", userId).limit(CHILD_LIMIT);
   if (error) {
     if (isMissingTableOrColumn(error.message, error.code)) {
       if (!missingTables.includes(table)) missingTables.push(table);
@@ -373,19 +351,29 @@ async function safeSelectByAssignmentIds(
   assignmentIds: number[],
   missingTables: string[],
 ): Promise<RawRow[]> {
-  const { data, error } = await client
-    .from(table)
-    .select(columns)
-    .in("assignment_id", assignmentIds)
-    .limit(CHILD_LIMIT);
-  if (error) {
-    if (isMissingTableOrColumn(error.message, error.code)) {
-      if (!missingTables.includes(table)) missingTables.push(table);
-      return [];
+  const rows: RawRow[] = [];
+  // Avoid oversized URLs when the assignment snapshot contains many IDs.
+  for (let start = 0; start < assignmentIds.length && rows.length < CHILD_LIMIT; start += 100) {
+    let offset = 0;
+    while (rows.length < CHILD_LIMIT) {
+      const count = Math.min(500, CHILD_LIMIT - rows.length);
+      const { data, error } = await client.from(table).select(columns)
+        .in("assignment_id", assignmentIds.slice(start, start + 100))
+        .order("assignment_id").order(table === "assignment_file_links" ? "important_file_id" : "id")
+        .range(offset, offset + count - 1);
+      if (error) {
+        if (isMissingTableOrColumn(error.message, error.code)) {
+          if (!missingTables.includes(table)) missingTables.push(table);
+          return [];
+        }
+        throw new Error(error.message);
+      }
+      if (!data?.length) break;
+      rows.push(...data as unknown as RawRow[]);
+      offset += data.length;
     }
-    throw new Error(error.message);
   }
-  return (data ?? []) as unknown as RawRow[];
+  return rows;
 }
 
 function hydrateAssignments(rows: RawRow[], related: RelatedData): AssignmentItem[] {
@@ -464,110 +452,6 @@ function hydrateAssignments(rows: RawRow[], related: RelatedData): AssignmentIte
   });
 }
 
-function applyFilters(items: AssignmentItem[], filters: AssignmentFilters): AssignmentItem[] {
-  const today = currentDateKey();
-  const weekEnd = addDays(today, 7);
-  const query = filters.q.toLocaleLowerCase();
-
-  return items
-    .filter((item) => !query || item.search_text.includes(query))
-    .filter((item) => !filters.status || item.status === filters.status)
-    .filter((item) => !filters.priority || item.priority === filters.priority)
-    .filter((item) => filters.subjectId <= 0 || item.subject_id === filters.subjectId)
-    .filter((item) => {
-      if (filters.tab === "today") {
-        return item.due_date === today && ACTIVE_ASSIGNMENT_STATUSES.includes(item.status);
-      }
-      if (filters.tab === "upcoming") {
-        return Boolean(
-          item.due_date &&
-            item.due_date > today &&
-            item.due_date <= weekEnd &&
-            ACTIVE_ASSIGNMENT_STATUSES.includes(item.status),
-        );
-      }
-      if (filters.tab === "overdue") {
-        return Boolean(
-          item.due_date &&
-            item.due_date < today &&
-            ACTIVE_ASSIGNMENT_STATUSES.includes(item.status),
-        );
-      }
-      if (filters.tab === "no_deadline") {
-        return !item.due_date && ACTIVE_ASSIGNMENT_STATUSES.includes(item.status);
-      }
-      if (filters.tab === "completed") return isAssignmentCompleted(item.status);
-      return true;
-    })
-    .sort((a, b) => compareAssignments(a, b, filters.sort));
-}
-
-function buildSummary(items: AssignmentItem[]): AssignmentSummary {
-  const today = currentDateKey();
-  const weekEnd = addDays(today, 7);
-  return {
-    all: items.length,
-    today: items.filter(
-      (item) => item.due_date === today && ACTIVE_ASSIGNMENT_STATUSES.includes(item.status),
-    ).length,
-    upcoming: items.filter(
-      (item) =>
-        item.due_date &&
-        item.due_date > today &&
-        item.due_date <= weekEnd &&
-        ACTIVE_ASSIGNMENT_STATUSES.includes(item.status),
-    ).length,
-    overdue: items.filter(
-      (item) =>
-        item.due_date &&
-        item.due_date < today &&
-        ACTIVE_ASSIGNMENT_STATUSES.includes(item.status),
-    ).length,
-    noDeadline: items.filter(
-      (item) => !item.due_date && ACTIVE_ASSIGNMENT_STATUSES.includes(item.status),
-    ).length,
-    completed: items.filter((item) => isAssignmentCompleted(item.status)).length,
-    active: items.filter((item) => ACTIVE_ASSIGNMENT_STATUSES.includes(item.status)).length,
-  };
-}
-
-function buildAnalytics(items: AssignmentItem[]): AssignmentAnalytics {
-  const now = new Date();
-  const philippinesNow = new Date(
-    now.toLocaleString("en-US", { timeZone: "Asia/Manila" }),
-  );
-  const day = philippinesNow.getDay();
-  const mondayOffset = day === 0 ? -6 : 1 - day;
-  const monday = new Date(philippinesNow);
-  monday.setHours(0, 0, 0, 0);
-  monday.setDate(monday.getDate() + mondayOffset);
-  const monthStart = new Date(philippinesNow.getFullYear(), philippinesNow.getMonth(), 1);
-  const completed = items.filter((item) => item.completed_at);
-  const completedWeek = completed.filter((item) => dateValue(item.completed_at) >= monday.getTime()).length;
-  const completedMonth = completed.filter((item) => dateValue(item.completed_at) >= monthStart.getTime()).length;
-  const completedWithDeadline = completed.filter((item) => item.due_date);
-  const onTime = completedWithDeadline.filter((item) => {
-    const due = Date.parse(`${item.due_date}T${item.due_time || "23:59"}:00+08:00`);
-    return dateValue(item.completed_at) <= due;
-  }).length;
-
-  const workload = new Map<string, number>();
-  items
-    .filter((item) => ACTIVE_ASSIGNMENT_STATUSES.includes(item.status))
-    .forEach((item) => workload.set(item.subject_name, (workload.get(item.subject_name) ?? 0) + 1));
-  const topSubjectEntry = [...workload.entries()].sort((a, b) => b[1] - a[1])[0];
-
-  return {
-    completedWeek,
-    completedMonth,
-    onTimePercent: completedWithDeadline.length
-      ? Math.round((onTime / completedWithDeadline.length) * 100)
-      : 0,
-    topSubject: topSubjectEntry?.[0] ?? "None",
-    topSubjectCount: topSubjectEntry?.[1] ?? 0,
-  };
-}
-
 function normalizeSubject(row: RawRow): AssignmentSubject {
   return {
     id: numberValue(row.id),
@@ -626,11 +510,6 @@ function timeOnly(value: unknown): string | null {
 function normalizeColor(value: unknown): string {
   const text = stringValue(value);
   return /^#[0-9a-f]{6}$/i.test(text) ? text : "#1a73e8";
-}
-function dateValue(value: string | null): number {
-  if (!value) return 0;
-  const parsed = Date.parse(value.includes("T") ? value : value.replace(" ", "T") + "Z");
-  return Number.isNaN(parsed) ? 0 : parsed;
 }
 
 function normalizeRecurrenceValue(value: unknown): import("@/lib/assignments/types").AssignmentRecurrence | null {

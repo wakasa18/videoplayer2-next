@@ -73,7 +73,9 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
   const { filters } = result;
   const [creating, setCreating] = useState(false);
   const [managingSubjects, setManagingSubjects] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selection, setSelectedIds] = useState<number[]>([]);
+  const visibleIds = new Set(result.assignments.map((item) => item.id));
+  const selectedIds = selection.filter((id) => visibleIds.has(id));
   const [bulkBusy, setBulkBusy] = useState(false);
   const filtered = Boolean(
     filters.q ||
@@ -162,8 +164,8 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
 
       {result.truncated ? (
         <Notice>
-          The page loaded the first 5,000 assignment records. Database-side pagination
-          will replace this snapshot in a later optimization phase.
+          Showing the latest 5,000 active assignments. Counts and search cover this
+          loaded set; archive completed work to reduce it.
         </Notice>
       ) : null}
 
@@ -207,6 +209,7 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
         >
           <input type="hidden" name="view" value={filters.view} />
           <input type="hidden" name="tab" value={filters.tab} />
+          <input type="hidden" name="per_page" value={filters.perPage} />
           {filters.view === "calendar" ? (
             <input type="hidden" name="month" value={filters.month} />
           ) : null}
@@ -363,11 +366,15 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
         </div>
       ) : null}
 
-      {result.assignments.length > 0 ? (
+      {filters.view !== "list" && result.totalResults > result.assignments.length ? (
+        <Notice>Showing {result.assignments.length} of {result.totalResults} matching assignments. Narrow the filters or use List view to see the remaining results.</Notice>
+      ) : null}
+
+      {filters.view === "calendar" ? (
+        <AssignmentCalendar assignments={result.assignments} filters={filters} />
+      ) : result.assignments.length > 0 ? (
         filters.view === "board" ? (
           <AssignmentBoard assignments={result.assignments} />
-        ) : filters.view === "calendar" ? (
-          <AssignmentCalendar assignments={result.assignments} filters={filters} />
         ) : (
           <section className="space-y-3">
             {result.assignments.map((assignment, index) => (
@@ -393,7 +400,7 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
               No matching assignments
             </h2>
             <p className="mt-2 text-sm leading-6 text-slate-400">
-              Clear a filter, change the selected tab, or try another search term.
+              {filtered ? "Clear a filter, change the selected tab, or try another search term." : "Create your first assignment to start tracking your work."}
             </p>
           </div>
         </div>
@@ -403,9 +410,6 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
         <Pagination result={result} />
       ) : null}
 
-      <p className="text-center text-xs text-slate-500">
-        Data access: {result.accessMode === "service-role" ? "private owner service" : "owner-authenticated access"}
-      </p>
       <AssignmentEditorDialog open={creating} assignment={null} subjects={result.subjects} onClose={() => setCreating(false)} />
       <SubjectManagerDialog open={managingSubjects} initialSubjects={result.subjects} onClose={() => setManagingSubjects(false)} />
     </main>
@@ -524,6 +528,7 @@ function Pagination({ result }: { result: AssignmentBrowserResult }) {
         <Link
           href={buildAssignmentQuery(result.filters, { page: previous })}
           aria-disabled={result.page <= 1}
+          tabIndex={result.page <= 1 ? -1 : undefined}
           className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
             result.page <= 1
               ? "pointer-events-none border-white/10 text-slate-500"
@@ -536,6 +541,7 @@ function Pagination({ result }: { result: AssignmentBrowserResult }) {
         <Link
           href={buildAssignmentQuery(result.filters, { page: next })}
           aria-disabled={result.page >= result.totalPages}
+          tabIndex={result.page >= result.totalPages ? -1 : undefined}
           className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
             result.page >= result.totalPages
               ? "pointer-events-none border-white/10 text-slate-500"

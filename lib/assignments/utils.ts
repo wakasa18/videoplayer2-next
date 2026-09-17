@@ -74,13 +74,13 @@ export function normalizePriority(value: unknown): AssignmentPriority {
     : "medium";
 }
 
-export function currentDateKey(): string {
+export function currentDateKey(now = new Date()): string {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: "Asia/Manila",
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }).formatToParts(new Date());
+  }).formatToParts(now);
   const year = parts.find((part) => part.type === "year")?.value ?? "1970";
   const month = parts.find((part) => part.type === "month")?.value ?? "01";
   const day = parts.find((part) => part.type === "day")?.value ?? "01";
@@ -179,12 +179,16 @@ export function isAssignmentCompleted(status: AssignmentStatus): boolean {
   return status === "submitted" || status === "done";
 }
 
-export function isAssignmentOverdue(assignment: AssignmentItem): boolean {
-  return Boolean(
-    assignment.due_date &&
-      assignment.due_date < currentDateKey() &&
-      !isAssignmentCompleted(assignment.status),
-  );
+export function assignmentDeadline(assignment: Pick<AssignmentItem, "due_date" | "due_time">): number | null {
+  if (!assignment.due_date) return null;
+  // Date-only tasks remain on time through the end of the Philippine day.
+  const time = assignment.due_time ? `${assignment.due_time.slice(0, 5)}:00` : "23:59:59.999";
+  return Date.parse(`${assignment.due_date}T${time}+08:00`);
+}
+
+export function isAssignmentOverdue(assignment: AssignmentItem, now = new Date()): boolean {
+  const deadline = assignmentDeadline(assignment);
+  return deadline !== null && deadline < now.getTime() && !isAssignmentCompleted(assignment.status);
 }
 
 export function formatAssignmentDue(

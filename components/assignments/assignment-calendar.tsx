@@ -131,9 +131,14 @@ export function AssignmentCalendar({
                       </Link>
                     ))}
                     {dayAssignments.length > 3 ? (
-                      <span className="block px-1 text-[11px] font-semibold text-slate-400">
-                        +{dayAssignments.length - 3} more
-                      </span>
+                      <details className="px-1 text-[11px] font-semibold text-slate-400">
+                        <summary className="cursor-pointer py-1">+{dayAssignments.length - 3} more</summary>
+                        {dayAssignments.slice(3).map((assignment) => (
+                          <Link key={assignment.id} href={`/dashboard/assignments/${assignment.id}`} className="mt-1 block truncate rounded-lg bg-white/[0.045] p-2 text-slate-200" title={assignment.title}>
+                            {assignment.due_time ? `${assignment.due_time} ` : ""}{assignment.title}
+                          </Link>
+                        ))}
+                      </details>
                     ) : null}
                   </div>
                 </motion.div>

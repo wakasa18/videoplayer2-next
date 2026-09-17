@@ -2,7 +2,7 @@ import { AlertTriangle, ClipboardList } from "@/components/ui/icons";
 
 import { AssignmentBrowser } from "@/components/assignments/assignment-browser";
 import { getAssignmentsBrowser } from "@/lib/assignments/data";
-import { parseAssignmentFilters } from "@/lib/assignments/utils";
+import { buildAssignmentQuery, parseAssignmentFilters } from "@/lib/assignments/utils";
 
 type AssignmentsPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -33,13 +33,13 @@ export default async function AssignmentsPage({ searchParams }: AssignmentsPageP
             Assignment workspace
           </p>
           <h1 className="mt-2 text-2xl font-semibold text-slate-100">
-            Assignments needs server access
+            Assignments could not load
           </h1>
           <p className="mt-3 text-sm leading-6 text-slate-400">{message}</p>
           <div className="mt-5 flex items-start gap-3 rounded-2xl bg-white/[0.035] p-4 text-sm leading-6 text-slate-200">
             <ClipboardList className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
             <p>
-              Confirm <code>SUPABASE_SERVICE_ROLE_KEY</code> is configured. Run <code>assignments_complete_upgrade.sql</code> first, then <code>phase5b_assignment_management.sql</code> to enable owner-secured assignment management.
+              Check the connection and database setup. Run <code>assignments_complete_upgrade.sql</code> first, then <code>phase5b_assignment_management.sql</code> to enable owner-secured assignment management. Access requires an authenticated session with the appropriate policies, or a configured service-role key.
             </p>
           </div>
         </section>
@@ -47,5 +47,5 @@ export default async function AssignmentsPage({ searchParams }: AssignmentsPageP
     );
   }
 
-  return <AssignmentBrowser result={result} />;
+  return <AssignmentBrowser key={buildAssignmentQuery(result.filters, {})} result={result} />;
 }

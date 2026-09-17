@@ -6,7 +6,7 @@ import { ModalPortal } from "@/components/ui/modal-portal";
 import { AnimatePresence, motion } from "motion/react";
 import { Check, ClipboardPlus, FileText, Loader2, Paperclip, Search, X } from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 import type {
   AssignmentItem,
@@ -25,6 +25,7 @@ export function AssignmentEditorDialog({
   onClose: () => void;
 }) {
   const router = useRouter();
+  const savedAssignmentId = useRef<number | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -46,6 +47,7 @@ export function AssignmentEditorDialog({
 
   useEffect(() => {
     if (!open) return;
+    savedAssignmentId.current = assignment?.id ?? null;
     setTitle(assignment?.title ?? "");
     setDescription(assignment?.description ?? "");
     setDueDate(assignment?.due_date ?? "");
@@ -81,13 +83,14 @@ export function AssignmentEditorDialog({
     setSubmitting(true);
     setError("");
     try {
+      const existingId = assignment?.id ?? savedAssignmentId.current;
       const response = await fetch(
-        assignment ? `/api/assignments/${assignment.id}` : "/api/assignments",
+        existingId ? `/api/assignments/${existingId}` : "/api/assignments",
         {
-          method: assignment ? "PATCH" : "POST",
+          method: existingId ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            ...(assignment ? { action: "metadata" } : {}),
+            ...(existingId ? { action: "metadata" } : {}),
             title,
             description,
             dueDate,
@@ -105,10 +108,14 @@ export function AssignmentEditorDialog({
       );
       const payload = await response.json() as { id?: number; error?: string };
       if (!response.ok) throw new Error(payload.error ?? "The assignment could not be saved.");
-      const assignmentId = assignment?.id ?? Number(payload.id);
+      const assignmentId = existingId ?? Number(payload.id);
+      savedAssignmentId.current = assignmentId;
       if (assignmentId && selectedFileIds.length) {
         const results = await Promise.all(selectedFileIds.map((fileId) => fetch(`/api/assignments/${assignmentId}/files`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fileId }) })));
-        if (results.some((item) => !item.ok)) throw new Error("The assignment was saved, but one or more file attachments could not be linked.");
+        if (results.some((item) => !item.ok)) {
+          router.refresh();
+          throw new Error("The assignment was saved, but some attachments failed. Retry to link them to the same assignment.");
+        }
       }
       onClose();
       router.refresh();
