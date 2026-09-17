@@ -275,7 +275,7 @@ export function AssignmentProductivityCenter({
             />
             <ToggleRow
               label="Email reminders"
-              description="Send scheduled assignment reminders and enabled daily summaries to your email."
+              description="Send scheduled assignment and note reminders, plus enabled daily assignment summaries, to your email."
               checked={preferences.email_enabled}
               onChange={(checked) => {
                 setPreferences((value) => ({ ...value, email_enabled: checked }));
@@ -297,7 +297,7 @@ export function AssignmentProductivityCenter({
                     {data.emailService.configured
                       ? data.emailService.sender
                         ? `Sender: ${data.emailService.sender}`
-                        : "The existing assignment email webhook will be used."
+                        : "The existing reminder email webhook will be used."
                       : "Add GMAIL_SMTP_USER and GMAIL_SMTP_APP_PASSWORD to the Vercel environment variables."}
                   </p>
                 </div>
@@ -379,13 +379,15 @@ export function AssignmentProductivityCenter({
                     </div>
                     {notification.assignment_id ? (
                       <Link href={`/dashboard/assignments/${notification.assignment_id}`} className="text-xs font-semibold text-primary hover:underline">Open</Link>
+                    ) : notification.note_id ? (
+                      <Link href={`/dashboard/notes?note=${notification.note_id}`} className="text-xs font-semibold text-primary hover:underline">Open</Link>
                     ) : null}
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <EmptyState icon={BellRing} title="No reminders created" copy="Run automation after adding deadlines to create reminder notifications." />
+            <EmptyState icon={BellRing} title="No reminders created" copy="Assignment and note reminders created by automation will appear here." />
           )}
         </div>
 
@@ -410,7 +412,7 @@ export function AssignmentProductivityCenter({
               ))}
             </div>
           ) : (
-            <EmptyState icon={RefreshCw} title="No automation runs" copy="Use Run reminders now or deploy the included Vercel Cron configuration." />
+            <EmptyState icon={RefreshCw} title="No automation runs" copy="Use Run reminders now or configure the included Supabase Cron schedule." />
           )}
         </div>
       </section>

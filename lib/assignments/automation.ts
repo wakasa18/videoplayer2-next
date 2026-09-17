@@ -5,6 +5,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   sendAssignmentDigestEmail,
   sendAssignmentReminderEmail,
+  sendNoteReminderEmail,
 } from "@/lib/assignments/email";
 import type {
   AssignmentRecurrence,
@@ -52,6 +53,17 @@ type NotificationPreferenceRow = {
   daily_digest_enabled: boolean;
   digest_time: string;
   timezone: string;
+};
+
+type WorkspaceNoteReminderRow = {
+  id: number;
+  owner_id: string;
+  title: string;
+  content?: string | null;
+  reminder_at: string;
+  reminder_sent_at?: string | null;
+  archived_at?: string | null;
+  deleted_at?: string | null;
 };
 
 export type AssignmentAutomationResult = {
@@ -297,7 +309,33 @@ export async function processAssignmentAutomation(
   const { data: reminderRows, error: reminderError } = await reminderQuery;
   if (reminderError) result.errors.push(reminderError.message);
 
-  const ownerIds = Array.from(new Set((reminderRows ?? []).map((row) => String(row.owner_id))));
+  let noteReminderRows: WorkspaceNoteReminderRow[] = [];
+  let noteReminderQuery = client
+    .from("workspace_notes")
+    .select("id,owner_id,title,content,reminder_at,reminder_sent_at,archived_at,deleted_at")
+    .not("reminder_at", "is", null)
+    .is("reminder_sent_at", null)
+    .is("archived_at", null)
+    .is("deleted_at", null)
+    .limit(AUTOMATION_LIMIT);
+  if (options.ownerId) noteReminderQuery = noteReminderQuery.eq("owner_id", options.ownerId);
+  const { data: noteRows, error: noteReminderError } = await noteReminderQuery;
+  if (noteReminderError) {
+    // Notes can be deployed after the existing assignment automation. Until the
+    // migration is applied, keep assignment reminders healthy.
+    if (noteReminderError.code !== "42P01" && noteReminderError.code !== "42703") {
+      result.errors.push(noteReminderError.message);
+    }
+  } else {
+    noteReminderRows = (noteRows ?? []) as WorkspaceNoteReminderRow[];
+  }
+
+  const ownerIds = Array.from(
+    new Set([
+      ...(reminderRows ?? []).map((row) => String(row.owner_id)),
+      ...noteReminderRows.map((row) => String(row.owner_id)),
+    ]),
+  );
   const preferences = await loadPreferences(client, ownerIds);
   const subjectLabels = await loadSubjectLabels(client, (reminderRows ?? []) as AssignmentRow[]);
   const now = new Date();
@@ -402,6 +440,69 @@ export async function processAssignmentAutomation(
     }
   }
 
+  for (const note of noteReminderRows) {
+    try {
+      const reminderAt = new Date(note.reminder_at);
+      if (Number.isNaN(reminderAt.getTime()) || reminderAt.getTime() > now.getTime()) continue;
+
+      const preference = preferences.get(note.owner_id);
+      const inAppEnabled = preference?.in_app_enabled !== false;
+      const browserEnabled = Boolean(preference?.browser_enabled);
+      const emailEnabled = Boolean(preference?.email_enabled && preference.email_address);
+      if (!inAppEnabled && !browserEnabled && !emailEnabled) continue;
+
+      const reminderKey = reminderAt.toISOString();
+      const dedupeKey = `note-reminder:${note.id}:${reminderKey}`;
+      const created = await createNotification(client, {
+        ownerId: note.owner_id,
+        assignmentId: null,
+        noteId: note.id,
+        eventType: "note_reminder",
+        title: "Note reminder",
+        message: note.title,
+        dedupeKey,
+      });
+      if (created && inAppEnabled) result.remindersCreated += 1;
+
+      let emailDelivered = !emailEnabled;
+      if (emailEnabled && preference?.email_address) {
+        const previousEmail = await getNotificationEmailedAt(client, note.owner_id, dedupeKey);
+        if (previousEmail) {
+          emailDelivered = true;
+        } else {
+          await markNotificationEmailAttempt(client, note.owner_id, dedupeKey);
+          const emailResult = await sendNoteReminderEmail({
+            email: preference.email_address,
+            ownerId: note.owner_id,
+            noteId: note.id,
+            title: note.title,
+            content: note.content ?? null,
+            reminderAt: reminderAt.toISOString(),
+          });
+          if (emailResult.ok) {
+            emailDelivered = true;
+            result.emailsRequested += 1;
+            await markNotificationEmailed(client, note.owner_id, dedupeKey, now.toISOString());
+          } else {
+            await markNotificationEmailFailed(client, note.owner_id, dedupeKey, emailResult.error ?? "Unknown email error.");
+            result.errors.push(`Email note reminder for "${note.title}" failed: ${emailResult.error ?? "Unknown email error."}`);
+          }
+        }
+      }
+
+      if (emailDelivered) {
+        const { error: updateError } = await client
+          .from("workspace_notes")
+          .update({ reminder_sent_at: now.toISOString(), updated_at: now.toISOString() })
+          .eq("id", note.id)
+          .eq("owner_id", note.owner_id);
+        if (updateError) throw new Error(updateError.message);
+      }
+    } catch (error) {
+      result.errors.push(error instanceof Error ? error.message : "Note reminder processing failed.");
+    }
+  }
+
   await createDailyDigests(client, reminderRows ?? [], preferences, result);
 
   await client.from("assignment_automation_runs").insert({
@@ -467,21 +568,24 @@ async function createNotification(
   input: {
     ownerId: string;
     assignmentId: number | null;
-    eventType: "reminder" | "overdue" | "recurrence" | "digest" | "system";
+    noteId?: number | null;
+    eventType: "reminder" | "overdue" | "recurrence" | "digest" | "system" | "note_reminder";
     title: string;
     message: string;
     dedupeKey: string;
   },
 ): Promise<boolean> {
-  const { error } = await client.from("assignment_notifications").insert({
+  const row = {
     owner_id: input.ownerId,
     assignment_id: input.assignmentId,
+    ...(input.noteId ? { note_id: input.noteId } : {}),
     event_type: input.eventType,
     title: input.title.slice(0, 255),
     message: input.message,
     dedupe_key: input.dedupeKey.slice(0, 255),
     created_at: new Date().toISOString(),
-  });
+  };
+  const { error } = await client.from("assignment_notifications").insert(row);
   if (!error) return true;
   if (error.code === "23505") return false;
   throw new Error(error.message);

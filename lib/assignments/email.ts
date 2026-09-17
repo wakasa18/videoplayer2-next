@@ -147,6 +147,62 @@ export async function sendAssignmentReminderEmail(
   });
 }
 
+export async function sendNoteReminderEmail(input: {
+  email: string;
+  ownerId: string;
+  noteId: number;
+  title: string;
+  content?: string | null;
+  reminderAt: string;
+}): Promise<AssignmentEmailResult> {
+  const appUrl = appBaseUrl();
+  const noteUrl = appUrl ? `${appUrl}/dashboard/notes?note=${input.noteId}` : null;
+  const notesUrl = appUrl ? `${appUrl}/dashboard/notes` : null;
+  const reminderLabel = formatDateTime(input.reminderAt);
+  const subject = `Note reminder: ${input.title}`;
+  const excerpt = input.content ? truncateText(input.content, 700) : null;
+
+  return sendAssignmentEmail({
+    to: input.email,
+    subject,
+    text: [
+      "NOTE REMINDER",
+      input.title,
+      excerpt,
+      `Reminder scheduled: ${reminderLabel}`,
+      noteUrl ? `Open note: ${noteUrl}` : null,
+      notesUrl ? `All notes: ${notesUrl}` : null,
+      "Sent by Damon's Archive · Notes",
+    ]
+      .filter(Boolean)
+      .join("\n\n"),
+    html: assignmentReminderHtml({
+      title: input.title,
+      message: excerpt || "You scheduled a reminder for this note.",
+      dueLabel: reminderLabel,
+      timingLabel: "Note reminder",
+      reminderLabel,
+      description: null,
+      subject: "Notes",
+      priority: null,
+      status: "Reminder",
+      overdue: false,
+      actionUrl: noteUrl,
+      assignmentsUrl: notesUrl,
+    }),
+    webhookPayload: {
+      type: "note_reminder",
+      email: input.email,
+      ownerId: input.ownerId,
+      noteId: input.noteId,
+      title: input.title,
+      content: excerpt,
+      reminderAt: input.reminderAt,
+      noteUrl,
+    },
+  });
+}
+
 export async function sendAssignmentDigestEmail(
   input: DigestEmailInput,
 ): Promise<AssignmentEmailResult> {

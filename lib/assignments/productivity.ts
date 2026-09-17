@@ -132,26 +132,58 @@ async function loadNotifications(
   userId: string,
   limit: number,
 ): Promise<AssignmentNotification[]> {
-  const { data, error } = await client
+  const extendedColumns =
+    "id,assignment_id,note_id,event_type,title,message,read_at,emailed_at,created_at,assignments(title,due_date,due_time),workspace_notes(title,reminder_at)";
+  const legacyColumns =
+    "id,assignment_id,event_type,title,message,read_at,emailed_at,created_at,assignments(title,due_date,due_time)";
+
+  const extendedResult = await client
     .from("assignment_notifications")
-    .select(
-      "id,assignment_id,event_type,title,message,read_at,emailed_at,created_at,assignments(title,due_date,due_time)",
-    )
+    .select(extendedColumns)
     .eq("owner_id", userId)
     .order("created_at", { ascending: false })
     .limit(limit);
-  if (error) {
-    if (error.code === "42P01") return [];
-    throw new Error(error.message);
+
+  let rows: Array<Record<string, unknown>> = [];
+  let queryError: { code?: string; message: string } | null = extendedResult.error;
+
+  if (
+    extendedResult.error &&
+    (extendedResult.error.code === "42P01" ||
+      extendedResult.error.code === "42703" ||
+      extendedResult.error.code === "PGRST200")
+  ) {
+    const legacyResult = await client
+      .from("assignment_notifications")
+      .select(legacyColumns)
+      .eq("owner_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    queryError = legacyResult.error;
+    rows = (legacyResult.data ?? []) as Array<Record<string, unknown>>;
+  } else {
+    rows = (extendedResult.data ?? []) as Array<Record<string, unknown>>;
   }
 
-  return (data ?? []).map((row) => {
-    const assignment = Array.isArray(row.assignments)
-      ? row.assignments[0]
-      : row.assignments;
+  if (queryError) {
+    if (queryError.code === "42P01") return [];
+    throw new Error(queryError.message);
+  }
+
+  return rows.map((row) => {
+    const assignmentRelation = row.assignments;
+    const assignment = Array.isArray(assignmentRelation)
+      ? (assignmentRelation[0] as Record<string, unknown> | undefined)
+      : (assignmentRelation as Record<string, unknown> | null | undefined);
+    const noteRelation = row.workspace_notes;
+    const note = Array.isArray(noteRelation)
+      ? (noteRelation[0] as Record<string, unknown> | undefined)
+      : (noteRelation as Record<string, unknown> | null | undefined);
+
     return {
       id: Number(row.id),
       assignment_id: row.assignment_id ? Number(row.assignment_id) : null,
+      note_id: row.note_id ? Number(row.note_id) : null,
       event_type: row.event_type as AssignmentNotification["event_type"],
       title: String(row.title),
       message: String(row.message),
@@ -161,6 +193,8 @@ async function loadNotifications(
       assignment_title: assignment?.title ? String(assignment.title) : null,
       due_date: assignment?.due_date ? String(assignment.due_date) : null,
       due_time: assignment?.due_time ? String(assignment.due_time).slice(0, 5) : null,
+      note_title: note?.title ? String(note.title) : null,
+      note_reminder_at: note?.reminder_at ? String(note.reminder_at) : null,
     };
   });
 }

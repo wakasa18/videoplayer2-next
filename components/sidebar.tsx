@@ -3,7 +3,7 @@
 import {
   Activity, BadgeCheck, Boxes, ChevronDown, ClipboardList, FileClock,
   FlaskConical, FolderOpen, History, Home, Link2, PanelLeftClose,
-  PanelLeftOpen, Rocket, Settings, ShieldCheck, Sparkles,
+  PanelLeftOpen, Rocket, Settings, ShieldCheck, Sparkles, StickyNote,
   Upload, Video, Wrench, X,
 } from "@/components/ui/icons";
 import Link from "next/link";
@@ -20,6 +20,7 @@ const workspaceLinks: NavigationLink[] = [
   { href: "/dashboard/files", label: "Important files", icon: FolderOpen, lordicon: "files" },
   { href: "/dashboard/videos", label: "Video library", icon: Video, lordicon: "video" },
   { href: "/dashboard/assignments", label: "Assignments", icon: ClipboardList, lordicon: "assignments" },
+  { href: "/dashboard/notes", label: "Notes", icon: StickyNote, lordicon: "notes" },
 ];
 const organizeLinks: NavigationLink[] = [
   { href: "/dashboard/files/recent", label: "Recent files", icon: FileClock, lordicon: "recent" },
@@ -51,7 +52,9 @@ export function Sidebar({ mobile = false, onNavigate, quickModule = "files", col
   const reduceMotion = useReducedMotion();
   const isCompact = collapsed && !mobile;
   const operationsActive = operationsLinks.some(({ href }) => pathname.startsWith(href));
-  const quickAction = pathname.startsWith("/dashboard/videos") || (pathname === "/dashboard" && quickModule === "videos")
+  const quickAction = pathname.startsWith("/dashboard/notes")
+    ? { href: "/dashboard/notes?new=1", label: "New note", icon: StickyNote }
+    : pathname.startsWith("/dashboard/videos") || (pathname === "/dashboard" && quickModule === "videos")
       ? { href: "/dashboard/videos", label: "Open video library", icon: Video }
       : pathname.startsWith("/dashboard/assignments") || (pathname === "/dashboard" && quickModule === "assignments")
         ? { href: "/dashboard/assignments", label: "Open assignments", icon: ClipboardList }

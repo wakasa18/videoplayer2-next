@@ -138,6 +138,9 @@ function pageDetails(pathname: string) {
   if (pathname.startsWith("/dashboard/assignments/reminders")) {
     return { title: "Reminder History", searchAction: "/dashboard/assignments", searchLabel: "Search assignments" };
   }
+  if (pathname.startsWith("/dashboard/notes")) {
+    return { title: "Notes", searchAction: "/dashboard/notes", searchLabel: "Search notes" };
+  }
   if (pathname.startsWith("/dashboard/security")) {
     return { title: "Security Center", searchAction: "/dashboard/files", searchLabel: "Search Important Files" };
   }

@@ -190,7 +190,8 @@ export type AssignmentTemplate = {
 export type AssignmentNotification = {
   id: number;
   assignment_id: number | null;
-  event_type: "reminder" | "overdue" | "recurrence" | "digest" | "system";
+  note_id: number | null;
+  event_type: "reminder" | "overdue" | "recurrence" | "digest" | "system" | "note_reminder";
   title: string;
   message: string;
   read_at: string | null;
@@ -199,6 +200,8 @@ export type AssignmentNotification = {
   assignment_title: string | null;
   due_date: string | null;
   due_time: string | null;
+  note_title: string | null;
+  note_reminder_at: string | null;
 };
 
 export type AssignmentNotificationPreferences = {

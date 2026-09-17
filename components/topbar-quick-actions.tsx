@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react"
 
-import { FolderOpen, FolderPlus, Plus, Upload, Video, Wrench } from "@/components/ui/icons"
+import { FolderOpen, FolderPlus, Plus, StickyNote, Upload, Video, Wrench } from "@/components/ui/icons"
 import { usePathname, useRouter } from "next/navigation"
 
 import {
@@ -65,6 +65,10 @@ export function TopBarQuickActions() {
           <FloatingPanelButton onClick={() => navigate("/dashboard/tools")}>
             <ActionIcon><Wrench className="size-4" /></ActionIcon>
             <ActionCopy title="Archive Tools" detail="Convert, edit, and manage files" />
+          </FloatingPanelButton>
+          <FloatingPanelButton onClick={() => navigate("/dashboard/notes?new=1")}>
+            <ActionIcon><StickyNote className="size-4" /></ActionIcon>
+            <ActionCopy title="New note" detail="Write a note or schedule a reminder" />
           </FloatingPanelButton>
           <FloatingPanelButton onClick={() => navigate("/dashboard/videos")}>
             <ActionIcon><Video className="size-4" /></ActionIcon>

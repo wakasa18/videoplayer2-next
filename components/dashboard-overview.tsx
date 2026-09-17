@@ -1,7 +1,7 @@
 import {
   Activity, ArrowRight, ArrowUpRight, BellRing, CalendarDays, Check,
   CheckCircle2, ClipboardList, Clock3, FileText, Film, FolderOpen,
-  HardDrive, Recycle, ShieldCheck, Upload, Wrench,
+  HardDrive, Plus, Recycle, ShieldCheck, StickyNote, Upload, Wrench,
 } from "@/components/ui/icons";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
@@ -32,6 +32,7 @@ export function DashboardOverview({ data, now = new Date() }: { data: DashboardH
         <section className="archive-welcome" aria-labelledby="welcome-title">
           <div><h1 id="welcome-title">{greetingFor(now, timezone)}, {firstDisplayName(data.displayName)}<span className="archive-heading-dot">.</span></h1><p>Your files, ideas, and deadlines, together in one place.</p></div>
           <div className="archive-welcome-actions">
+            <Link data-no-glass className="archive-button archive-button-secondary" href="/dashboard/notes?new=1"><Plus size={16} aria-hidden="true" />New note</Link>
             <Link data-no-glass className="archive-button archive-button-primary" href="/dashboard/files?command=upload"><Upload size={16} aria-hidden="true" />Upload files</Link>
           </div>
         </section>
@@ -80,6 +81,7 @@ export function DashboardOverview({ data, now = new Date() }: { data: DashboardH
             <section className="archive-panel archive-shortcuts" aria-labelledby="shortcuts-title">
               <div className="archive-card-heading"><h2 id="shortcuts-title">Pick up where you need</h2><ArrowUpRight size={16} aria-hidden="true" /></div>
               <QuickAccess href="/dashboard/files/recent" icon={<FolderOpen size={18} />} title="Recent files" detail="Back to your latest work" />
+              <QuickAccess href="/dashboard/notes" icon={<StickyNote size={18} />} title="Notes & ideas" detail="Keep a thought for later" />
               <QuickAccess href="/dashboard/assignments/productivity" icon={<BellRing size={18} />} title="Reminders" detail="Stay ahead of deadlines" />
               <QuickAccess href="/dashboard/tools" icon={<Wrench size={18} />} title="Archive tools" detail="Convert, edit, and organize" />
             </section>

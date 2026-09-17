@@ -82,7 +82,7 @@ export function AssignmentNotificationBell() {
           if (!notification.read_at && !seenIds.current.has(notification.id)) {
             new Notification(notification.title, {
               body: notification.message,
-              tag: `assignment-${notification.id}`,
+              tag: `workspace-${notification.id}`,
               icon: "/favicon.ico",
             });
           }
@@ -283,15 +283,20 @@ export function AssignmentNotificationBell() {
                               {formatRelative(notification.created_at)}
                             </span>
                           </span>
-                          {notification.assignment_id ? (
+                          {notification.assignment_id || notification.note_id ? (
                             <ChevronRight className="mt-1 size-4 shrink-0 text-slate-500" />
                           ) : null}
                         </>
                       );
-                      return notification.assignment_id ? (
+                      const notificationHref = notification.assignment_id
+                        ? `/dashboard/assignments/${notification.assignment_id}`
+                        : notification.note_id
+                          ? `/dashboard/notes?note=${notification.note_id}`
+                          : null;
+                      return notificationHref ? (
                         <Link
                           key={notification.id}
-                          href={`/dashboard/assignments/${notification.assignment_id}`}
+                          href={notificationHref}
                           onClick={() => {
                             void markRead(notification);
                             setOpen(false);
@@ -318,7 +323,7 @@ export function AssignmentNotificationBell() {
                       <Bell className="mx-auto size-7 text-slate-500" />
                       <p className="mt-3 text-sm font-semibold text-slate-200">No notifications yet</p>
                       <p className="mt-1 text-xs leading-5 text-slate-400">
-                        Reminders and recurring-task updates will appear here.
+                        Assignment and note reminders will appear here.
                       </p>
                     </div>
                   </div>
