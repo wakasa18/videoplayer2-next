@@ -1,6 +1,6 @@
 "use client";
 
-import { Laptop, Moon, Sun } from "lucide-react";
+import { Laptop, Moon, Sun } from "@/components/ui/icons";
 import { useTheme } from "next-themes";
 import { useSyncExternalStore } from "react";
 

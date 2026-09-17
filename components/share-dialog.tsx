@@ -16,8 +16,9 @@ import {
   ShieldCheck,
   UserRound,
   X,
-} from "lucide-react";
-import { useMemo, useState } from "react";
+} from "@/components/ui/icons";
+import { QRCodeSVG } from "qrcode.react";
+import { useState } from "react";
 
 import type { ShareType } from "@/lib/shares/types";
 
@@ -59,14 +60,6 @@ export function ShareDialog({
   const [result, setResult] = useState<Result | null>(null);
   const [copied, setCopied] = useState(false);
   const [showQr, setShowQr] = useState(false);
-
-  const qrUrl = useMemo(
-    () =>
-      result
-        ? `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=12&data=${encodeURIComponent(result.publicUrl)}`
-        : "",
-    [result],
-  );
 
   function close() {
     if (busy) return;
@@ -140,7 +133,7 @@ export function ShareDialog({
             transition={{ type: "spring", stiffness: 320, damping: 28 }}
           >
             <header className="flex items-start gap-4 border-b border-white/10 p-5 sm:p-6">
-              <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300">
+              <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
                 <Link2 className="size-5" />
               </span>
               <div className="min-w-0 flex-1">
@@ -154,7 +147,7 @@ export function ShareDialog({
               <button
                 type="button"
                 onClick={close}
-                className="grid size-10 shrink-0 place-items-center rounded-full text-slate-400 transition hover:bg-white/[0.06]"
+                className="grid size-10 shrink-0 place-items-center rounded-lg text-slate-400 transition hover:bg-white/[0.06]"
                 aria-label="Close share dialog"
               >
                 <X className="size-5" />
@@ -176,11 +169,11 @@ export function ShareDialog({
                 </div>
 
                 {result.passwordProtected ? (
-                  <div className="flex items-start gap-3 rounded-2xl border border-violet-300/20 bg-violet-400/[0.08] p-4 text-violet-200">
+                  <div className="flex items-start gap-3 rounded-2xl border border-primary/20 bg-primary/[0.08] p-4 text-primary">
                     <KeyRound className="mt-0.5 size-5 shrink-0" />
                     <div>
                       <strong className="block text-sm">Password required</strong>
-                      <p className="mt-1 text-xs leading-5 text-violet-200/80">
+                      <p className="mt-1 text-xs leading-5 text-primary/80">
                         The password itself is never included in the link or displayed publicly.
                         {result.passwordHint ? ` Hint: ${result.passwordHint}` : ""}
                       </p>
@@ -199,7 +192,7 @@ export function ShareDialog({
                     <button
                       type="button"
                       onClick={() => void copyLink()}
-                      className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-4 text-sm font-semibold text-white transition hover:brightness-110"
+                      className="inline-flex min-h-11 items-center gap-2 rounded-lg workspace-primary px-4 text-sm font-semibold text-white transition hover:brightness-110"
                     >
                       {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
                       {copied ? "Copied" : "Copy"}
@@ -212,14 +205,14 @@ export function ShareDialog({
                     href={result.publicUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06]"
+                    className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.045] px-4 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06]"
                   >
                     <ExternalLink className="size-4" /> Open link
                   </a>
                   <button
                     type="button"
                     onClick={() => setShowQr((value) => !value)}
-                    className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06]"
+                    className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.045] px-4 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06]"
                   >
                     <QrCode className="size-4" /> {showQr ? "Hide QR" : "Show QR"}
                   </button>
@@ -234,11 +227,11 @@ export function ShareDialog({
                       className="overflow-hidden"
                     >
                       <div className="grid place-items-center rounded-2xl border border-white/10 bg-white/[0.045] p-5">
-                        {/* The QR image service receives only the public share URL. */}
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={qrUrl} alt="QR code for shared link" width={260} height={260} className="rounded-xl" />
+                        <div className="rounded-xl bg-white p-3">
+                          <QRCodeSVG value={result.publicUrl} size={236} level="M" marginSize={1} aria-label="QR code for shared link" />
+                        </div>
                         <p className="mt-3 text-center text-xs text-slate-400">
-                          QR rendering uses api.qrserver.com.
+                          Generated locally in your browser. The share URL is not sent to a QR service.
                         </p>
                       </div>
                     </motion.div>
@@ -249,7 +242,7 @@ export function ShareDialog({
                   <button
                     type="button"
                     onClick={close}
-                    className="min-h-11 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-6 text-sm font-semibold text-white transition hover:brightness-110"
+                    className="min-h-11 rounded-lg workspace-primary px-6 text-sm font-semibold text-white transition hover:brightness-110"
                   >
                     Done
                   </button>
@@ -322,7 +315,7 @@ export function ShareDialog({
                     type="checkbox"
                     checked={allowDownloads}
                     onChange={(event) => setAllowDownloads(event.target.checked)}
-                    className="mt-1 size-4 accent-[#1a73e8]"
+                    className="mt-1 size-4 accent-primary"
                   />
                   <span>
                     <strong className="block text-sm font-semibold text-slate-100">Allow downloads</strong>
@@ -343,7 +336,7 @@ export function ShareDialog({
                     type="button"
                     disabled={busy}
                     onClick={close}
-                    className="min-h-11 rounded-full border border-white/10 bg-white/[0.045] px-5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] disabled:opacity-60"
+                    className="min-h-11 rounded-lg border border-white/10 bg-white/[0.045] px-5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] disabled:opacity-60"
                   >
                     Cancel
                   </button>
@@ -351,7 +344,7 @@ export function ShareDialog({
                     type="button"
                     disabled={busy}
                     onClick={() => void createShare()}
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg workspace-primary px-5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
                   >
                     <Link2 className="size-4" /> {busy ? "Creating…" : "Create shared link"}
                   </button>
@@ -378,7 +371,7 @@ function Field({
   return (
     <label className="block">
       <span className="mb-2 flex items-center gap-2 text-xs font-semibold text-slate-400">
-        <Icon className="size-4 text-cyan-300" /> {label}
+        <Icon className="size-4 text-primary" /> {label}
       </span>
       {children}
     </label>
@@ -387,4 +380,4 @@ function Field({
 
 
 const inputClass =
-  "min-h-11 w-full rounded-xl border border-white/10 bg-white/[0.045] px-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15";
+  "min-h-11 w-full rounded-xl border border-white/10 bg-white/[0.045] px-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-primary/45 focus:ring-4 focus:ring-primary/15";

@@ -11,7 +11,7 @@ import {
   RotateCcw,
   Upload,
   X,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -62,11 +62,6 @@ export function VideoUploadDialog({ open, onOpenChange, categories, maxUploadByt
 
   useEffect(() => {
     if (!open) return;
-    const old = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = old;
-    };
   }, [open]);
 
   const totalBytes = useMemo(() => queue.reduce((sum, item) => sum + item.file.size, 0), [queue]);
@@ -260,7 +255,7 @@ export function VideoUploadDialog({ open, onOpenChange, categories, maxUploadByt
             <header className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-4 sm:px-6">
               <div className="flex items-center gap-3">
                 <motion.span
-                  className="grid size-11 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300"
+                  className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary"
                   animate={uploading ? { y: [0, -2, 0] } : undefined}
                   transition={{ repeat: uploading ? Infinity : 0, duration: 1.4 }}
                 >
@@ -271,7 +266,7 @@ export function VideoUploadDialog({ open, onOpenChange, categories, maxUploadByt
                   <p className="mt-1 text-xs text-slate-400">Private storage · up to {formatBytes(maxUploadBytes)} each</p>
                 </div>
               </div>
-              <button type="button" onClick={close} disabled={uploading} className="grid size-10 place-items-center rounded-full text-slate-400 transition hover:bg-white/[0.06] disabled:opacity-40" aria-label="Close upload dialog">
+              <button type="button" onClick={close} disabled={uploading} className="grid size-10 place-items-center rounded-lg text-slate-400 transition hover:bg-white/[0.06] disabled:opacity-40" aria-label="Close upload dialog">
                 <X className="size-5" />
               </button>
             </header>
@@ -280,12 +275,12 @@ export function VideoUploadDialog({ open, onOpenChange, categories, maxUploadByt
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="text-sm font-medium text-slate-200">
                   Category
-                  <input list="video-categories" value={category} onChange={(event) => setCategory(event.target.value)} placeholder="Optional" disabled={uploading} className="mt-2 h-11 w-full rounded-2xl border border-white/10 px-4 outline-none focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15" />
+                  <input list="video-categories" value={category} onChange={(event) => setCategory(event.target.value)} placeholder="Optional" disabled={uploading} className="mt-2 h-11 w-full rounded-2xl border border-white/10 px-4 outline-none focus:border-primary/45 focus:ring-4 focus:ring-primary/15" />
                   <datalist id="video-categories">{categories.map((item) => <option key={item} value={item} />)}</datalist>
                 </label>
                 <label className="text-sm font-medium text-slate-200">
                   Description
-                  <input value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Applied to all videos" disabled={uploading} className="mt-2 h-11 w-full rounded-2xl border border-white/10 px-4 outline-none focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15" />
+                  <input value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Applied to all videos" disabled={uploading} className="mt-2 h-11 w-full rounded-2xl border border-white/10 px-4 outline-none focus:border-primary/45 focus:ring-4 focus:ring-primary/15" />
                 </label>
               </div>
 
@@ -297,10 +292,10 @@ export function VideoUploadDialog({ open, onOpenChange, categories, maxUploadByt
                   onDragOver={(event) => event.preventDefault()}
                   onDragLeave={() => setDragging(false)}
                   onDrop={(event) => { event.preventDefault(); setDragging(false); void chooseFiles(Array.from(event.dataTransfer.files)); }}
-                  className={`mt-5 grid min-h-64 w-full place-items-center rounded-[24px] border-2 border-dashed p-8 text-center transition ${dragging ? "border-cyan-300/40 bg-cyan-400/10" : "border-cyan-300/20 bg-white/[0.04] hover:bg-white/[0.04]"}`}
+                  className={`mt-5 grid min-h-64 w-full place-items-center rounded-[24px] border-2 border-dashed p-8 text-center transition ${dragging ? "border-primary/40 bg-primary/10" : "border-primary/20 bg-white/[0.04] hover:bg-white/[0.04]"}`}
                 >
                   <span>
-                    <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300"><Film className="size-8" /></span>
+                    <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-primary/10 text-primary"><Film className="size-8" /></span>
                     <strong className="mt-5 block text-base text-slate-100">Choose videos or drag them here</strong>
                     <span className="mt-2 block text-sm text-slate-400">MP4, WebM, MOV, M4V, OGV, AVI, or MKV</span>
                   </span>
@@ -309,7 +304,7 @@ export function VideoUploadDialog({ open, onOpenChange, categories, maxUploadByt
                 <div className="mt-5 overflow-hidden rounded-[24px] border border-white/10">
                   <div className="flex items-center justify-between bg-white/[0.035] px-4 py-3 text-xs text-slate-400">
                     <span><strong className="text-slate-100">{queue.length} video{queue.length === 1 ? "" : "s"}</strong> · {formatBytes(totalBytes)}</span>
-                    {!uploading ? <button type="button" onClick={() => inputRef.current?.click()} className="font-semibold text-cyan-300">Replace selection</button> : null}
+                    {!uploading ? <button type="button" onClick={() => inputRef.current?.click()} className="font-semibold text-primary">Replace selection</button> : null}
                   </div>
                   <div className="max-h-72 divide-y divide-white/10 overflow-y-auto">
                     {queue.map((item) => <QueueRow key={item.id} item={item} />)}
@@ -319,9 +314,9 @@ export function VideoUploadDialog({ open, onOpenChange, categories, maxUploadByt
               <input ref={inputRef} type="file" accept="video/*,.mkv,.avi" multiple hidden onChange={(event) => void chooseFiles(Array.from(event.target.files ?? []))} />
 
               {queue.length ? (
-                <div className="mt-5 rounded-[20px] border border-cyan-300/20 bg-white/[0.04] p-4">
-                  <div className="flex items-center justify-between text-sm"><strong className="text-slate-200">{completeCount} completed · {failedCount} failed</strong><span className="font-semibold text-cyan-300">{progress}%</span></div>
-                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-cyan-400/10"><motion.span className="block h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]" animate={{ width: `${progress}%` }} /></div>
+                <div className="mt-5 rounded-[20px] border border-primary/20 bg-white/[0.04] p-4">
+                  <div className="flex items-center justify-between text-sm"><strong className="text-slate-200">{completeCount} completed · {failedCount} failed</strong><span className="font-semibold text-primary">{progress}%</span></div>
+                  <div className="mt-3 h-2 overflow-hidden rounded-lg bg-primary/10"><motion.span className="block h-full rounded-lg workspace-primary" animate={{ width: `${progress}%` }} /></div>
                 </div>
               ) : null}
 
@@ -337,9 +332,9 @@ export function VideoUploadDialog({ open, onOpenChange, categories, maxUploadByt
             </div>
 
             <footer className="flex flex-wrap items-center justify-end gap-3 border-t border-white/10 px-5 py-4 sm:px-6">
-              {failedCount && !uploading ? <button type="button" onClick={retry} className="inline-flex h-11 items-center gap-2 rounded-full border border-white/10 px-5 font-semibold text-slate-200 hover:bg-white/[0.06]"><RotateCcw className="size-4" />Retry failed</button> : null}
-              <button type="button" onClick={uploading ? cancel : close} className="h-11 rounded-full border border-white/10 px-5 font-semibold text-slate-200 hover:bg-white/[0.06]">{uploading ? "Cancel upload" : "Cancel"}</button>
-              <button type="button" onClick={() => void startUpload()} disabled={!queue.length || uploading || completeCount === queue.length} className="inline-flex h-11 items-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50">{uploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}{uploading ? "Uploading" : queue.length > 1 ? "Upload videos" : "Upload video"}</button>
+              {failedCount && !uploading ? <button type="button" onClick={retry} className="inline-flex h-11 items-center gap-2 rounded-lg border border-white/10 px-5 font-semibold text-slate-200 hover:bg-white/[0.06]"><RotateCcw className="size-4" />Retry failed</button> : null}
+              <button type="button" onClick={uploading ? cancel : close} className="h-11 rounded-lg border border-white/10 px-5 font-semibold text-slate-200 hover:bg-white/[0.06]">{uploading ? "Cancel upload" : "Cancel"}</button>
+              <button type="button" onClick={() => void startUpload()} disabled={!queue.length || uploading || completeCount === queue.length} className="inline-flex h-11 items-center gap-2 rounded-lg workspace-primary px-5 font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50">{uploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}{uploading ? "Uploading" : queue.length > 1 ? "Upload videos" : "Upload video"}</button>
             </footer>
           </motion.section>
         </motion.div>
@@ -353,8 +348,8 @@ function QueueRow({ item }: { item: QueueItem }) {
   const Icon = item.status === "complete" ? CheckCircle2 : item.status === "error" ? AlertCircle : item.status === "preparing" || item.status === "uploading" || item.status === "finalizing" ? Loader2 : Film;
   return (
     <div className="flex items-center gap-3 px-4 py-3">
-      <span className={`grid size-10 shrink-0 place-items-center rounded-xl ${item.status === "complete" ? "bg-emerald-400/10 text-emerald-300" : item.status === "error" ? "bg-red-400/10 text-red-300" : "bg-cyan-400/10 text-cyan-300"}`}><Icon className={`size-5 ${["preparing", "uploading", "finalizing"].includes(item.status) ? "animate-spin" : ""}`} /></span>
-      <div className="min-w-0 flex-1"><strong className="block truncate text-sm text-slate-100">{item.file.name}</strong><p className={`mt-1 truncate text-xs ${item.error ? "text-red-300" : "text-slate-400"}`}>{item.error || `${formatBytes(item.file.size)} · ${item.status}`}</p>{item.status === "uploading" ? <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[0.08]"><span className="block h-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]" style={{ width: `${item.progress}%` }} /></div> : null}</div>
+      <span className={`grid size-10 shrink-0 place-items-center rounded-xl ${item.status === "complete" ? "bg-emerald-400/10 text-emerald-300" : item.status === "error" ? "bg-red-400/10 text-red-300" : "bg-primary/10 text-primary"}`}><Icon className={`size-5 ${["preparing", "uploading", "finalizing"].includes(item.status) ? "animate-spin" : ""}`} /></span>
+      <div className="min-w-0 flex-1"><strong className="block truncate text-sm text-slate-100">{item.file.name}</strong><p className={`mt-1 truncate text-xs ${item.error ? "text-red-300" : "text-slate-400"}`}>{item.error || `${formatBytes(item.file.size)} · ${item.status}`}</p>{item.status === "uploading" ? <div className="mt-2 h-1.5 overflow-hidden rounded-lg bg-white/[0.08]"><span className="block h-full workspace-primary" style={{ width: `${item.progress}%` }} /></div> : null}</div>
       <span className="text-xs font-semibold text-slate-400">{item.progress ? `${item.progress}%` : ""}</span>
     </div>
   );

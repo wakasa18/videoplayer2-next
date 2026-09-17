@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { LogOut } from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -25,9 +25,11 @@ export function LogoutButton() {
     <Button
       type="button"
       variant="ghost"
+      data-no-glass
+      data-liquid-glass
       onClick={logout}
       disabled={isLoading}
-      className="h-10 rounded-xl border border-white/[0.09] bg-white/[0.035] px-2.5 text-slate-400 hover:bg-white/[0.075] hover:text-slate-100 sm:h-11 sm:px-3"
+      className="topbar-signout h-10 rounded-xl px-2.5 sm:h-11 sm:px-3"
     >
       <LogOut className="size-4" aria-hidden="true" />
       <span className="hidden 2xl:inline">{isLoading ? "Signing out..." : "Sign out"}</span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "@/components/ui/icons";
 import { motion } from "motion/react";
 import Link from "next/link";
 
@@ -45,7 +45,7 @@ export function AssignmentCalendar({
   }).format(firstDay);
 
   return (
-    <section className="overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.045] shadow-sm">
+    <section className="tech-card overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.045] shadow-sm">
       <div className="flex items-center justify-between gap-4 border-b border-white/10 px-4 py-4 sm:px-6">
         <Link
           href={buildAssignmentQuery(filters, {
@@ -104,7 +104,7 @@ export function AssignmentCalendar({
                   <div
                     className={`mb-2 grid size-7 place-items-center rounded-full text-xs font-semibold ${
                       isToday
-                        ? "bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] text-white"
+                        ? "workspace-primary text-white"
                         : currentMonth
                           ? "text-slate-200"
                           : "text-slate-500"

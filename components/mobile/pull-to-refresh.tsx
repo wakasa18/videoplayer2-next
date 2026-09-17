@@ -1,6 +1,6 @@
 "use client";
 
-import { RefreshCw } from "lucide-react";
+import { RefreshCw } from "@/components/ui/icons";
 import { animate, motion, useMotionValue, useTransform } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -66,7 +66,7 @@ export function PullToRefresh() {
   return (
     <div className="pointer-events-none fixed inset-x-0 top-[4.55rem] z-30 h-0 lg:hidden" aria-live="polite">
       <motion.div
-        className="mx-auto grid size-10 place-items-center rounded-full border border-cyan-300/20 bg-[#07111f]/95 text-cyan-200 shadow-lg"
+        className="mx-auto grid size-10 place-items-center rounded-full border border-primary/20 bg-card/95 text-primary shadow-lg"
         style={{ y, rotate, opacity, scale }}
       >
         <RefreshCw className={`size-4 ${refreshing ? "animate-spin" : ""}`} />

@@ -3,9 +3,9 @@
 import { ModalPortal } from "@/components/ui/modal-portal";
 
 import { AnimatePresence, motion } from "motion/react";
-import { Download, ExternalLink, X } from "lucide-react";
+import { Download, ExternalLink, X } from "@/components/ui/icons";
 import Link from "next/link";
-import { useEffect } from "react";
+
 
 import { FilePreview } from "@/components/file-preview";
 import { FileTypeIcon } from "@/components/file-type-icon";
@@ -19,21 +19,7 @@ type PreviewDialogProps = {
 };
 
 export function PreviewDialog({ file, open, onClose }: PreviewDialogProps) {
-  useEffect(() => {
-    if (!open) return;
 
-    const closeWithEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-
-    document.addEventListener("keydown", closeWithEscape);
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.removeEventListener("keydown", closeWithEscape);
-      document.body.style.overflow = "";
-    };
-  }, [onClose, open]);
 
   return (
     <ModalPortal>
@@ -92,7 +78,7 @@ export function PreviewDialog({ file, open, onClose }: PreviewDialogProps) {
               </button>
             </header>
 
-            <div className="min-h-0 flex-1 bg-[#050b15]/86 p-2 sm:p-4">
+            <div className="min-h-0 flex-1 bg-card/86 p-2 sm:p-4">
               <FilePreview file={file} compact />
             </div>
           </motion.section>

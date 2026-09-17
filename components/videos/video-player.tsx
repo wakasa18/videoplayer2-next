@@ -7,7 +7,7 @@ import {
   Loader2,
   PlayCircle,
   RotateCcw,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState } from "react";
 
@@ -254,7 +254,7 @@ export function VideoPlayer({
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className="grid min-h-[420px] place-items-center rounded-[24px] border border-red-300/20 bg-[radial-gradient(circle_at_50%_0%,rgba(239,68,68,0.1),transparent_45%),linear-gradient(160deg,#1a0e10_0%,#0b0810_60%,#081321_100%)] p-6 text-center sm:p-8"
+        className="grid min-h-[420px] place-items-center rounded-[24px] border border-red-300/20 bg-card p-6 text-center sm:p-8"
       >
         <div className="max-w-2xl">
           <span className="mx-auto grid size-16 place-items-center rounded-full border border-red-300/25 bg-red-400/10">
@@ -309,7 +309,7 @@ export function VideoPlayer({
               </div>
               <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/[0.06]">
                 <motion.span
-                  className="block h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]"
+                  className="block h-full rounded-full workspace-primary"
                   animate={{ width: `${repairProgress}%` }}
                   transition={{ ease: [0.22, 1, 0.36, 1] }}
                 />
@@ -324,7 +324,7 @@ export function VideoPlayer({
                   type="button"
                   onClick={() => repairInput.current?.click()}
                   disabled={repairing}
-                  className="inline-flex h-10 items-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-4 text-sm font-semibold text-white hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex h-10 items-center gap-2 rounded-full workspace-primary px-4 text-sm font-semibold text-white hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {repairing ? (
                     <Loader2 className="size-4 animate-spin" />
@@ -349,7 +349,7 @@ export function VideoPlayer({
               <button
                 type="button"
                 onClick={retry}
-                className="inline-flex h-10 items-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-4 text-sm font-semibold text-white hover:brightness-110"
+                className="inline-flex h-10 items-center gap-2 rounded-full workspace-primary px-4 text-sm font-semibold text-white hover:brightness-110"
               >
                 <RotateCcw className="size-4" />Retry both methods
               </button>
@@ -420,7 +420,7 @@ export function VideoPlayer({
             className="pointer-events-none absolute inset-0 grid place-items-center bg-black/40 px-4 text-center text-white backdrop-blur-[2px]"
           >
             <span className="rounded-2xl border border-white/10 bg-black/60 px-5 py-4 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur">
-              <Loader2 className="mx-auto size-6 animate-spin text-cyan-300" />
+              <Loader2 className="mx-auto size-6 animate-spin text-primary" />
               <span className="mt-2 block text-xs font-medium">
                 {status || "Loading video…"}
               </span>

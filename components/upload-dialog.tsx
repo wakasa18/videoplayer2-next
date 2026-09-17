@@ -12,7 +12,7 @@ import {
   RotateCcw,
   Upload,
   X,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
 import {
   useEffect,
@@ -25,6 +25,7 @@ import { formatBytes } from "@/lib/files/utils";
 import { sha256ForDuplicateCheck, uploadResumable } from "@/lib/files/resumable-client";
 import { compressMobileUpload } from "@/lib/mobile/compression";
 import { enqueueMobileUpload } from "@/lib/mobile/offline-store";
+import { confirmAction } from "@/components/ui/confirm-dialog";
 
 type UploadMode = "files" | "folder";
 type QueueStatus =
@@ -117,11 +118,6 @@ export function UploadDialog({
       input.setAttribute("directory", "");
     }
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
   }, [open, mode]);
 
   function addFiles(files: File[]) {
@@ -211,13 +207,10 @@ export function UploadDialog({
         if (prepareResponse.status === 409 && "code" in preparePayload && preparePayload.code === "DUPLICATE" && preparePayload.duplicate) {
           updateItem(item.id, { duplicate: true });
           const duplicateLabel = preparePayload.duplicate.title || preparePayload.duplicate.originalFilename;
-          const replace = window.confirm(`Duplicate detected: “${duplicateLabel}”.
-
-OK = replace the existing file (old copy goes to Recycle Bin).
-Cancel = choose whether to keep both.`);
+          const replace = (await confirmAction(`A copy of “${duplicateLabel}” already exists. Replace it and move the old copy to the Recycle Bin?`, { title: "Duplicate file", confirmLabel: "Replace file", cancelLabel: "More options" }));
           let duplicateStrategy: "replace" | "keep_both" | "skip" = replace ? "replace" : "skip";
           if (!replace) {
-            duplicateStrategy = window.confirm(`Keep both copies?\n\nOK = keep both.\nCancel = skip this upload.`) ? "keep_both" : "skip";
+            duplicateStrategy = (await confirmAction("Save this upload alongside the existing file?", { title: "Keep both copies?", confirmLabel: "Keep both", cancelLabel: "Skip upload" })) ? "keep_both" : "skip";
           }
           if (duplicateStrategy === "skip") {
             updateItem(item.id, { status: "cancelled", progress: 0, error: "Skipped duplicate file." });
@@ -385,7 +378,7 @@ Cancel = choose whether to keep both.`);
             <header className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-4 sm:px-6">
               <div className="flex min-w-0 items-center gap-3">
                 <motion.span
-                  className="grid size-11 shrink-0 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300"
+                  className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"
                   animate={uploading ? { y: [0, -2, 0] } : { y: 0 }}
                   transition={{ repeat: uploading ? Infinity : 0, duration: 1.5 }}
                 >
@@ -406,7 +399,7 @@ Cancel = choose whether to keep both.`);
               </div>
               <button
                 type="button"
-                className="grid size-10 shrink-0 place-items-center rounded-full text-slate-400 transition hover:bg-white/[0.06] disabled:opacity-40"
+                className="grid size-10 shrink-0 place-items-center rounded-lg text-slate-400 transition hover:bg-white/[0.06] disabled:opacity-40"
                 aria-label="Close"
                 disabled={uploading}
                 onClick={closeDialog}
@@ -446,13 +439,13 @@ Cancel = choose whether to keep both.`);
                   }}
                   className={`group grid min-h-64 w-full place-items-center rounded-[26px] border-2 border-dashed p-8 text-center transition duration-200 ${
                     dragging
-                      ? "scale-[1.01] border-cyan-300/40 bg-cyan-400/10"
-                      : "border-cyan-300/20 bg-white/[0.04] hover:border-cyan-300/40 hover:bg-white/[0.04]"
+                      ? "scale-[1.01] border-primary/40 bg-primary/10"
+                      : "border-primary/20 bg-white/[0.04] hover:border-primary/40 hover:bg-white/[0.04]"
                   }`}
                   animate={dragging ? { scale: 1.01 } : { scale: 1 }}
                 >
                   <span>
-                    <span className="mx-auto grid size-16 place-items-center rounded-[22px] bg-white/[0.045] text-cyan-300 shadow-sm transition duration-200 group-hover:-translate-y-1 group-hover:shadow-md">
+                    <span className="mx-auto grid size-16 place-items-center rounded-[22px] bg-white/[0.045] text-primary shadow-sm transition duration-200 group-hover:-translate-y-1 group-hover:shadow-md">
                       {mode === "folder" ? (
                         <FolderUp className="size-7" aria-hidden="true" />
                       ) : (
@@ -481,7 +474,7 @@ Cancel = choose whether to keep both.`);
                         disabled={uploading}
                         onChange={(event) => setCategory(event.target.value)}
                         placeholder="Optional"
-                        className="min-h-11 rounded-xl border border-white/10 px-3 text-sm font-medium text-slate-100 outline-none transition focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15 disabled:bg-white/[0.035]"
+                        className="min-h-11 rounded-xl border border-white/10 px-3 text-sm font-medium text-slate-100 outline-none transition focus:border-primary/45 focus:ring-4 focus:ring-primary/15 disabled:bg-white/[0.035]"
                       />
                       <datalist id="upload-category-options">
                         {categories.map((item) => (
@@ -496,7 +489,7 @@ Cancel = choose whether to keep both.`);
                         value={documentDate}
                         disabled={uploading}
                         onChange={(event) => setDocumentDate(event.target.value)}
-                        className="min-h-11 rounded-xl border border-white/10 px-3 text-sm font-medium text-slate-100 outline-none transition focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15 disabled:bg-white/[0.035]"
+                        className="min-h-11 rounded-xl border border-white/10 px-3 text-sm font-medium text-slate-100 outline-none transition focus:border-primary/45 focus:ring-4 focus:ring-primary/15 disabled:bg-white/[0.035]"
                       />
                     </label>
                     <label className="grid gap-2 text-xs font-semibold text-slate-400 sm:col-span-1">
@@ -507,13 +500,13 @@ Cancel = choose whether to keep both.`);
                         disabled={uploading}
                         onChange={(event) => setDescription(event.target.value)}
                         placeholder="Applied to all files"
-                        className="min-h-11 rounded-xl border border-white/10 px-3 text-sm font-medium text-slate-100 outline-none transition focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15 disabled:bg-white/[0.035]"
+                        className="min-h-11 rounded-xl border border-white/10 px-3 text-sm font-medium text-slate-100 outline-none transition focus:border-primary/45 focus:ring-4 focus:ring-primary/15 disabled:bg-white/[0.035]"
                       />
                     </label>
                   </div>
 
-                  <label className="mt-4 flex items-center gap-3 rounded-xl border border-cyan-300/15 bg-cyan-300/[0.04] p-3 lg:hidden">
-                    <input type="checkbox" checked={mobileCompression} disabled={uploading} onChange={(event) => setMobileCompression(event.target.checked)} className="size-4 accent-cyan-300" />
+                  <label className="mt-4 flex items-center gap-3 rounded-xl border border-primary/15 bg-primary/[0.04] p-3 lg:hidden">
+                    <input type="checkbox" checked={mobileCompression} disabled={uploading} onChange={(event) => setMobileCompression(event.target.checked)} className="size-4 accent-primary" />
                     <span>
                       <strong className="block text-xs font-semibold text-slate-200">Smart mobile compression + retry</strong>
                       <span className="mt-0.5 block text-[11px] leading-4 text-slate-500">Large photos are compressed before upload. Network failures are saved to a persistent retry queue.</span>
@@ -534,7 +527,7 @@ Cancel = choose whether to keep both.`);
                         <button
                           type="button"
                           onClick={() => inputRef.current?.click()}
-                          className="rounded-full px-3 py-1.5 text-xs font-semibold text-cyan-300 transition hover:bg-cyan-400/10"
+                          className="rounded-lg px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/10"
                         >
                           Replace selection
                         </button>
@@ -551,20 +544,20 @@ Cancel = choose whether to keep both.`);
                   </div>
 
                   {uploading || completeCount || failedCount ? (
-                    <div className="mt-5 rounded-[20px] border border-cyan-300/20 bg-white/[0.04] p-4">
+                    <div className="mt-5 rounded-[20px] border border-primary/20 bg-white/[0.04] p-4">
                       <div className="flex items-center justify-between gap-3 text-sm">
                         <strong className="text-slate-100">
                           {uploading
                             ? `Uploading ${completeCount + 1} of ${queue.length}`
                             : `${completeCount} completed${failedCount ? ` · ${failedCount} failed` : ""}`}
                         </strong>
-                        <span className="font-semibold text-cyan-300">
+                        <span className="font-semibold text-primary">
                           {overallProgress}%
                         </span>
                       </div>
-                      <div className="mt-3 h-2 overflow-hidden rounded-full bg-cyan-400/10">
+                      <div className="mt-3 h-2 overflow-hidden rounded-lg bg-primary/10">
                         <motion.span
-                          className="block h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]"
+                          className="block h-full rounded-lg workspace-primary"
                           animate={{ width: `${overallProgress}%` }}
                           transition={{ type: "spring", stiffness: 150, damping: 24 }}
                         />
@@ -594,7 +587,7 @@ Cancel = choose whether to keep both.`);
                   <button
                     type="button"
                     onClick={retryFailed}
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06]"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.045] px-4 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06]"
                   >
                     <RotateCcw className="size-4" aria-hidden="true" />
                     Retry failed
@@ -603,7 +596,7 @@ Cancel = choose whether to keep both.`);
                 <button
                   type="button"
                   onClick={uploading ? cancelUpload : closeDialog}
-                  className="min-h-11 rounded-full border border-white/10 bg-white/[0.045] px-5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06]"
+                  className="min-h-11 rounded-lg border border-white/10 bg-white/[0.045] px-5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06]"
                 >
                   {uploading ? "Cancel upload" : completeCount ? "Close" : "Cancel"}
                 </button>
@@ -612,14 +605,14 @@ Cancel = choose whether to keep both.`);
                     type="button"
                     onClick={startUpload}
                     disabled={!queue.length}
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg workspace-primary px-5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <Upload className="size-4" aria-hidden="true" />
                     Upload {queue.length > 1 ? `${queue.length} files` : "file"}
                   </button>
                 ) : null}
                 {uploading ? (
-                  <span className="inline-flex min-h-11 items-center gap-2 rounded-full bg-cyan-400/10 px-5 text-sm font-semibold text-cyan-300">
+                  <span className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary/10 px-5 text-sm font-semibold text-primary">
                     <Loader2 className="size-4 animate-spin" aria-hidden="true" />
                     Working
                   </span>
@@ -656,7 +649,7 @@ function QueueRow({ item }: { item: QueueItem }) {
             ? "bg-emerald-400/10 text-emerald-300"
             : item.status === "error" || item.status === "cancelled"
               ? "bg-red-400/10 text-red-300"
-              : "bg-cyan-400/10 text-cyan-300"
+              : "bg-primary/10 text-primary"
         }`}
       >
         {item.status === "complete" ? (
@@ -675,7 +668,7 @@ function QueueRow({ item }: { item: QueueItem }) {
             {item.relativePath}
           </strong>
           {item.duplicate ? (
-            <span className="shrink-0 rounded-full bg-amber-400/10 px-2 py-0.5 text-[10px] font-bold text-amber-300">
+            <span className="shrink-0 rounded-lg bg-amber-400/10 px-2 py-0.5 text-[10px] font-bold text-amber-300">
               Copy
             </span>
           ) : null}
@@ -688,9 +681,9 @@ function QueueRow({ item }: { item: QueueItem }) {
           {item.error || `${formatBytes(item.file.size)} · ${status}`}
         </p>
         {item.status === "uploading" || item.status === "finalizing" ? (
-          <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/[0.08]">
+          <div className="mt-2 h-1 overflow-hidden rounded-lg bg-white/[0.08]">
             <motion.span
-              className="block h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]"
+              className="block h-full rounded-lg workspace-primary"
               animate={{ width: `${item.progress}%` }}
             />
           </div>

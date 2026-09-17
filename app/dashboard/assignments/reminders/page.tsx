@@ -1,4 +1,4 @@
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "@/components/ui/icons";
 
 import { ReminderHistoryClient } from "@/components/assignments/reminder-history-client";
 import { getReminderHistoryData } from "@/lib/assignments/reminder-history";

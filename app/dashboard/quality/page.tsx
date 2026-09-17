@@ -1,4 +1,4 @@
-import { AlertTriangle, BadgeCheck, FlaskConical } from "lucide-react";
+import { AlertTriangle, BadgeCheck, FlaskConical } from "@/components/ui/icons";
 
 import { DashboardReveal } from "@/components/dashboard-reveal";
 import { QualityAssuranceClient } from "@/components/quality/quality-assurance-client";
@@ -17,9 +17,9 @@ export default async function QualityPage() {
             <div className="tech-scanline" aria-hidden="true" />
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-cyan-400/10 px-3 py-1.5 text-xs font-semibold text-cyan-300">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
                   <FlaskConical className="size-4" aria-hidden="true" />
-                  Phase 11 · Final QA and production hardening
+                  Quality assurance and production hardening
                 </div>
                 <h1 className="text-3xl font-semibold tracking-[-.03em] text-slate-100 sm:text-4xl">
                   Quality assurance center
@@ -46,7 +46,7 @@ export default async function QualityPage() {
           <span className="grid size-14 place-items-center rounded-2xl bg-amber-400/10 text-amber-300">
             <AlertTriangle className="size-7" aria-hidden="true" />
           </span>
-          <h1 className="mt-5 text-2xl font-semibold text-slate-100">Phase 11 database setup is required</h1>
+          <h1 className="mt-5 text-2xl font-semibold text-slate-100">Quality Assurance database setup is required</h1>
           <p className="mt-3 text-sm leading-6 text-slate-400">
             {error instanceof Error ? error.message : "Quality assurance data could not be loaded."}
           </p>

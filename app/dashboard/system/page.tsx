@@ -1,5 +1,5 @@
 import { DashboardReveal } from "@/components/dashboard-reveal";
-import { AlertTriangle, Rocket, ShieldCheck } from "lucide-react";
+import { AlertTriangle, Rocket, ShieldCheck } from "@/components/ui/icons";
 
 import { SystemDiagnosticsClient } from "@/components/system/system-diagnostics-client";
 import { getSystemDiagnosticsData } from "@/lib/system/data";
@@ -17,9 +17,9 @@ export default async function SystemPage() {
           <div className="tech-scanline" aria-hidden="true" />
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-cyan-400/10 px-3 py-1.5 text-xs font-semibold text-cyan-300">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
                 <Rocket className="size-4" aria-hidden="true" />
-                Phase 13 system health
+                Current system health
               </div>
               <h1 className="text-3xl font-semibold tracking-[-.03em] text-slate-100 sm:text-4xl">
                 System health and automation
@@ -42,7 +42,7 @@ export default async function SystemPage() {
   } catch (error) {
     return (
       <main className="grid min-h-[68vh] place-items-center">
-        <section className="w-full max-w-2xl rounded-[28px] border border-amber-300/25 bg-[#0b1220]/90 p-8 shadow-[0_18px_50px_rgba(0,4,14,0.5)] backdrop-blur-xl">
+        <section className="tech-card w-full max-w-2xl rounded-[28px] border border-amber-300/25 bg-card/90 p-8 shadow-[0_18px_50px_rgba(7, 0, 14, 0.5)] backdrop-blur-xl">
           <span className="grid size-14 place-items-center rounded-2xl bg-amber-400/10 text-amber-300">
             <AlertTriangle className="size-7" aria-hidden="true" />
           </span>
@@ -51,7 +51,7 @@ export default async function SystemPage() {
             {error instanceof Error ? error.message : "System diagnostics could not be loaded."}
           </p>
           <div className="mt-5 rounded-2xl bg-white/[0.035] p-4 text-sm leading-6 text-slate-200">
-            Run the Phase 8 through Phase 11 SQL files in order, then refresh this page.
+            Run the required SQL migrations listed in INSTALL.md, then refresh this page.
           </div>
         </section>
       </main>

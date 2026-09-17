@@ -22,7 +22,7 @@ import {
   Sparkles,
   Trash2,
   X,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
@@ -33,6 +33,7 @@ import type {
   AssignmentTemplate,
 } from "@/lib/assignments/types";
 import { recurrenceLabel } from "@/lib/assignments/utils";
+import { showNotice, confirmAction } from "@/components/ui/confirm-dialog";
 
 export function AssignmentProductivityCenter({
   data,
@@ -76,7 +77,7 @@ export function AssignmentProductivityCenter({
       if (!response.ok) throw new Error(payload.error ?? "Preferences could not be saved.");
       router.refresh();
     } catch (error) {
-      window.alert(error instanceof Error ? error.message : "Preferences could not be saved.");
+      (await showNotice(error instanceof Error ? error.message : "Preferences could not be saved."));
     } finally {
       setSavingPreferences(false);
     }
@@ -84,7 +85,7 @@ export function AssignmentProductivityCenter({
 
   async function enableBrowserNotifications() {
     if (typeof Notification === "undefined") {
-      window.alert("Browser notifications are not supported by this browser.");
+      (await showNotice("Browser notifications are not supported by this browser."));
       return;
     }
     const permission = await Notification.requestPermission();
@@ -93,7 +94,7 @@ export function AssignmentProductivityCenter({
       browser_enabled: permission === "granted",
     }));
     if (permission !== "granted") {
-      window.alert("Browser notification permission was not granted.");
+      (await showNotice("Browser notification permission was not granted."));
     }
   }
 
@@ -151,8 +152,8 @@ export function AssignmentProductivityCenter({
       >
         <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-cyan-400/10 px-3 py-1.5 text-xs font-semibold text-cyan-300">
-              <Sparkles className="size-4" /> Phase 5C · Automation and productivity
+            <div className="mb-4 inline-flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
+              <Sparkles className="size-4" /> Automation and productivity
             </div>
             <h1 className="text-3xl font-semibold tracking-[-.04em] text-slate-100 sm:text-4xl">
               Assignment productivity
@@ -245,7 +246,7 @@ export function AssignmentProductivityCenter({
 
         <form onSubmit={savePreferences} className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
           <div className="flex items-start gap-3">
-            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300">
+            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
               <BellRing className="size-5" />
             </span>
             <div>
@@ -267,7 +268,7 @@ export function AssignmentProductivityCenter({
               checked={preferences.browser_enabled}
               onChange={(checked) => setPreferences((value) => ({ ...value, browser_enabled: checked }))}
               action={
-                <button type="button" onClick={enableBrowserNotifications} className="text-xs font-semibold text-cyan-300 hover:underline">
+                <button type="button" onClick={enableBrowserNotifications} className="text-xs font-semibold text-primary hover:underline">
                   Request permission
                 </button>
               }
@@ -368,16 +369,16 @@ export function AssignmentProductivityCenter({
           {data.notifications.length ? (
             <div className="mt-4 space-y-2">
               {data.notifications.slice(0, 10).map((notification) => (
-                <div key={notification.id} className={`rounded-2xl border p-4 ${notification.read_at ? "border-white/10" : "border-cyan-300/20 bg-white/[0.04]"}`}>
+                <div key={notification.id} className={`rounded-2xl border p-4 ${notification.read_at ? "border-white/10" : "border-primary/20 bg-white/[0.04]"}`}>
                   <div className="flex items-start gap-3">
-                    <span className={`mt-1.5 size-2 shrink-0 rounded-full ${notification.read_at ? "bg-white/[0.07]" : "bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]"}`} />
+                    <span className={`mt-1.5 size-2 shrink-0 rounded-lg ${notification.read_at ? "bg-white/[0.07]" : "workspace-primary"}`} />
                     <div className="min-w-0 flex-1">
                       <strong className="text-sm text-slate-100">{notification.title}</strong>
                       <p className="mt-1 text-xs leading-5 text-slate-400">{notification.message}</p>
                       <p className="mt-2 text-[11px] text-slate-500">{formatDateTime(notification.created_at)}</p>
                     </div>
                     {notification.assignment_id ? (
-                      <Link href={`/dashboard/assignments/${notification.assignment_id}`} className="text-xs font-semibold text-cyan-300 hover:underline">Open</Link>
+                      <Link href={`/dashboard/assignments/${notification.assignment_id}`} className="text-xs font-semibold text-primary hover:underline">Open</Link>
                     ) : null}
                   </div>
                 </div>
@@ -450,14 +451,14 @@ function TemplateCard({
       router.push(`/dashboard/assignments/${payload.id}`);
       router.refresh();
     } catch (error) {
-      window.alert(error instanceof Error ? error.message : "Assignment could not be created.");
+      (await showNotice(error instanceof Error ? error.message : "Assignment could not be created."));
     } finally {
       setBusy(false);
     }
   }
 
   async function removeTemplate() {
-    if (busy || !window.confirm(`Delete the template “${template.name}”?`)) return;
+    if (busy || !(await confirmAction(`Delete the template “${template.name}”?`))) return;
     setBusy(true);
     try {
       const response = await fetch(`/api/assignments/templates/${template.id}`, { method: "DELETE" });
@@ -465,30 +466,30 @@ function TemplateCard({
       if (!response.ok) throw new Error(payload.error ?? "Template could not be deleted.");
       router.refresh();
     } catch (error) {
-      window.alert(error instanceof Error ? error.message : "Template could not be deleted.");
+      (await showNotice(error instanceof Error ? error.message : "Template could not be deleted."));
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <motion.article layout className="rounded-[22px] border border-white/10 bg-white/[0.045] p-4 transition hover:border-cyan-300/20 hover:shadow-sm">
+    <motion.article layout className="rounded-[22px] border border-white/10 bg-white/[0.045] p-4 transition hover:border-primary/20 hover:shadow-sm">
       <div className="flex items-start gap-3">
-        <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300"><Sparkles className="size-5" /></span>
+        <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"><Sparkles className="size-5" /></span>
         <div className="min-w-0 flex-1">
           <h3 className="truncate font-semibold text-slate-100">{template.name}</h3>
           <p className="mt-1 truncate text-sm text-slate-400">{template.title}</p>
         </div>
       </div>
       <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-400">
-        <span className="rounded-full bg-white/[0.05] px-2.5 py-1">Due +{template.due_offset_days} days</span>
-        <span className="rounded-full bg-white/[0.05] px-2.5 py-1">{recurrenceLabel(template.recurrence)}</span>
-        {subject ? <span className="rounded-full bg-white/[0.05] px-2.5 py-1">{subject.name}</span> : null}
+        <span className="rounded-lg bg-white/[0.05] px-2.5 py-1">Due +{template.due_offset_days} days</span>
+        <span className="rounded-lg bg-white/[0.05] px-2.5 py-1">{recurrenceLabel(template.recurrence)}</span>
+        {subject ? <span className="rounded-lg bg-white/[0.05] px-2.5 py-1">{subject.name}</span> : null}
       </div>
       <div className="mt-4 grid grid-cols-2 gap-2">
         <button type="button" onClick={createAssignment} disabled={busy} className={primaryButtonClass}>{busy ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}Use template</button>
         <button type="button" onClick={onEdit} disabled={busy} className={secondaryButtonClass}>Edit</button>
-        <button type="button" onClick={removeTemplate} disabled={busy} className="col-span-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-red-300/25 px-4 text-sm font-semibold text-red-300 hover:bg-red-400/10"><Trash2 className="size-4" />Delete</button>
+        <button type="button" onClick={removeTemplate} disabled={busy} className="col-span-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-red-300/25 px-4 text-sm font-semibold text-red-300 hover:bg-red-400/10"><Trash2 className="size-4" />Delete</button>
       </div>
     </motion.article>
   );
@@ -532,7 +533,7 @@ function TemplateDialog({
       onClose();
       router.refresh();
     } catch (error) {
-      window.alert(error instanceof Error ? error.message : "Template could not be saved.");
+      (await showNotice(error instanceof Error ? error.message : "Template could not be saved."));
     } finally {
       setBusy(false);
     }
@@ -542,10 +543,10 @@ function TemplateDialog({
     <ModalPortal>
       <div className="tech-modal-overlay fixed inset-0 z-[100] grid place-items-center overflow-y-auto p-3 sm:p-5" onMouseDown={(event) => { if (event.currentTarget === event.target && !busy) onClose(); }}>
       <motion.form onSubmit={submit} initial={{ opacity: 0, y: 16, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="tech-modal-surface max-h-[94dvh] w-full max-w-3xl overflow-y-auto rounded-[28px] border">
-        <header className="sticky top-0 z-10 flex items-start gap-4 border-b border-white/10 bg-[#0b1220]/95 p-5 backdrop-blur sm:p-6">
-          <span className="grid size-11 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300"><Sparkles className="size-5" /></span>
+        <header className="sticky top-0 z-10 flex items-start gap-4 border-b border-white/10 bg-card/95 p-5 backdrop-blur sm:p-6">
+          <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary"><Sparkles className="size-5" /></span>
           <div className="min-w-0 flex-1"><h2 className="text-lg font-semibold text-slate-100">{template ? "Edit template" : "New assignment template"}</h2><p className="mt-1 text-sm text-slate-400">New assignments calculate their deadline from the due offset.</p></div>
-          <button type="button" onClick={onClose} className="grid size-10 place-items-center rounded-full text-slate-400 hover:bg-white/[0.06]"><X className="size-5" /></button>
+          <button type="button" onClick={onClose} aria-label="Close template dialog" className="grid size-10 place-items-center rounded-lg text-slate-400 hover:bg-white/[0.06]"><X className="size-5" /></button>
         </header>
         <div className="grid gap-4 p-5 sm:p-6 md:grid-cols-2">
           <Field label="Template name"><input value={name} onChange={(e) => setName(e.target.value)} required maxLength={100} className={inputClass} /></Field>
@@ -559,7 +560,7 @@ function TemplateDialog({
           <Field label="Reminder"><select value={reminder} onChange={(e) => setReminder(e.target.value)} className={inputClass}><option value="0">At deadline</option><option value="60">1 hour before</option><option value="180">3 hours before</option><option value="1440">1 day before</option><option value="2880">2 days before</option><option value="10080">1 week before</option></select></Field>
           <Field label="Reference link" className="md:col-span-2"><input type="url" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="https://..." className={inputClass} /></Field>
         </div>
-        <footer className="sticky bottom-0 flex flex-col-reverse gap-2 border-t border-white/10 bg-[#0b1220]/95 p-5 backdrop-blur sm:flex-row sm:justify-end">
+        <footer className="sticky bottom-0 flex flex-col-reverse gap-2 border-t border-white/10 bg-card/95 p-5 backdrop-blur sm:flex-row sm:justify-end">
           <button type="button" onClick={onClose} disabled={busy} className={secondaryButtonClass}>Cancel</button>
           <button type="submit" disabled={busy} className={primaryButtonClass}>{busy ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}{template ? "Save template" : "Create template"}</button>
         </footer>
@@ -570,20 +571,20 @@ function TemplateDialog({
 }
 
 function Stat({ label, value, icon: Icon }: { label: string; value: string | number; icon: typeof Clock3 }) {
-  return <div className="rounded-[20px] border border-white/10 bg-white/[0.045] p-4"><Icon className="size-5 text-cyan-300" /><strong className="mt-4 block text-2xl font-semibold text-slate-100">{value}</strong><span className="mt-1 block text-xs text-slate-400">{label}</span></div>;
+  return <div className="rounded-[20px] border border-white/10 bg-white/[0.045] p-4"><Icon className="size-5 text-primary" /><strong className="mt-4 block text-2xl font-semibold text-slate-100">{value}</strong><span className="mt-1 block text-xs text-slate-400">{label}</span></div>;
 }
 function Insight({ label, value, icon: Icon, danger = false }: { label: string; value: string | number; icon: typeof Clock3; danger?: boolean }) {
-  return <div className="flex items-center gap-4 rounded-[20px] border border-white/10 bg-white/[0.045] p-4 shadow-sm"><span className={`grid size-11 place-items-center rounded-2xl ${danger ? "bg-red-400/10 text-red-300" : "bg-cyan-400/10 text-cyan-300"}`}><Icon className="size-5" /></span><div><strong className="block text-xl text-slate-100">{value}</strong><span className="text-xs text-slate-400">{label}</span></div></div>;
+  return <div className="flex items-center gap-4 rounded-[20px] border border-white/10 bg-white/[0.045] p-4 shadow-sm"><span className={`grid size-11 place-items-center rounded-2xl ${danger ? "bg-red-400/10 text-red-300" : "bg-primary/10 text-primary"}`}><Icon className="size-5" /></span><div><strong className="block text-xl text-slate-100">{value}</strong><span className="text-xs text-slate-400">{label}</span></div></div>;
 }
 function ToggleRow({ label, description, checked, onChange, action }: { label: string; description: string; checked: boolean; onChange: (checked: boolean) => void; action?: React.ReactNode }) {
-  return <div className="flex items-start gap-3 rounded-2xl border border-white/10 p-3"><button type="button" role="switch" aria-checked={checked} onClick={() => onChange(!checked)} className={`relative mt-0.5 h-6 w-11 shrink-0 rounded-full transition ${checked ? "bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]" : "bg-white/10"}`}><span className={`absolute top-1 size-4 rounded-full bg-white/[0.045] shadow transition ${checked ? "left-6" : "left-1"}`} /></button><div className="min-w-0 flex-1"><strong className="block text-sm text-slate-100">{label}</strong><p className="mt-0.5 text-xs leading-5 text-slate-400">{description}</p>{action ? <div className="mt-1">{action}</div> : null}</div></div>;
+  return <div className="flex items-start gap-3 rounded-2xl border border-white/10 p-3"><button type="button" role="switch" aria-checked={checked} onClick={() => onChange(!checked)} className={`relative mt-0.5 h-6 w-11 shrink-0 rounded-lg transition ${checked ? "workspace-primary" : "bg-white/10"}`}><span className={`absolute top-1 size-4 rounded-lg bg-white/[0.045] shadow transition ${checked ? "left-6" : "left-1"}`} /></button><div className="min-w-0 flex-1"><strong className="block text-sm text-slate-100">{label}</strong><p className="mt-0.5 text-xs leading-5 text-slate-400">{description}</p>{action ? <div className="mt-1">{action}</div> : null}</div></div>;
 }
 function EmptyState({ icon: Icon, title, copy }: { icon: typeof Sparkles; title: string; copy: string }) {
-  return <div className="mt-5 grid min-h-48 place-items-center rounded-[20px] border border-dashed border-cyan-300/20 p-6 text-center"><div><Icon className="mx-auto size-7 text-cyan-300" /><h3 className="mt-3 font-semibold text-slate-100">{title}</h3><p className="mt-1 max-w-sm text-sm leading-6 text-slate-400">{copy}</p></div></div>;
+  return <div className="mt-5 grid min-h-48 place-items-center rounded-[20px] border border-dashed border-primary/20 p-6 text-center"><div><Icon className="mx-auto size-7 text-primary" /><h3 className="mt-3 font-semibold text-slate-100">{title}</h3><p className="mt-1 max-w-sm text-sm leading-6 text-slate-400">{copy}</p></div></div>;
 }
 function Field({ label, className = "", children }: { label: string; className?: string; children: React.ReactNode }) { return <label className={`block ${className}`}><span className="mb-2 block text-xs font-semibold text-slate-400">{label}</span>{children}</label>; }
 function formatDateTime(value: string) { const date = new Date(value); return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila" }).format(date); }
 
-const inputClass = "min-h-11 w-full rounded-2xl border border-white/10 bg-white/[0.045] px-4 text-sm text-slate-100 outline-none transition focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15";
-const primaryButtonClass = "inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60";
-const secondaryButtonClass = "inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] disabled:opacity-60";
+const inputClass = "min-h-11 w-full rounded-2xl border border-white/10 bg-white/[0.045] px-4 text-sm text-slate-100 outline-none transition focus:border-primary/45 focus:ring-4 focus:ring-primary/15";
+const primaryButtonClass = "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg workspace-primary px-5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60";
+const secondaryButtonClass = "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.045] px-5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] disabled:opacity-60";

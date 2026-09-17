@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import "./workspace.css";
 import { redirect } from "next/navigation";
 
 import { AppShell } from "@/components/app-shell";

@@ -74,7 +74,7 @@ export function MobileSwipeActions({ children, leftActions = [], rightActions = 
   }
 
   return (
-    <div className="mobile-swipe-shell relative isolate overflow-hidden rounded-[22px] bg-[#07111f] lg:overflow-visible lg:bg-transparent">
+    <div className="mobile-swipe-shell relative isolate overflow-hidden rounded-[22px] bg-card lg:overflow-visible lg:bg-transparent">
       <div className="absolute inset-y-0 left-0 z-0 flex w-[88px] items-stretch lg:hidden">
         {leftActions.slice(0, 1).map((action) => <ActionButton key={action.label} action={action} close={() => settle(0)} side="left" />)}
       </div>
@@ -82,7 +82,7 @@ export function MobileSwipeActions({ children, leftActions = [], rightActions = 
         {rightActions.slice(0, 1).map((action) => <ActionButton key={action.label} action={action} close={() => settle(0)} side="right" />)}
       </div>
       <motion.div
-        className="mobile-swipe-surface relative z-10 rounded-[22px] bg-[#081321] touch-pan-y lg:!transform-none lg:bg-transparent"
+        className="mobile-swipe-surface relative z-10 rounded-[22px] bg-card touch-pan-y lg:!transform-none lg:bg-transparent"
         style={{ x }}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
@@ -104,12 +104,12 @@ export function MobileSwipeActions({ children, leftActions = [], rightActions = 
 function ActionButton({ action, close, side }: { action: SwipeAction; close: () => void; side: "left" | "right" }) {
   const tone = action.tone ?? "cyan";
   const classes = tone === "red"
-    ? "border-red-300/20 bg-[#35121a] text-red-200"
+    ? "border-red-300/20 bg-card text-red-200"
     : tone === "amber"
       ? "border-amber-300/20 bg-[#332407] text-amber-100"
       : tone === "green"
         ? "border-emerald-300/20 bg-[#0a3028] text-emerald-100"
-        : "border-cyan-300/20 bg-[#073246] text-cyan-100";
+        : "border-primary/20 bg-card text-primary";
 
   return (
     <motion.button

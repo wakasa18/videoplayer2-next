@@ -26,7 +26,7 @@ export default function GlobalError({
 
   return (
     <html lang="en">
-      <body className="high-tech-theme m-0 min-h-screen bg-[#07101d] font-sans text-slate-100">
+      <body className="high-tech-theme m-0 min-h-screen bg-card font-sans text-slate-100">
         <main className="grid min-h-screen place-items-center p-6">
           <section className="w-full max-w-xl rounded-[28px] border border-red-300/25 bg-white/[0.045] p-8 text-center shadow-sm">
             <div className="mx-auto grid size-16 place-items-center rounded-full bg-red-400/10 text-3xl text-red-300">!</div>
@@ -37,7 +37,7 @@ export default function GlobalError({
             <button
               type="button"
               onClick={reset}
-              className="mt-6 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-6 py-3 text-sm font-semibold text-white"
+              className="mt-6 rounded-full workspace-primary px-6 py-3 text-sm font-semibold text-white"
             >
               Try again
             </button>

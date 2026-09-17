@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "./theme.css";
+
+import { UIPerformanceController } from "@/components/ui/ui-performance-controller";
+import { ConfirmDialogHost } from "@/components/ui/confirm-dialog";
 
 const defaultUrl =
   process.env.NEXT_PUBLIC_APP_URL ??
@@ -21,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#07101d",
+  themeColor: "#10191d",
   viewportFit: "cover",
 };
 
@@ -37,10 +41,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" data-scroll-behavior="smooth">
       <body className={`${inter.variable} high-tech-theme min-h-screen antialiased`}>
-        <a href="#main-content" className="skip-link">Skip to main content</a>
+        <UIPerformanceController />
+        <a href="#main-content" className="skip-link" data-no-glass>Skip to main content</a>
         {children}
+        <ConfirmDialogHost />
       </body>
     </html>
   );

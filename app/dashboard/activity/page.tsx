@@ -8,7 +8,7 @@ import {
   History,
   Search,
   ShieldCheck,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import Link from "next/link";
 
 import { getWorkspaceActivity, getWorkspaceSettingsData } from "@/lib/workspace/data";
@@ -40,10 +40,10 @@ export default async function ActivityPage({ searchParams }: Props) {
 
     return (
       <main className="space-y-5">
-        <section className="overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.045] p-6 shadow-sm sm:p-8">
+        <section className="tech-card overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.045] p-6 shadow-sm sm:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-cyan-400/10 px-3 py-1.5 text-xs font-semibold text-cyan-300">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
                 <History className="size-4" aria-hidden="true" />
                 Unified audit history
               </div>
@@ -72,7 +72,7 @@ export default async function ActivityPage({ searchParams }: Props) {
         >
           <label className="grid gap-2 text-sm font-semibold text-slate-200">
             Search activity
-            <span className="flex h-12 items-center gap-3 rounded-2xl border border-white/10 px-4 focus-within:border-cyan-300/40 focus-within:ring-4 focus-within:ring-cyan-300/15">
+            <span className="flex h-12 items-center gap-3 rounded-2xl border border-white/10 px-4 focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/15">
               <Search className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
               <input
                 name="q"
@@ -89,7 +89,7 @@ export default async function ActivityPage({ searchParams }: Props) {
             <select
               name="module"
               defaultValue={filters.module}
-              className="h-12 rounded-2xl border border-white/10 bg-white/[0.045] px-4 text-sm font-normal text-slate-100 outline-none focus:border-cyan-300/40 focus:ring-4 focus:ring-cyan-300/15"
+              className="h-12 rounded-2xl border border-white/10 bg-white/[0.045] px-4 text-sm font-normal text-slate-100 outline-none focus:border-primary/40 focus:ring-4 focus:ring-primary/15"
             >
               <option value="">All modules</option>
               <option value="files">Files</option>
@@ -101,14 +101,14 @@ export default async function ActivityPage({ searchParams }: Props) {
 
           <button
             type="submit"
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-white transition hover:bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-full workspace-primary px-5 text-sm font-semibold text-white transition hover:workspace-primary"
           >
             <Search className="size-4" aria-hidden="true" />
             Filter
           </button>
         </form>
 
-        <section className="overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.045] shadow-sm">
+        <section className="tech-card overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.045] shadow-sm">
           {result.items.length ? (
             <div className="divide-y divide-white/10">
               {result.items.map((item) => (
@@ -122,7 +122,7 @@ export default async function ActivityPage({ searchParams }: Props) {
           ) : (
             <div className="grid min-h-72 place-items-center p-8 text-center">
               <div className="max-w-md">
-                <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300">
+                <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-primary/10 text-primary">
                   <History className="size-7" aria-hidden="true" />
                 </span>
                 <h2 className="mt-5 text-lg font-semibold text-slate-100">
@@ -146,12 +146,12 @@ export default async function ActivityPage({ searchParams }: Props) {
   } catch (error) {
     return (
       <main className="grid min-h-[68vh] place-items-center">
-        <section className="w-full max-w-2xl rounded-[28px] border border-amber-300/25 bg-white/[0.045] p-5 shadow-sm sm:p-8">
+        <section className="tech-card w-full max-w-2xl rounded-[28px] border border-amber-300/25 bg-white/[0.045] p-5 shadow-sm sm:p-8">
           <span className="grid size-14 place-items-center rounded-2xl bg-amber-400/10 text-amber-300">
             <AlertTriangle className="size-7" aria-hidden="true" />
           </span>
           <h1 className="mt-5 text-2xl font-semibold text-slate-100">
-            Activity history needs Phase 7
+            Activity history needs database setup
           </h1>
           <p className="mt-3 text-sm leading-6 text-slate-400">
             {error instanceof Error ? error.message : "Activity could not be loaded."}
@@ -257,9 +257,9 @@ function moduleIcon(module: WorkspaceActivityModule) {
 }
 
 function moduleColor(module: WorkspaceActivityModule): string {
-  if (module === "files") return "bg-cyan-400/10 text-cyan-300";
+  if (module === "files") return "bg-primary/10 text-primary";
   if (module === "assignments") return "bg-amber-400/10 text-amber-300";
-  if (module === "videos") return "bg-purple-400/10 text-purple-300";
+  if (module === "videos") return "bg-primary/10 text-primary";
   return "bg-emerald-400/10 text-emerald-300";
 }
 

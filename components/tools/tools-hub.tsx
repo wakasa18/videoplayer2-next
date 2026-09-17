@@ -24,10 +24,13 @@ import {
   UploadCloud,
   WandSparkles,
   X,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 
+import { GlassButton } from "@/components/ui/glass-button";
+import { LordIcon, type LordIconName } from "@/components/ui/lord-icon";
+import { GlowCard } from "@/components/ui/spotlight-card";
 import { formatBytes } from "@/lib/files/utils";
 import { bytesToArrayBuffer } from "@/lib/tools/binary";
 import { saveGeneratedFileToArchive } from "@/lib/tools/generated-upload-client";
@@ -51,6 +54,7 @@ const TOOLS: Array<{
   eyebrow: string;
   description: string;
   icon: typeof FileCog;
+  lordicon: LordIconName;
 }> = [
   {
     key: "converter",
@@ -58,6 +62,7 @@ const TOOLS: Array<{
     eyebrow: "Convert",
     description: "Convert common image, text, CSV, JSON, HTML, and SVG files locally in your browser.",
     icon: FileCog,
+    lordicon: "tools",
   },
   {
     key: "pdf",
@@ -65,6 +70,7 @@ const TOOLS: Array<{
     eyebrow: "PDF",
     description: "Merge, split, extract, reorder, and build PDFs from images directly in your browser.",
     icon: FileText,
+    lordicon: "files",
   },
   {
     key: "image",
@@ -72,6 +78,7 @@ const TOOLS: Array<{
     eyebrow: "Edit",
     description: "Resize, crop, rotate, compress, convert, and strip metadata from images.",
     icon: FileImage,
+    lordicon: "image",
   },
   {
     key: "archive",
@@ -79,6 +86,7 @@ const TOOLS: Array<{
     eyebrow: "ZIP",
     description: "Create, inspect, and extract ZIP archives, including files already stored in Important Files.",
     icon: FileArchive,
+    lordicon: "archive",
   },
 ];
 
@@ -91,7 +99,7 @@ export function ToolsHub({ archiveFiles }: { archiveFiles: ToolArchiveFile[] }) 
         <div className="tech-scanline" aria-hidden="true" />
         <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-cyan-300/[0.07] px-3 py-1.5 text-xs font-semibold text-cyan-200">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.07] px-3 py-1.5 text-xs font-semibold text-primary">
               <WandSparkles className="size-4" /> Archive utilities
             </div>
             <h1 className="tech-title text-3xl font-semibold tracking-[-.035em] text-slate-100 sm:text-4xl">
@@ -110,28 +118,39 @@ export function ToolsHub({ archiveFiles }: { archiveFiles: ToolArchiveFile[] }) 
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {TOOLS.map((tool) => {
-          const Icon = tool.icon;
           const selected = active === tool.key;
           return (
-            <button
+            <GlowCard
               key={tool.key}
-              type="button"
-              onClick={() => setActive(tool.key)}
-              className={`tech-interactive group rounded-[24px] border p-5 text-left transition ${
-                selected
-                  ? "border-cyan-300/25 bg-[linear-gradient(145deg,rgba(28,206,255,.12),rgba(83,91,255,.08))] shadow-[0_18px_45px_rgba(0,104,180,.12)]"
-                  : "border-white/10 bg-white/[0.035] hover:border-cyan-300/15 hover:bg-white/[0.05]"
-              }`}
+              glowColor="purple"
+              customSize
+              className="h-full w-full !gap-0 !rounded-[24px] !p-0"
             >
-              <div className="flex items-start justify-between gap-4">
-                <span className={`grid size-11 place-items-center rounded-2xl border ${selected ? "border-cyan-300/20 bg-cyan-300/10 text-cyan-200" : "border-white/10 bg-white/[0.04] text-slate-400 group-hover:text-cyan-200"}`}>
-                  <Icon className="size-5" />
-                </span>
-                <span className="text-[10px] font-bold uppercase tracking-[.16em] text-slate-500">{tool.eyebrow}</span>
-              </div>
-              <h2 className="mt-4 text-base font-semibold text-slate-100">{tool.label}</h2>
-              <p className="mt-1.5 text-xs leading-5 text-slate-500">{tool.description}</p>
-            </button>
+              <button
+                id={`tool-card-${tool.key}`}
+                type="button"
+                onClick={() => setActive(tool.key)}
+                className={`tech-interactive group h-full w-full rounded-[24px] border p-5 text-left transition ${
+                  selected
+                    ? "border-primary/25 bg-primary/10 shadow-none"
+                    : "border-white/10 bg-white/[0.025] hover:border-primary/15 hover:bg-white/[0.045]"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <span className={`grid size-11 place-items-center rounded-2xl border ${selected ? "border-primary/20 bg-primary/10 text-primary" : "border-white/10 bg-white/[0.04] text-slate-400 group-hover:text-primary"}`}>
+                    <LordIcon
+                      name={tool.lordicon}
+                      size={22}
+                      active={selected}
+                      targetId={`tool-card-${tool.key}`}
+                    />
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-[.16em] text-slate-500">{tool.eyebrow}</span>
+                </div>
+                <h2 className="mt-4 text-base font-semibold text-slate-100">{tool.label}</h2>
+                <p className="mt-1.5 text-xs leading-5 text-slate-500">{tool.description}</p>
+              </button>
+            </GlowCard>
           );
         })}
       </section>
@@ -203,18 +222,24 @@ function FileConverter({ archiveFiles }: { archiveFiles: ToolArchiveFile[] }) {
               </select>
             </Field>
             <Field label="Image quality" hint="Used for JPG/WebP outputs">
-              <div className="flex min-h-11 items-center gap-3 rounded-xl border border-white/10 bg-[#08111f]/90 px-3">
-                <input className="min-w-0 flex-1 accent-cyan-400" type="range" min="35" max="100" value={quality} onChange={(event) => setQuality(Number(event.target.value))} />
-                <span className="w-10 text-right text-xs font-semibold text-cyan-200">{quality}%</span>
+              <div className="flex min-h-11 items-center gap-3 rounded-xl border border-white/10 bg-card/90 px-3">
+                <input className="min-w-0 flex-1 accent-primary" type="range" min="35" max="100" value={quality} onChange={(event) => setQuality(Number(event.target.value))} />
+                <span className="w-10 text-right text-xs font-semibold text-primary">{quality}%</span>
               </div>
             </Field>
           </div>
           <SupportedFormats />
           {error ? <ErrorBox message={error} /> : null}
-          <button type="button" onClick={convert} disabled={busy || !sourceName || !targets.length} className="tool-primary-button">
+          <GlassButton
+            type="button"
+            onClick={convert}
+            disabled={busy || !sourceName || !targets.length}
+            size="sm"
+            contentClassName="flex min-h-7 items-center justify-center gap-2"
+          >
             {busy ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
             {busy ? "Converting…" : "Convert file"}
-          </button>
+          </GlassButton>
         </div>
         <GeneratedResult output={output} defaultFolder="Tools Output/Converted" />
       </div>
@@ -332,7 +357,7 @@ function PdfToolkit({ archiveFiles }: { archiveFiles: ToolArchiveFile[] }) {
       <div className="mb-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
         {modeButtons.map((item) => {
           const Icon = item.icon;
-          return <button key={item.key} type="button" onClick={() => changeMode(item.key)} className={`rounded-2xl border px-4 py-3 text-left text-xs font-semibold transition ${mode === item.key ? "border-cyan-300/20 bg-cyan-300/[0.08] text-cyan-200" : "border-white/10 bg-white/[0.025] text-slate-400 hover:bg-white/[0.045] hover:text-slate-200"}`}><Icon className="mr-2 inline size-4" />{item.label}</button>;
+          return <button key={item.key} type="button" onClick={() => changeMode(item.key)} className={`rounded-2xl border px-4 py-3 text-left text-xs font-semibold transition ${mode === item.key ? "border-primary/20 bg-primary/[0.08] text-primary" : "border-white/10 bg-white/[0.025] text-slate-400 hover:bg-white/[0.045] hover:text-slate-200"}`}><Icon className="mr-2 inline size-4" />{item.label}</button>;
         })}
       </div>
 
@@ -341,7 +366,7 @@ function PdfToolkit({ archiveFiles }: { archiveFiles: ToolArchiveFile[] }) {
           {mode === "merge" ? <>
             <div className="rounded-[22px] border border-white/10 bg-white/[0.025] p-4">
               <div><h3 className="text-sm font-semibold text-slate-100">PDF sources</h3><p className="mt-1 text-xs text-slate-500">Choose two or more local PDFs, archive PDFs, or a combination of both.</p></div>
-              <label className="mt-4 flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-cyan-300/20 bg-cyan-300/[0.035] p-3 text-center transition hover:bg-cyan-300/[0.06]"><UploadCloud className="size-5 text-cyan-300" /><span className="mt-2 text-xs font-semibold text-slate-200">Choose local PDFs</span><span className="mt-1 text-[11px] text-slate-500">{localPdfs.length ? `${localPdfs.length} selected` : "Multiple selection supported"}</span><input type="file" multiple accept=".pdf,application/pdf" className="sr-only" onChange={(event) => { setLocalPdfs(Array.from(event.target.files ?? [])); setOutput(null); }} /></label>
+              <label className="mt-4 flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-primary/20 bg-primary/[0.035] p-3 text-center transition hover:bg-primary/[0.06]"><UploadCloud className="size-5 text-primary" /><span className="mt-2 text-xs font-semibold text-slate-200">Choose local PDFs</span><span className="mt-1 text-[11px] text-slate-500">{localPdfs.length ? `${localPdfs.length} selected` : "Multiple selection supported"}</span><input type="file" multiple accept=".pdf,application/pdf" className="sr-only" onChange={(event) => { setLocalPdfs(Array.from(event.target.files ?? [])); setOutput(null); }} /></label>
               <ArchiveSelectionList files={pdfFiles} selected={pdfSelections} onChange={setPdfSelections} emptyLabel="No PDF files are stored in Important Files yet." />
             </div>
             <Field label="Output file name"><input className="tool-input" value={outputName} onChange={(event) => setOutputName(event.target.value)} placeholder="merged.pdf" /></Field>
@@ -357,7 +382,7 @@ function PdfToolkit({ archiveFiles }: { archiveFiles: ToolArchiveFile[] }) {
           {mode === "images" ? <>
             <div className="rounded-[22px] border border-white/10 bg-white/[0.025] p-4">
               <div><h3 className="text-sm font-semibold text-slate-100">Image sources</h3><p className="mt-1 text-xs text-slate-500">PNG and JPG/JPEG are supported. Use Image Toolkit first for WebP, GIF, BMP, or SVG.</p></div>
-              <label className="mt-4 flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-cyan-300/20 bg-cyan-300/[0.035] p-3 text-center transition hover:bg-cyan-300/[0.06]"><Images className="size-5 text-cyan-300" /><span className="mt-2 text-xs font-semibold text-slate-200">Choose local images</span><span className="mt-1 text-[11px] text-slate-500">{localImages.length ? `${localImages.length} selected` : "PNG or JPG · multiple selection supported"}</span><input type="file" multiple accept="image/png,image/jpeg,.png,.jpg,.jpeg" className="sr-only" onChange={(event) => { setLocalImages(Array.from(event.target.files ?? [])); setOutput(null); }} /></label>
+              <label className="mt-4 flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-primary/20 bg-primary/[0.035] p-3 text-center transition hover:bg-primary/[0.06]"><Images className="size-5 text-primary" /><span className="mt-2 text-xs font-semibold text-slate-200">Choose local images</span><span className="mt-1 text-[11px] text-slate-500">{localImages.length ? `${localImages.length} selected` : "PNG or JPG · multiple selection supported"}</span><input type="file" multiple accept="image/png,image/jpeg,.png,.jpg,.jpeg" className="sr-only" onChange={(event) => { setLocalImages(Array.from(event.target.files ?? [])); setOutput(null); }} /></label>
               <ArchiveSelectionList files={archiveImages} selected={imageSelections} onChange={setImageSelections} emptyLabel="No PNG/JPG files are stored in Important Files yet." />
             </div>
             <Field label="Output file name"><input className="tool-input" value={outputName} onChange={(event) => setOutputName(event.target.value)} placeholder="images.pdf" /></Field>
@@ -365,7 +390,7 @@ function PdfToolkit({ archiveFiles }: { archiveFiles: ToolArchiveFile[] }) {
 
           <div className="flex items-center gap-2 rounded-2xl border border-emerald-300/10 bg-emerald-300/[0.045] px-4 py-3 text-xs text-emerald-200/80"><ShieldCheck className="size-4 shrink-0" /> PDF processing happens locally in the browser. Password-encrypted PDFs must be unlocked first.</div>
           {error ? <ErrorBox message={error} /> : null}
-          <button type="button" onClick={runPdfTool} disabled={busy} className="tool-primary-button">{busy ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}{busy ? "Processing…" : mode === "merge" ? "Merge PDFs" : mode === "organize" ? "Create organized PDF" : mode === "split" ? "Split PDF" : "Create PDF"}</button>
+          <GlassButton type="button" onClick={runPdfTool} disabled={busy} size="sm" contentClassName="flex min-h-7 items-center justify-center gap-2">{busy ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}{busy ? "Processing…" : mode === "merge" ? "Merge PDFs" : mode === "organize" ? "Create organized PDF" : mode === "split" ? "Split PDF" : "Create PDF"}</GlassButton>
         </div>
         <GeneratedResult output={output} defaultFolder={mode === "split" ? "Tools Output/PDF/Split" : "Tools Output/PDF"} />
       </div>
@@ -374,7 +399,7 @@ function PdfToolkit({ archiveFiles }: { archiveFiles: ToolArchiveFile[] }) {
 }
 
 function ArchiveSelectionList({ files, selected, onChange, emptyLabel }: { files: ToolArchiveFile[]; selected: Set<number>; onChange: (next: Set<number>) => void; emptyLabel: string }) {
-  return <div className="mt-3 rounded-2xl border border-white/10 bg-[#08111f]/55 p-3"><div className="flex items-center justify-between gap-3"><span className="text-[11px] font-semibold text-slate-400">From Important Files</span>{selected.size ? <button type="button" onClick={() => onChange(new Set())} className="text-[10px] font-semibold text-cyan-300 hover:text-cyan-200">Clear {selected.size}</button> : null}</div>{files.length ? <div className="mt-2 max-h-44 space-y-1 overflow-y-auto pr-1">{files.map((file) => { const checked = selected.has(file.id); return <label key={file.id} className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2 transition ${checked ? "border-cyan-300/15 bg-cyan-300/[0.06]" : "border-transparent hover:bg-white/[0.035]"}`}><input type="checkbox" checked={checked} onChange={() => { const next = new Set(selected); if (next.has(file.id)) next.delete(file.id); else next.add(file.id); onChange(next); }} className="size-4 accent-cyan-400" /><span className="min-w-0 flex-1 truncate text-xs text-slate-300">{file.originalFilename}</span><span className="shrink-0 text-[10px] text-slate-600">{formatBytes(file.fileSize)}</span></label>; })}</div> : <p className="mt-2 text-[11px] text-slate-600">{emptyLabel}</p>}</div>;
+  return <div className="mt-3 rounded-2xl border border-white/10 bg-card/55 p-3"><div className="flex items-center justify-between gap-3"><span className="text-[11px] font-semibold text-slate-400">From Important Files</span>{selected.size ? <button type="button" onClick={() => onChange(new Set())} className="text-[10px] font-semibold text-primary hover:text-primary">Clear {selected.size}</button> : null}</div>{files.length ? <div className="mt-2 max-h-44 space-y-1 overflow-y-auto pr-1">{files.map((file) => { const checked = selected.has(file.id); return <label key={file.id} className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2 transition ${checked ? "border-primary/15 bg-primary/[0.06]" : "border-transparent hover:bg-white/[0.035]"}`}><input type="checkbox" checked={checked} onChange={() => { const next = new Set(selected); if (next.has(file.id)) next.delete(file.id); else next.add(file.id); onChange(next); }} className="size-4 accent-primary" /><span className="min-w-0 flex-1 truncate text-xs text-slate-300">{file.originalFilename}</span><span className="shrink-0 text-[10px] text-slate-600">{formatBytes(file.fileSize)}</span></label>; })}</div> : <p className="mt-2 text-[11px] text-slate-600">{emptyLabel}</p>}</div>;
 }
 
 function ImageToolkit({ archiveFiles }: { archiveFiles: ToolArchiveFile[] }) {
@@ -391,6 +416,7 @@ function ImageToolkit({ archiveFiles }: { archiveFiles: ToolArchiveFile[] }) {
   const [error, setError] = useState("");
   const [output, setOutput] = useState<GeneratedOutput | null>(null);
   const localImageInputRef = useRef<HTMLInputElement>(null);
+  const localImageInputId = useId();
 
   function chooseLocalImages(files: FileList | File[]) {
     const incoming = Array.from(files);
@@ -462,24 +488,23 @@ function ImageToolkit({ archiveFiles }: { archiveFiles: ToolArchiveFile[] }) {
             </div>
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               <div
-                className="group flex min-h-28 flex-col items-center justify-center rounded-2xl border border-dashed border-cyan-300/20 bg-cyan-300/[0.035] p-4 text-center transition hover:bg-cyan-300/[0.06]"
+                className="group flex min-h-28 flex-col items-center justify-center rounded-2xl border border-dashed border-primary/20 bg-primary/[0.035] p-4 text-center transition hover:bg-primary/[0.06]"
                 onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "copy"; }}
                 onDrop={(event) => { event.preventDefault(); chooseLocalImages(event.dataTransfer.files); }}
               >
-                <UploadCloud className="size-6 text-cyan-300" />
+                <UploadCloud className="size-6 text-primary" />
                 <span className="mt-2 text-sm font-semibold text-slate-200">Choose local images</span>
                 <span className="mt-1 text-[11px] text-slate-500">PNG, JPG, WebP, GIF, BMP, SVG · drag & drop supported</span>
-                <button type="button" onClick={() => localImageInputRef.current?.click()} className="tool-secondary-button mt-3">
+                <label htmlFor={localImageInputId} className="tool-secondary-button mt-3 cursor-pointer">
                   <UploadCloud className="size-4" /> Browse images
-                </button>
+                </label>
                 <input
+                  id={localImageInputId}
                   ref={localImageInputRef}
                   type="file"
                   accept="image/png,image/jpeg,image/webp,image/gif,image/bmp,image/svg+xml,.png,.jpg,.jpeg,.webp,.gif,.bmp,.svg"
                   multiple
-                  className="hidden"
-                  tabIndex={-1}
-                  aria-hidden="true"
+                  className="sr-only"
                   onChange={(event) => {
                     chooseLocalImages(event.currentTarget.files ?? []);
                     event.currentTarget.value = "";
@@ -503,14 +528,20 @@ function ImageToolkit({ archiveFiles }: { archiveFiles: ToolArchiveFile[] }) {
             <Field label="Crop"><select className="tool-input" value={crop} onChange={(event) => setCrop(event.target.value)}><option value="original">Keep original</option><option value="1:1">Square · 1:1</option><option value="4:3">Standard · 4:3</option><option value="16:9">Wide · 16:9</option></select></Field>
             <Field label="Output format"><select className="tool-input" value={format} onChange={(event) => setFormat(event.target.value)}><option value="webp">WebP</option><option value="jpeg">JPG</option><option value="png">PNG</option></select></Field>
             <Field label="Rotation"><select className="tool-input" value={rotation} onChange={(event) => setRotation(Number(event.target.value))}><option value={0}>No rotation</option><option value={90}>90° clockwise</option><option value={180}>180°</option><option value={270}>270° clockwise</option></select></Field>
-            <Field label="Quality" hint="JPG/WebP compression"><div className="flex min-h-11 items-center gap-3 rounded-xl border border-white/10 bg-[#08111f]/90 px-3"><input className="min-w-0 flex-1 accent-cyan-400" type="range" min="30" max="100" value={quality} onChange={(event) => setQuality(Number(event.target.value))} /><span className="w-10 text-right text-xs font-semibold text-cyan-200">{quality}%</span></div></Field>
+            <Field label="Quality" hint="JPG/WebP compression"><div className="flex min-h-11 items-center gap-3 rounded-xl border border-white/10 bg-card/90 px-3"><input className="min-w-0 flex-1 accent-primary" type="range" min="30" max="100" value={quality} onChange={(event) => setQuality(Number(event.target.value))} /><span className="w-10 text-right text-xs font-semibold text-primary">{quality}%</span></div></Field>
           </div>
           <div className="flex items-center gap-2 rounded-2xl border border-emerald-300/10 bg-emerald-300/[0.045] px-4 py-3 text-xs text-emerald-200/80"><ShieldCheck className="size-4 shrink-0" /> Re-encoding removes EXIF/GPS metadata from the generated image.</div>
           {error ? <ErrorBox message={error} /> : null}
-          <button type="button" onClick={processImages} disabled={busy || (!localFiles.length && !archiveId)} className="tool-primary-button">
+          <GlassButton
+            type="button"
+            onClick={processImages}
+            disabled={busy || (!localFiles.length && !archiveId)}
+            size="sm"
+            contentClassName="flex min-h-7 items-center justify-center gap-2"
+          >
             {busy ? <Loader2 className="size-4 animate-spin" /> : <SlidersHorizontal className="size-4" />}
             {busy ? "Processing…" : `Process ${localFiles.length > 1 ? `${localFiles.length} images` : "image"}`}
-          </button>
+          </GlassButton>
         </div>
         <GeneratedResult output={output} defaultFolder="Tools Output/Images" />
       </div>
@@ -536,8 +567,8 @@ function ArchiveManager({ archiveFiles }: { archiveFiles: ToolArchiveFile[] }) {
   const [extractFolder, setExtractFolder] = useState("Tools Output/Extracted");
   const [extractBusy, setExtractBusy] = useState(false);
   const [extractStatus, setExtractStatus] = useState("");
-  const createFilesInputRef = useRef<HTMLInputElement>(null);
-  const extractZipInputRef = useRef<HTMLInputElement>(null);
+  const createFilesInputId = useId();
+  const extractZipInputId = useId();
 
   function chooseArchiveFiles(files: FileList | File[]) {
     setLocalFiles(Array.from(files));
@@ -630,31 +661,29 @@ function ArchiveManager({ archiveFiles }: { archiveFiles: ToolArchiveFile[] }) {
   return (
     <ToolSurface icon={FileArchive} title="Archive Manager" description="Create ZIPs from local and archived files, inspect ZIP contents before extracting, download individual entries, or save extracted files back into Important Files. ZIP is supported; RAR/7z decoding is not faked in the browser.">
       <div className="mb-5 inline-flex rounded-2xl border border-white/10 bg-white/[0.025] p-1">
-        <button type="button" onClick={() => { setMode("create"); setError(""); }} className={`rounded-xl px-4 py-2 text-xs font-semibold transition ${mode === "create" ? "bg-cyan-300/10 text-cyan-200" : "text-slate-500 hover:text-slate-200"}`}><Archive className="mr-2 inline size-4" /> Create ZIP</button>
-        <button type="button" onClick={() => { setMode("extract"); setError(""); }} className={`rounded-xl px-4 py-2 text-xs font-semibold transition ${mode === "extract" ? "bg-cyan-300/10 text-cyan-200" : "text-slate-500 hover:text-slate-200"}`}><PackageOpen className="mr-2 inline size-4" /> Inspect / extract</button>
+        <button type="button" onClick={() => { setMode("create"); setError(""); }} className={`rounded-xl px-4 py-2 text-xs font-semibold transition ${mode === "create" ? "bg-primary/10 text-primary" : "text-slate-500 hover:text-slate-200"}`}><Archive className="mr-2 inline size-4" /> Create ZIP</button>
+        <button type="button" onClick={() => { setMode("extract"); setError(""); }} className={`rounded-xl px-4 py-2 text-xs font-semibold transition ${mode === "extract" ? "bg-primary/10 text-primary" : "text-slate-500 hover:text-slate-200"}`}><PackageOpen className="mr-2 inline size-4" /> Inspect / extract</button>
       </div>
 
       {mode === "create" ? (
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(300px,.72fr)]">
           <div className="space-y-4">
             <div
-              className="group flex min-h-28 flex-col items-center justify-center rounded-[22px] border border-dashed border-cyan-300/20 bg-cyan-300/[0.035] p-5 text-center transition hover:bg-cyan-300/[0.06]"
+              className="group flex min-h-28 flex-col items-center justify-center rounded-[22px] border border-dashed border-primary/20 bg-primary/[0.035] p-5 text-center transition hover:bg-primary/[0.06]"
               onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "copy"; }}
               onDrop={(event) => { event.preventDefault(); chooseArchiveFiles(event.dataTransfer.files); }}
             >
-              <FolderDown className="size-7 text-cyan-300" />
+              <FolderDown className="size-7 text-primary" />
               <span className="mt-2 text-sm font-semibold text-slate-200">Add local files</span>
               <span className="mt-1 text-[11px] text-slate-500">Select multiple files or drag them here, then combine them with Important Files.</span>
-              <button type="button" onClick={() => createFilesInputRef.current?.click()} className="tool-secondary-button mt-3">
+              <label htmlFor={createFilesInputId} className="tool-secondary-button mt-3 cursor-pointer">
                 <FolderDown className="size-4" /> Browse files
-              </button>
+              </label>
               <input
-                ref={createFilesInputRef}
+                id={createFilesInputId}
                 type="file"
                 multiple
-                className="hidden"
-                tabIndex={-1}
-                aria-hidden="true"
+                className="sr-only"
                 onChange={(event) => {
                   chooseArchiveFiles(event.currentTarget.files ?? []);
                   event.currentTarget.value = "";
@@ -662,21 +691,21 @@ function ArchiveManager({ archiveFiles }: { archiveFiles: ToolArchiveFile[] }) {
               />
             </div>
             <div className="rounded-[22px] border border-white/10 bg-white/[0.025] p-4">
-              <div className="flex items-center justify-between gap-3"><div><h3 className="text-sm font-semibold text-slate-100">Add from Important Files</h3><p className="mt-1 text-xs text-slate-500">Select one or more existing files.</p></div><span className="text-xs font-semibold text-cyan-300">{archiveSelections.size} selected</span></div>
+              <div className="flex items-center justify-between gap-3"><div><h3 className="text-sm font-semibold text-slate-100">Add from Important Files</h3><p className="mt-1 text-xs text-slate-500">Select one or more existing files.</p></div><span className="text-xs font-semibold text-primary">{archiveSelections.size} selected</span></div>
               <div className="mt-3 max-h-60 space-y-1 overflow-y-auto pr-1">
                 {archiveFiles.length ? archiveFiles.map((file) => {
                   const checked = archiveSelections.has(file.id);
-                  return <label key={file.id} className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 transition ${checked ? "border-cyan-300/15 bg-cyan-300/[0.06]" : "border-transparent hover:bg-white/[0.035]"}`}><input type="checkbox" checked={checked} onChange={() => setArchiveSelections((current) => { const next = new Set(current); if (next.has(file.id)) next.delete(file.id); else next.add(file.id); return next; })} className="size-4 accent-cyan-400" /><span className="min-w-0 flex-1"><strong className="block truncate text-xs font-semibold text-slate-200">{file.originalFilename}</strong><small className="mt-0.5 block truncate text-[10px] text-slate-500">{file.folderPath || "Important Files root"} · {formatBytes(file.fileSize)}</small></span></label>;
+                  return <label key={file.id} className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 transition ${checked ? "border-primary/15 bg-primary/[0.06]" : "border-transparent hover:bg-white/[0.035]"}`}><input type="checkbox" checked={checked} onChange={() => setArchiveSelections((current) => { const next = new Set(current); if (next.has(file.id)) next.delete(file.id); else next.add(file.id); return next; })} className="size-4 accent-primary" /><span className="min-w-0 flex-1"><strong className="block truncate text-xs font-semibold text-slate-200">{file.originalFilename}</strong><small className="mt-0.5 block truncate text-[10px] text-slate-500">{file.folderPath || "Important Files root"} · {formatBytes(file.fileSize)}</small></span></label>;
                 }) : <p className="py-6 text-center text-xs text-slate-500">No archive files available.</p>}
               </div>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Archive name"><input className="tool-input" value={archiveName} onChange={(event) => setArchiveName(event.target.value)} /></Field>
-              <Field label="Compression"><label className="flex min-h-11 items-center gap-3 rounded-xl border border-white/10 bg-[#08111f]/90 px-3 text-xs text-slate-300"><input type="checkbox" checked={compress} onChange={(event) => setCompress(event.target.checked)} className="size-4 accent-cyan-400" /> Compress when supported</label></Field>
+              <Field label="Compression"><label className="flex min-h-11 items-center gap-3 rounded-xl border border-white/10 bg-card/90 px-3 text-xs text-slate-300"><input type="checkbox" checked={compress} onChange={(event) => setCompress(event.target.checked)} className="size-4 accent-primary" /> Compress when supported</label></Field>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500"><span>{localFiles.length} local</span><span>•</span><span>{archiveSelections.size} archived</span><span>•</span><span>{formatBytes(createBytes)}</span><span>•</span><span>256 MB browser limit</span></div>
             {error ? <ErrorBox message={error} /> : null}
-            <button type="button" onClick={createArchive} disabled={busy || (!localFiles.length && !archiveSelections.size)} className="tool-primary-button">{busy ? <Loader2 className="size-4 animate-spin" /> : <Archive className="size-4" />}{busy ? "Building ZIP…" : "Create ZIP archive"}</button>
+            <GlassButton type="button" onClick={createArchive} disabled={busy || (!localFiles.length && !archiveSelections.size)} size="sm" contentClassName="flex min-h-7 items-center justify-center gap-2">{busy ? <Loader2 className="size-4 animate-spin" /> : <Archive className="size-4" />}{busy ? "Building ZIP…" : "Create ZIP archive"}</GlassButton>
           </div>
           <GeneratedResult output={output} defaultFolder="Tools Output/Archives" />
         </div>
@@ -684,23 +713,21 @@ function ArchiveManager({ archiveFiles }: { archiveFiles: ToolArchiveFile[] }) {
         <div className="space-y-4">
           <div className="grid gap-3 md:grid-cols-2">
             <div
-              className="group flex min-h-28 flex-col items-center justify-center rounded-[22px] border border-dashed border-cyan-300/20 bg-cyan-300/[0.035] p-4 text-center transition hover:bg-cyan-300/[0.06]"
+              className="group flex min-h-28 flex-col items-center justify-center rounded-[22px] border border-dashed border-primary/20 bg-primary/[0.035] p-4 text-center transition hover:bg-primary/[0.06]"
               onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "copy"; }}
               onDrop={(event) => { event.preventDefault(); chooseLocalZip(event.dataTransfer.files?.[0] ?? null); }}
             >
-              <PackageOpen className="size-6 text-cyan-300" />
+              <PackageOpen className="size-6 text-primary" />
               <span className="mt-2 text-sm font-semibold text-slate-200">Choose local ZIP</span>
               <span className="mt-1 max-w-full truncate text-[11px] text-slate-500">{zipLocal?.name ?? "No local archive selected"}</span>
-              <button type="button" onClick={() => extractZipInputRef.current?.click()} className="tool-secondary-button mt-3">
+              <label htmlFor={extractZipInputId} className="tool-secondary-button mt-3 cursor-pointer">
                 <PackageOpen className="size-4" /> Browse ZIP
-              </button>
+              </label>
               <input
-                ref={extractZipInputRef}
+                id={extractZipInputId}
                 type="file"
                 accept=".zip,application/zip,application/x-zip-compressed"
-                className="hidden"
-                tabIndex={-1}
-                aria-hidden="true"
+                className="sr-only"
                 onChange={(event) => {
                   chooseLocalZip(event.currentTarget.files?.[0] ?? null);
                   event.currentTarget.value = "";
@@ -711,8 +738,8 @@ function ArchiveManager({ archiveFiles }: { archiveFiles: ToolArchiveFile[] }) {
           </div>
           {error ? <ErrorBox message={error} /> : null}
           {zipEntries.length ? <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_330px]">
-            <div className="overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.025]"><div className="flex items-center justify-between border-b border-white/10 px-4 py-3"><div><h3 className="text-sm font-semibold text-slate-100">Archive contents</h3><p className="mt-0.5 text-[11px] text-slate-500">{extractStatus}</p></div><span className="text-xs font-semibold text-cyan-300">{zipEntries.length} entries</span></div><div className="max-h-[430px] divide-y divide-white/[0.07] overflow-y-auto">{zipEntries.map((entry, index) => <div key={`${entry.name}-${index}`} className="flex items-center gap-3 px-4 py-3"><span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/[0.04] text-slate-400">{entry.directory ? <Archive className="size-4" /> : <FileArchive className="size-4" />}</span><div className="min-w-0 flex-1"><strong className="block truncate text-xs font-semibold text-slate-200">{entry.name}</strong><span className="mt-0.5 block text-[10px] text-slate-500">{entry.directory ? "Folder" : `${formatBytes(entry.uncompressedSize)} · ${entry.method === 0 ? "Stored" : entry.method === 8 ? "Deflate" : `Method ${entry.method}`}${entry.encrypted ? " · Encrypted" : ""}`}</span></div>{!entry.directory ? <button type="button" onClick={() => downloadEntry(entry)} className="tool-icon-button" title="Download extracted file"><Download className="size-4" /></button> : null}</div>)}</div></div>
-            <aside className="rounded-[22px] border border-white/10 bg-white/[0.025] p-4"><h3 className="text-sm font-semibold text-slate-100">Extract to Important Files</h3><p className="mt-1 text-xs leading-5 text-slate-500">Folder paths inside the ZIP are preserved below this destination.</p><Field label="Destination folder" className="mt-4"><input value={extractFolder} onChange={(event) => setExtractFolder(event.target.value)} className="tool-input" /></Field><button type="button" onClick={saveAllExtracted} disabled={extractBusy} className="tool-primary-button mt-4 w-full">{extractBusy ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}{extractBusy ? "Extracting…" : "Extract all to archive"}</button>{extractStatus ? <p className="mt-3 rounded-xl bg-cyan-300/[0.05] px-3 py-2 text-[11px] leading-5 text-cyan-200/80">{extractStatus}</p> : null}</aside>
+            <div className="overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.025]"><div className="flex items-center justify-between border-b border-white/10 px-4 py-3"><div><h3 className="text-sm font-semibold text-slate-100">Archive contents</h3><p className="mt-0.5 text-[11px] text-slate-500">{extractStatus}</p></div><span className="text-xs font-semibold text-primary">{zipEntries.length} entries</span></div><div className="max-h-[430px] divide-y divide-white/[0.07] overflow-y-auto">{zipEntries.map((entry, index) => <div key={`${entry.name}-${index}`} className="flex items-center gap-3 px-4 py-3"><span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/[0.04] text-slate-400">{entry.directory ? <Archive className="size-4" /> : <FileArchive className="size-4" />}</span><div className="min-w-0 flex-1"><strong className="block truncate text-xs font-semibold text-slate-200">{entry.name}</strong><span className="mt-0.5 block text-[10px] text-slate-500">{entry.directory ? "Folder" : `${formatBytes(entry.uncompressedSize)} · ${entry.method === 0 ? "Stored" : entry.method === 8 ? "Deflate" : `Method ${entry.method}`}${entry.encrypted ? " · Encrypted" : ""}`}</span></div>{!entry.directory ? <button type="button" onClick={() => downloadEntry(entry)} className="tool-icon-button" title="Download extracted file"><Download className="size-4" /></button> : null}</div>)}</div></div>
+            <aside className="tech-card rounded-[22px] border border-white/10 bg-white/[0.025] p-4"><h3 className="text-sm font-semibold text-slate-100">Extract to Important Files</h3><p className="mt-1 text-xs leading-5 text-slate-500">Folder paths inside the ZIP are preserved below this destination.</p><Field label="Destination folder" className="mt-4"><input value={extractFolder} onChange={(event) => setExtractFolder(event.target.value)} className="tool-input" /></Field><GlassButton type="button" onClick={saveAllExtracted} disabled={extractBusy} size="sm" className="mt-4 w-full" contentClassName="flex min-h-7 items-center justify-center gap-2">{extractBusy ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}{extractBusy ? "Extracting…" : "Extract all to archive"}</GlassButton>{extractStatus ? <p className="mt-3 rounded-xl bg-primary/[0.05] px-3 py-2 text-[11px] leading-5 text-primary/80">{extractStatus}</p> : null}</aside>
           </div> : null}
         </div>
       )}
@@ -721,11 +748,11 @@ function ArchiveManager({ archiveFiles }: { archiveFiles: ToolArchiveFile[] }) {
 }
 
 function ToolSurface({ icon: Icon, title, description, children }: { icon: typeof FileCog; title: string; description: string; children: React.ReactNode }) {
-  return <section className="tech-panel rounded-[22px] p-4 sm:rounded-[30px] sm:p-6"><div className="mb-5 flex items-start gap-3"><span className="grid size-11 shrink-0 place-items-center rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.07] text-cyan-200"><Icon className="size-5" /></span><div><h2 className="text-xl font-semibold text-slate-100">{title}</h2><p className="mt-1 max-w-3xl text-xs leading-5 text-slate-500 sm:text-sm">{description}</p></div></div>{children}</section>;
+  return <section className="tech-panel rounded-[22px] p-4 sm:rounded-[30px] sm:p-6"><div className="mb-5 flex items-start gap-3"><span className="grid size-11 shrink-0 place-items-center rounded-2xl border border-primary/15 bg-primary/[0.07] text-primary"><Icon className="size-5" /></span><div><h2 className="text-xl font-semibold text-slate-100">{title}</h2><p className="mt-1 max-w-3xl text-xs leading-5 text-slate-500 sm:text-sm">{description}</p></div></div>{children}</section>;
 }
 
 function SourceCard({ archiveFiles, localFile, archiveId, onLocalFile, onArchiveId, accept }: { archiveFiles: ToolArchiveFile[]; localFile: File | null; archiveId: string; onLocalFile: (file: File | null) => void; onArchiveId: (value: string) => void; accept: string }) {
-  return <div className="rounded-[22px] border border-white/10 bg-white/[0.025] p-4"><div className="mb-3"><h3 className="text-sm font-semibold text-slate-100">Source file</h3><p className="mt-1 text-xs text-slate-500">Choose from your device or use a file already stored in Important Files.</p></div><div className="grid gap-3 md:grid-cols-2"><label className="flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-cyan-300/20 bg-cyan-300/[0.035] p-3 text-center transition hover:bg-cyan-300/[0.06]"><UploadCloud className="size-5 text-cyan-300" /><span className="mt-2 max-w-full truncate text-xs font-semibold text-slate-200">{localFile?.name ?? "Choose local file"}</span><input type="file" accept={accept} className="sr-only" onChange={(event) => onLocalFile(event.target.files?.[0] ?? null)} /></label><div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3"><label className="text-[11px] font-semibold text-slate-400">From Important Files</label><select value={archiveId} onChange={(event) => onArchiveId(event.target.value)} className="tool-input mt-2"><option value="">Choose archive file…</option>{archiveFiles.map((file) => <option key={file.id} value={file.id}>{file.originalFilename} · {formatBytes(file.fileSize)}</option>)}</select></div></div></div>;
+  return <div className="rounded-[22px] border border-white/10 bg-white/[0.025] p-4"><div className="mb-3"><h3 className="text-sm font-semibold text-slate-100">Source file</h3><p className="mt-1 text-xs text-slate-500">Choose from your device or use a file already stored in Important Files.</p></div><div className="grid gap-3 md:grid-cols-2"><label className="flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-primary/20 bg-primary/[0.035] p-3 text-center transition hover:bg-primary/[0.06]"><UploadCloud className="size-5 text-primary" /><span className="mt-2 max-w-full truncate text-xs font-semibold text-slate-200">{localFile?.name ?? "Choose local file"}</span><input type="file" accept={accept} className="sr-only" onChange={(event) => onLocalFile(event.target.files?.[0] ?? null)} /></label><div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3"><label className="text-[11px] font-semibold text-slate-400">From Important Files</label><select value={archiveId} onChange={(event) => onArchiveId(event.target.value)} className="tool-input mt-2"><option value="">Choose archive file…</option>{archiveFiles.map((file) => <option key={file.id} value={file.id}>{file.originalFilename} · {formatBytes(file.fileSize)}</option>)}</select></div></div></div>;
 }
 
 function GeneratedResult({ output, defaultFolder }: { output: GeneratedOutput | null; defaultFolder: string }) {
@@ -745,7 +772,7 @@ function GeneratedResult({ output, defaultFolder }: { output: GeneratedOutput | 
     finally { setSaving(false); }
   }
 
-  return <aside className="min-w-0 rounded-[20px] border border-white/10 bg-[linear-gradient(160deg,rgba(10,20,36,.86),rgba(9,15,29,.9))] p-5"><div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-violet-400/10 text-violet-300"><ArrowRight className="size-4" /></span><div><h3 className="text-sm font-semibold text-slate-100">Output</h3><p className="mt-0.5 text-[11px] text-slate-500">Download it or save it back to your archive.</p></div></div>{output ? <div className="mt-5 space-y-4"><div className="rounded-2xl border border-emerald-300/10 bg-emerald-300/[0.045] p-4"><div className="flex items-start gap-3"><CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-300" /><div className="min-w-0"><strong className="block text-sm text-slate-100">{output.label}</strong><p className="mt-1 text-xs leading-5 text-slate-500">{output.detail}</p><p className="mt-2 truncate text-xs font-semibold text-emerald-200">{output.file.name} · {formatBytes(output.file.size)}</p></div></div></div><button type="button" onClick={() => downloadFile(output.file)} className="tool-secondary-button w-full"><Download className="size-4" /> Download result</button><Field label="Save to folder"><input className="tool-input" value={folder} onChange={(event) => setFolder(event.target.value)} /></Field><button type="button" onClick={save} disabled={saving} className="tool-primary-button w-full">{saving ? <Loader2 className="size-4 animate-spin" /> : <HardDriveUpload className="size-4" />}{saving ? "Saving…" : "Save to Important Files"}</button>{message ? <p className="text-xs font-semibold text-emerald-300">{message}</p> : null}{error ? <ErrorBox message={error} /> : null}</div> : <div className="mt-5 grid min-h-64 place-items-center rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-6 text-center"><div><Sparkles className="mx-auto size-7 text-slate-600" /><p className="mt-3 text-sm font-semibold text-slate-400">No result yet</p><p className="mt-1 text-xs leading-5 text-slate-600">Configure the tool and run it. Your generated file will appear here.</p></div></div>}</aside>;
+  return <aside className="tech-card min-w-0 rounded-[20px] border border-white/10 bg-card p-5"><div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary"><ArrowRight className="size-4" /></span><div><h3 className="text-sm font-semibold text-slate-100">Output</h3><p className="mt-0.5 text-[11px] text-slate-500">Download it or save it back to your archive.</p></div></div>{output ? <div className="mt-5 space-y-4"><div className="rounded-2xl border border-emerald-300/10 bg-emerald-300/[0.045] p-4"><div className="flex items-start gap-3"><CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-300" /><div className="min-w-0"><strong className="block text-sm text-slate-100">{output.label}</strong><p className="mt-1 text-xs leading-5 text-slate-500">{output.detail}</p><p className="mt-2 truncate text-xs font-semibold text-emerald-200">{output.file.name} · {formatBytes(output.file.size)}</p></div></div></div><button type="button" onClick={() => downloadFile(output.file)} className="tool-secondary-button w-full"><Download className="size-4" /> Download result</button><Field label="Save to folder"><input className="tool-input" value={folder} onChange={(event) => setFolder(event.target.value)} /></Field><GlassButton type="button" onClick={save} disabled={saving} size="sm" className="w-full" contentClassName="flex min-h-7 items-center justify-center gap-2">{saving ? <Loader2 className="size-4 animate-spin" /> : <HardDriveUpload className="size-4" />}{saving ? "Saving…" : "Save to Important Files"}</GlassButton>{message ? <p className="text-xs font-semibold text-emerald-300">{message}</p> : null}{error ? <ErrorBox message={error} /> : null}</div> : <div className="mt-5 grid min-h-64 place-items-center rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-6 text-center"><div><Sparkles className="mx-auto size-7 text-slate-600" /><p className="mt-3 text-sm font-semibold text-slate-400">No result yet</p><p className="mt-1 text-xs leading-5 text-slate-600">Configure the tool and run it. Your generated file will appear here.</p></div></div>}</aside>;
 }
 
 function Field({ label, hint, className = "", children }: { label: string; hint?: string; className?: string; children: React.ReactNode }) {
@@ -753,7 +780,7 @@ function Field({ label, hint, className = "", children }: { label: string; hint?
 }
 
 function MiniFact({ icon: Icon, label, value }: { icon: typeof ShieldCheck; label: string; value: string }) {
-  return <div className="min-w-32 rounded-2xl border border-white/10 bg-white/[0.035] px-3.5 py-3"><div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.12em] text-slate-500"><Icon className="size-3.5 text-cyan-300" /> {label}</div><strong className="mt-1.5 block text-xs font-semibold text-slate-200">{value}</strong></div>;
+  return <div className="min-w-32 rounded-2xl border border-white/10 bg-white/[0.035] px-3.5 py-3"><div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.12em] text-slate-500"><Icon className="size-3.5 text-primary" /> {label}</div><strong className="mt-1.5 block text-xs font-semibold text-slate-200">{value}</strong></div>;
 }
 
 function ErrorBox({ message }: { message: string }) { return <div className="rounded-2xl border border-red-300/15 bg-red-400/[0.07] px-4 py-3 text-xs leading-5 text-red-200">{message}</div>; }

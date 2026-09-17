@@ -1,10 +1,5 @@
-import { AuthShell } from "@/components/auth-shell";
-import { UpdatePasswordForm } from "@/components/update-password-form";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return (
-    <AuthShell>
-      <UpdatePasswordForm />
-    </AuthShell>
-  );
+  redirect("/auth/login");
 }

@@ -1,325 +1,114 @@
 "use client";
 
 import {
-  Activity,
-  BadgeCheck,
-  BookOpenCheck,
-  Boxes,
-  ClipboardList,
-  FolderOpen,
-  FileClock,
-  FlaskConical,
-  Home,
-  Link2,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Plus,
-  RadioTower,
-  Rocket,
-  Settings,
-  History,
-  ShieldCheck,
-  Sparkles,
-  Wrench,
-  Video,
-  X,
-  Zap,
-} from "lucide-react";
+  Activity, BadgeCheck, Boxes, ChevronDown, ClipboardList, FileClock,
+  FlaskConical, FolderOpen, History, Home, Link2, PanelLeftClose,
+  PanelLeftOpen, Rocket, Settings, ShieldCheck, Sparkles,
+  Upload, Video, Wrench, X,
+} from "@/components/ui/icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
+import { useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
+import { LordIcon, type LordIconName } from "@/components/ui/lord-icon";
 import type { WorkspaceDefaultModule } from "@/lib/workspace/types";
 
-type NavigationLink = {
-  href: string;
-  label: string;
-  icon: typeof Home;
-  exact?: boolean;
-};
+type NavigationLink = { href: string; label: string; icon: typeof Home; lordicon: LordIconName; exact?: boolean };
 
 const workspaceLinks: NavigationLink[] = [
-  { href: "/dashboard", label: "Home", icon: Home, exact: true },
-  { href: "/dashboard/files", label: "Important Files", icon: FolderOpen },
-  { href: "/dashboard/files/recent", label: "Recent Files", icon: FileClock },
-  { href: "/dashboard/files/shares", label: "Shared links", icon: Link2 },
-  { href: "/dashboard/tools", label: "Tools", icon: Boxes },
-  { href: "/dashboard/assignments", label: "Assignments", icon: ClipboardList },
-  { href: "/dashboard/assignments/productivity", label: "Productivity", icon: Sparkles },
-  { href: "/dashboard/assignments/reminders", label: "Reminder History", icon: History },
-  { href: "/dashboard/videos", label: "Videos", icon: Video },
-  { href: "/dashboard/activity", label: "Activity", icon: Activity },
+  { href: "/dashboard", label: "Overview", icon: Home, lordicon: "home", exact: true },
+  { href: "/dashboard/files", label: "Important files", icon: FolderOpen, lordicon: "files" },
+  { href: "/dashboard/videos", label: "Video library", icon: Video, lordicon: "video" },
+  { href: "/dashboard/assignments", label: "Assignments", icon: ClipboardList, lordicon: "assignments" },
 ];
-
-const systemLinks: NavigationLink[] = [
-  { href: "/dashboard/security", label: "Security Center", icon: ShieldCheck },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
-  { href: "/dashboard/deployment", label: "Deployment", icon: Rocket },
-  { href: "/dashboard/system", label: "System Health", icon: ShieldCheck },
-  { href: "/dashboard/maintenance", label: "Maintenance", icon: Wrench },
-  { href: "/dashboard/quality", label: "Quality Assurance", icon: FlaskConical },
-  { href: "/dashboard/handoff", label: "Final Handoff", icon: BadgeCheck },
+const organizeLinks: NavigationLink[] = [
+  { href: "/dashboard/files/recent", label: "Recent files", icon: FileClock, lordicon: "recent" },
+  { href: "/dashboard/files/shares", label: "Shared links", icon: Link2, lordicon: "share" },
+  { href: "/dashboard/assignments/productivity", label: "Productivity", icon: Sparkles, lordicon: "productivity" },
+  { href: "/dashboard/assignments/reminders", label: "Reminder history", icon: History, lordicon: "reminder" },
+  { href: "/dashboard/tools", label: "Archive tools", icon: Boxes, lordicon: "tools" },
+];
+const accountLinks: NavigationLink[] = [
+  { href: "/dashboard/activity", label: "Activity", icon: Activity, lordicon: "activity" },
+  { href: "/dashboard/security", label: "Security", icon: ShieldCheck, lordicon: "security" },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings, lordicon: "settings" },
+];
+const operationsLinks: NavigationLink[] = [
+  { href: "/dashboard/system", label: "System health", icon: ShieldCheck, lordicon: "system" },
+  { href: "/dashboard/deployment", label: "Deployment", icon: Rocket, lordicon: "deployment" },
+  { href: "/dashboard/maintenance", label: "Maintenance", icon: Wrench, lordicon: "maintenance" },
+  { href: "/dashboard/quality", label: "Quality assurance", icon: FlaskConical, lordicon: "quality" },
+  { href: "/dashboard/handoff", label: "Release handoff", icon: BadgeCheck, lordicon: "handoff" },
 ];
 
 type SidebarProps = {
-  mobile?: boolean;
-  onNavigate?: () => void;
-  quickModule?: WorkspaceDefaultModule;
-  collapsed?: boolean;
-  onToggleCollapse?: () => void;
+  mobile?: boolean; onNavigate?: () => void; quickModule?: WorkspaceDefaultModule;
+  collapsed?: boolean; onToggleCollapse?: () => void;
 };
 
-export function Sidebar({
-  mobile = false,
-  onNavigate,
-  quickModule = "files",
-  collapsed = false,
-  onToggleCollapse,
-}: SidebarProps) {
+export function Sidebar({ mobile = false, onNavigate, quickModule = "files", collapsed = false, onToggleCollapse }: SidebarProps) {
   const pathname = usePathname();
-  const assignmentArea = pathname.startsWith("/dashboard/assignments");
-  const videoArea = pathname.startsWith("/dashboard/videos");
-  const fileArea = pathname.startsWith("/dashboard/files");
-  const preferred = quickActionFor(quickModule);
-  const contextual = assignmentArea
-    ? { href: "/dashboard/assignments", label: "Browse assignments", icon: BookOpenCheck }
-    : videoArea
-      ? { href: "/dashboard/videos", label: "Open video library", icon: Video }
-      : fileArea
-        ? { href: "/dashboard/files", label: "Open files", icon: Plus }
-        : preferred;
-  const QuickIcon = contextual.icon;
+  const reduceMotion = useReducedMotion();
   const isCompact = collapsed && !mobile;
+  const operationsActive = operationsLinks.some(({ href }) => pathname.startsWith(href));
+  const quickAction = pathname.startsWith("/dashboard/videos") || (pathname === "/dashboard" && quickModule === "videos")
+      ? { href: "/dashboard/videos", label: "Open video library", icon: Video }
+      : pathname.startsWith("/dashboard/assignments") || (pathname === "/dashboard" && quickModule === "assignments")
+        ? { href: "/dashboard/assignments", label: "Open assignments", icon: ClipboardList }
+        : { href: "/dashboard/files?command=upload", label: "Upload files", icon: Upload };
+  const QuickIcon = quickAction.icon;
+  const groupProps = { pathname, collapsed: isCompact, onNavigate, targetPrefix: mobile ? "mobile-sidebar" : "desktop-sidebar", reduceMotion: Boolean(reduceMotion) };
 
   return (
-    <aside
-      className={
-        mobile
-          ? "flex h-full w-full flex-col overflow-hidden rounded-[1.5rem] border border-cyan-200/15 bg-[#07101d]/98 text-slate-100 shadow-[0_30px_80px_rgba(0,0,0,0.5)]"
-          : `tech-sidebar-enter tech-panel sticky top-[5.55rem] hidden h-[calc(100dvh-6.45rem)] shrink-0 flex-col rounded-[1.35rem] py-3.5 transition-[width,padding] duration-[220ms] ease-[cubic-bezier(.16,1,.3,1)] lg:flex ${
-              isCompact ? "w-[5.35rem] px-2.5" : "w-[17rem] px-3"
-            }`
-      }
-      aria-label="Primary navigation"
-    >
-      {mobile ? (
-        <div className="flex h-[4.4rem] shrink-0 items-center justify-between border-b border-white/10 px-4">
-          <div>
-            <strong className="tech-title text-base font-semibold">Damon&apos;s Archive</strong>
-            <p className="mt-0.5 text-[10px] uppercase tracking-[0.15em] text-cyan-200/55">
-              Command navigation
-            </p>
-          </div>
-          <button
-            type="button"
-            aria-label="Close navigation"
-            onClick={onNavigate}
-            className="tech-interactive grid size-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10"
-          >
-            <X className="size-5" aria-hidden="true" />
-          </button>
-        </div>
-      ) : (
-        <div className={`mb-2 flex items-center ${isCompact ? "justify-center" : "justify-between px-1"}`}>
-          {!isCompact ? (
-            <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                Navigation
-              </p>
-              <p className="mt-0.5 text-xs text-slate-400">Workspace control</p>
-            </div>
-          ) : null}
-          <button
-            type="button"
-            onClick={onToggleCollapse}
-            title={isCompact ? "Expand sidebar" : "Collapse sidebar"}
-            aria-label={isCompact ? "Expand sidebar" : "Collapse sidebar"}
-            className="tech-interactive grid size-9 place-items-center rounded-xl border border-white/10 bg-white/[0.035] text-slate-400 hover:bg-white/[0.07] hover:text-cyan-100"
-          >
-            {isCompact ? (
-              <PanelLeftOpen className="size-4.5" aria-hidden="true" />
-            ) : (
-              <PanelLeftClose className="size-4.5" aria-hidden="true" />
-            )}
-          </button>
-        </div>
-      )}
-
-      <div className={isCompact ? "px-0 pb-2" : "px-1 pb-3"}>
-        <div
-          className={`relative overflow-hidden border border-cyan-300/15 bg-[linear-gradient(140deg,rgba(25,55,88,0.8),rgba(19,28,49,0.75))] shadow-[0_12px_28px_rgba(0,9,25,0.25)] ${
-            isCompact ? "rounded-2xl p-2" : "rounded-[1.15rem] p-3.5"
-          }`}
-        >
-          <div className="tech-scanline" aria-hidden="true" />
-          {isCompact ? (
-            <Link
-              href={contextual.href}
-              onClick={onNavigate}
-              title={contextual.label}
-              aria-label={contextual.label}
-              className="tech-interactive relative grid size-11 w-full place-items-center rounded-xl border border-cyan-300/20 bg-cyan-300/[0.08] text-cyan-100 hover:bg-cyan-300/[0.13]"
-            >
-              <QuickIcon className="size-5 text-cyan-200" aria-hidden="true" />
-            </Link>
-          ) : (
-            <>
-              <div className="relative flex items-center gap-3">
-                <span className="grid size-10 place-items-center rounded-xl border border-cyan-200/20 bg-cyan-300/10 text-cyan-200">
-                  <RadioTower className="size-5" aria-hidden="true" />
-                </span>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-slate-100">Quick command</p>
-                  <p className="truncate text-xs text-slate-400">Open your active workspace</p>
-                </div>
-              </div>
-              <Link
-                href={contextual.href}
-                onClick={onNavigate}
-                className="tech-interactive relative mt-3 flex min-h-11 items-center gap-3 rounded-xl border border-cyan-300/20 bg-cyan-300/[0.08] px-3.5 text-sm font-semibold text-cyan-100 hover:bg-cyan-300/[0.12]"
-              >
-                <QuickIcon className="size-4.5 text-cyan-200" aria-hidden="true" />
-                {contextual.label}
-              </Link>
-            </>
-          )}
-        </div>
+    <aside className={`archive-sidebar ${mobile ? "is-mobile" : "is-desktop"} ${isCompact ? "is-collapsed" : ""}`} aria-label="Primary navigation">
+      <div className="archive-sidebar-heading">
+        <div className="archive-sidebar-copy archive-sidebar-heading-copy" aria-hidden={isCompact}><span>YOUR WORKSPACE</span><strong>{mobile ? "Damon's Archive" : "Make room for ideas."}</strong></div>
+        <button type="button" data-no-glass data-autofocus={mobile || undefined} className="archive-sidebar-toggle" onClick={mobile ? onNavigate : onToggleCollapse} title={mobile ? "Close navigation" : isCompact ? "Expand sidebar" : "Collapse sidebar"} aria-label={mobile ? "Close navigation" : isCompact ? "Expand sidebar" : "Collapse sidebar"} aria-expanded={mobile ? undefined : !isCompact}>
+          {mobile ? <X size={18} /> : isCompact ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
+        </button>
       </div>
-
-      <nav className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-1 pb-1" aria-label="Dashboard navigation">
-        <NavigationGroup
-          label="Workspace"
-          links={workspaceLinks}
-          pathname={pathname}
-          collapsed={isCompact}
-          onNavigate={onNavigate}
-        />
-        <div className={`my-3 border-t border-white/[0.07] ${isCompact ? "mx-2" : "mx-1"}`} />
-        <NavigationGroup
-          label="System"
-          links={systemLinks}
-          pathname={pathname}
-          collapsed={isCompact}
-          onNavigate={onNavigate}
-        />
+      <Link data-no-glass href={quickAction.href} onClick={onNavigate} className="archive-sidebar-create" title={isCompact ? quickAction.label : undefined} aria-label={quickAction.label}><span className="archive-sidebar-create-icon"><QuickIcon size={18} aria-hidden="true" /></span><span className="archive-sidebar-copy" aria-hidden={isCompact}>{quickAction.label}</span></Link>
+      <nav className="archive-sidebar-scroll" aria-label="Dashboard navigation">
+        <NavigationGroup label="Workspace" links={workspaceLinks} {...groupProps} />
+        <NavigationGroup label="Organize" links={organizeLinks} {...groupProps} />
+        <NavigationGroup label="Workspace settings" links={accountLinks} {...groupProps} />
+        <OperationsNavigation key={operationsActive ? "operations-active" : "operations-idle"} initiallyOpen={operationsActive} {...groupProps} />
       </nav>
-
-      <div className={isCompact ? "mt-auto px-0 pt-3" : "mt-auto px-1 pt-4"}>
-        {isCompact ? (
-          <div
-            title="System online · Selected feature upgrade"
-            className="grid place-items-center rounded-xl border border-white/10 bg-white/[0.035] py-3"
-          >
-            <span className="tech-status-dot size-2.5 rounded-full bg-emerald-400" />
-          </div>
-        ) : (
-          <div className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
-                <span className="tech-status-dot size-2 rounded-full bg-emerald-400" />
-                System online
-              </div>
-              <span className="rounded-md border border-emerald-300/10 bg-emerald-300/[0.06] px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-emerald-300/80">
-                Live
-              </span>
-            </div>
-            <div className="mt-2 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-slate-500">
-              <Zap className="size-3 text-cyan-300" /> Selected feature upgrade
-            </div>
-          </div>
-        )}
+      <div className="archive-sidebar-footer">
+        <div className="archive-sidebar-footer-main"><span className="archive-sidebar-footer-icon" title="Private workspace"><ShieldCheck size={18} aria-hidden="true" /></span><div className="archive-sidebar-copy" aria-hidden={isCompact}><strong>Private workspace</strong><span>Your archive. Your space.</span></div></div>
+        <a href="https://lordicon.com/icons/?utm_source=damons_archive&utm_medium=referral" target="_blank" rel="noreferrer" className="archive-icon-credit" tabIndex={isCompact ? -1 : undefined} aria-hidden={isCompact}>Icons by Lordicon</a>
       </div>
     </aside>
   );
 }
 
-type NavigationGroupProps = {
-  label: string;
-  links: NavigationLink[];
-  pathname: string;
-  collapsed: boolean;
-  onNavigate?: () => void;
-};
+type NavigationGroupProps = { label: string; links: NavigationLink[]; pathname: string; collapsed: boolean; onNavigate?: () => void; targetPrefix: string; hideLabel?: boolean; reduceMotion: boolean };
 
-function NavigationGroup({
-  label,
-  links,
-  pathname,
-  collapsed,
-  onNavigate,
-}: NavigationGroupProps) {
-  return (
-    <div>
-      {!collapsed ? (
-        <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-          {label}
-        </p>
-      ) : null}
-      <div className="tech-nav-stagger space-y-1">
-        {links.map(({ href, label: linkLabel, icon: Icon, exact }) => {
-          const active = isActivePath(pathname, href, exact);
+function NavigationGroup({ label, links, pathname, collapsed, onNavigate, targetPrefix, hideLabel = false, reduceMotion }: NavigationGroupProps) {
+  return <div className="archive-nav-group">{!hideLabel ? <p className="archive-nav-group-label" aria-hidden={collapsed}>{label}</p> : null}<div className="archive-nav-links">{links.map(({ href, label: linkLabel, lordicon, exact }) => {
+    const active = isActivePath(pathname, href, exact);
+    const targetId = `${targetPrefix}-${href.replace(/[^a-z0-9]+/gi, "-")}`;
+    return <Link key={href} id={targetId} href={href} onClick={onNavigate} aria-current={active ? "page" : undefined} title={collapsed ? linkLabel : undefined} aria-label={linkLabel} className={`archive-nav-link ${active ? "is-active" : ""}`}>
+      {active ? <motion.span className="archive-nav-highlight" initial={{ opacity: reduceMotion ? 1 : 0 }} animate={{ opacity: 1 }} transition={{ duration: reduceMotion ? 0 : 0.12 }} aria-hidden="true" /> : null}
+      <span className="archive-nav-icon"><LordIcon name={lordicon} size={19} active={active} targetId={targetId} /></span>
+      <span className="archive-sidebar-copy archive-nav-label" aria-hidden={collapsed}>{linkLabel}</span>
+      {active ? <span className="archive-nav-active-dot" aria-hidden="true" /> : null}
+    </Link>;
+  })}</div></div>;
+}
 
-          return (
-            <Link
-              key={href}
-              href={href}
-              onClick={onNavigate}
-              aria-current={active ? "page" : undefined}
-              title={collapsed ? linkLabel : undefined}
-              aria-label={collapsed ? linkLabel : undefined}
-              className={`group relative flex items-center rounded-xl border text-sm font-medium transition-[color,background-color,border-color,box-shadow,transform] duration-[180ms] ${
-                collapsed ? "h-11 justify-center px-0" : "gap-3 px-3.5 py-2.5"
-              } ${
-                active
-                  ? "border-cyan-300/20 bg-[linear-gradient(90deg,rgba(38,210,255,0.15),rgba(81,101,255,0.11))] text-cyan-50 shadow-[0_8px_20px_rgba(0,120,255,0.1)]"
-                  : "border-transparent text-slate-300 hover:border-white/10 hover:bg-white/[0.045] hover:text-white"
-              }`}
-            >
-              {active ? (
-                <span
-                  className={`tech-active-pulse absolute rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(63,224,255,0.8)] ${
-                    collapsed ? "left-0 top-1/2 h-5 w-0.5 -translate-y-1/2" : "inset-y-2 left-0 w-0.5"
-                  }`}
-                />
-              ) : null}
-              <Icon
-                className={`size-4.5 shrink-0 transition-colors ${
-                  active ? "text-cyan-200" : "text-slate-500 group-hover:text-cyan-200"
-                }`}
-                aria-hidden="true"
-              />
-              {!collapsed ? <span className="truncate">{linkLabel}</span> : null}
-            </Link>
-          );
-        })}
-      </div>
-    </div>
-  );
+function OperationsNavigation({ initiallyOpen, ...props }: Omit<NavigationGroupProps, "label" | "links"> & { initiallyOpen: boolean }) {
+  const [open, setOpen] = useState(initiallyOpen);
+  const expanded = open || props.collapsed;
+  const id = `${props.targetPrefix}-operations`;
+  return <div className={`archive-operations ${expanded ? "is-open" : ""}`}>
+    <button type="button" data-no-glass className="archive-operations-toggle" onClick={() => setOpen(!open)} aria-expanded={expanded} aria-controls={id} tabIndex={props.collapsed ? -1 : undefined} aria-hidden={props.collapsed}><span>Operations</span><ChevronDown size={14} aria-hidden="true" /></button>
+    <div id={id} className="archive-operations-content" inert={!expanded} aria-hidden={!expanded}><div><NavigationGroup label="Operations" hideLabel links={operationsLinks} {...props} /></div></div>
+  </div>;
 }
 
 function isActivePath(pathname: string, href: string, exact?: boolean) {
-  if (href === "/dashboard/files") {
-    return pathname.startsWith(href) && !pathname.startsWith("/dashboard/files/shares") && !pathname.startsWith("/dashboard/files/recent");
-  }
-  if (href === "/dashboard/assignments") {
-    return (
-      pathname.startsWith(href) &&
-      !pathname.startsWith("/dashboard/assignments/productivity") &&
-      !pathname.startsWith("/dashboard/assignments/reminders")
-    );
-  }
+  if (href === "/dashboard/files") return pathname.startsWith(href) && !pathname.startsWith("/dashboard/files/shares") && !pathname.startsWith("/dashboard/files/recent");
+  if (href === "/dashboard/assignments") return pathname.startsWith(href) && !pathname.startsWith("/dashboard/assignments/productivity") && !pathname.startsWith("/dashboard/assignments/reminders");
   return exact ? pathname === href : pathname.startsWith(href);
-}
-
-function quickActionFor(module: WorkspaceDefaultModule) {
-  if (module === "home") return { href: "/dashboard", label: "Open dashboard", icon: Home };
-  if (module === "assignments") {
-    return { href: "/dashboard/assignments", label: "Open assignments", icon: ClipboardList };
-  }
-  if (module === "videos") {
-    return { href: "/dashboard/videos", label: "Open video library", icon: Video };
-  }
-  if (module === "activity") {
-    return { href: "/dashboard/activity", label: "Review activity", icon: Activity };
-  }
-  return { href: "/dashboard/files", label: "Open files", icon: FolderOpen };
 }

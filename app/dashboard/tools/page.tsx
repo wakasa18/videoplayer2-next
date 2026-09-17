@@ -1,4 +1,4 @@
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "@/components/ui/icons";
 
 import { ToolsHub } from "@/components/tools/tools-hub";
 import { getToolArchiveFiles } from "@/lib/files/data";

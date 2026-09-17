@@ -11,7 +11,7 @@ import {
   Repeat2,
   StickyNote,
   UserRound,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -59,14 +59,14 @@ export default async function AssignmentDetailsPage({ params }: AssignmentDetail
     <main className="space-y-5">
       <Link
         href="/dashboard/assignments"
-        className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-cyan-300 transition hover:bg-cyan-400/10"
+        className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary/10"
       >
         <ArrowLeft className="size-4" aria-hidden="true" />
         Back to assignments
       </Link>
 
       <section
-        className="overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.045] p-4 shadow-sm sm:rounded-[28px] sm:p-8"
+        className="tech-card overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.045] p-4 shadow-sm sm:rounded-[28px] sm:p-8"
         style={{ borderTopWidth: 5, borderTopColor: assignment.subject_color }}
       >
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -108,13 +108,13 @@ export default async function AssignmentDetailsPage({ params }: AssignmentDetail
             className={`w-full min-w-0 rounded-[20px] border p-4 sm:min-w-[230px] lg:w-auto ${
               overdue
                 ? "border-red-300/25 bg-red-400/10"
-                : "border-cyan-300/20 bg-white/[0.04]"
+                : "border-primary/20 bg-white/[0.04]"
             }`}
           >
             <div className="flex items-center gap-3">
               <span
                 className={`grid size-11 place-items-center rounded-2xl ${
-                  overdue ? "bg-red-400/10 text-red-300" : "bg-cyan-400/10 text-cyan-300"
+                  overdue ? "bg-red-400/10 text-red-300" : "bg-primary/10 text-primary"
                 }`}
               >
                 {assignment.due_time ? (
@@ -142,7 +142,7 @@ export default async function AssignmentDetailsPage({ params }: AssignmentDetail
               <span>{progress}%</span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-white/[0.08]">
-              <span className="block h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]" style={{ width: `${progress}%` }} />
+              <span className="block h-full rounded-full workspace-primary" style={{ width: `${progress}%` }} />
             </div>
           </div>
         ) : null}
@@ -196,7 +196,7 @@ export default async function AssignmentDetailsPage({ params }: AssignmentDetail
                 href={externalUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-3.5 text-sm font-semibold text-cyan-300 transition hover:bg-cyan-400/10"
+                className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/10 p-3.5 text-sm font-semibold text-primary transition hover:bg-primary/10"
               >
                 <span className="inline-flex min-w-0 items-center gap-2">
                   <Link2 className="size-4 shrink-0" aria-hidden="true" />
@@ -224,7 +224,7 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm">
+    <section className="tech-card rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm">
       <header className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <span className="grid size-10 place-items-center rounded-2xl bg-white/[0.05] text-slate-400">
@@ -269,7 +269,7 @@ function Badge({
   children: React.ReactNode;
 }) {
   const classes = {
-    blue: "bg-cyan-400/10 text-cyan-300",
+    blue: "bg-primary/10 text-primary",
     green: "bg-emerald-400/10 text-emerald-300",
     red: "bg-red-400/10 text-red-300",
     amber: "bg-amber-400/10 text-amber-300",

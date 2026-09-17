@@ -11,7 +11,7 @@ import {
   ShieldAlert,
   Trash2,
   XCircle,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -71,7 +71,7 @@ export function SystemDiagnosticsClient({ data }: { data: SystemDiagnosticsData 
     <div className="space-y-5">
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <SummaryCard label="Overall status" value={statusLabel(data.overall)} status={data.overall} />
-        <SummaryCard label="Release" value={`Phase ${data.release}`} status="pass" />
+        <SummaryCard label="Release" value={`v${data.release}`} status="pass" />
         <SummaryCard
           label="Storage audit"
           value={`${data.storageAudit.checkedFiles + data.storageAudit.checkedVideos} checked`}
@@ -84,7 +84,7 @@ export function SystemDiagnosticsClient({ data }: { data: SystemDiagnosticsData 
         />
       </section>
 
-      <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
+      <section className="tech-card rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-lg font-semibold text-slate-100">Production checks</h2>
@@ -96,7 +96,7 @@ export function SystemDiagnosticsClient({ data }: { data: SystemDiagnosticsData 
             type="button"
             onClick={refresh}
             disabled={refreshing}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-full workspace-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:workspace-primary disabled:opacity-60"
           >
             {refreshing ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
             Run checks again
@@ -124,7 +124,7 @@ export function SystemDiagnosticsClient({ data }: { data: SystemDiagnosticsData 
       </section>
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(340px,.9fr)]">
-        <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
+        <section className="tech-card rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
           <h2 className="text-lg font-semibold text-slate-100">Environment configuration</h2>
           <p className="mt-1 text-sm text-slate-400">Secret values are never displayed.</p>
           <div className="mt-5 space-y-2">
@@ -143,7 +143,7 @@ export function SystemDiagnosticsClient({ data }: { data: SystemDiagnosticsData 
         </section>
 
         <div className="space-y-5">
-          <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
+          <section className="tech-card rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
             <h2 className="text-lg font-semibold text-slate-100">Release actions</h2>
             <div className="mt-4 grid gap-3">
               <a href="/api/workspace/export" className={actionClass}>
@@ -163,7 +163,7 @@ export function SystemDiagnosticsClient({ data }: { data: SystemDiagnosticsData 
             <p aria-live="polite" className="mt-4 text-sm leading-6 text-slate-400">{automation}</p>
           </section>
 
-          <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
+          <section className="tech-card rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
             <h2 className="text-lg font-semibold text-slate-100">Deployment runtime</h2>
             <dl className="mt-4 space-y-3 text-sm">
               <Row label="Environment" value={data.deployment.environment} />
@@ -176,7 +176,7 @@ export function SystemDiagnosticsClient({ data }: { data: SystemDiagnosticsData 
         </div>
       </div>
 
-      <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
+      <section className="tech-card rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
         <div className="flex items-center gap-3">
           <span className="grid size-11 place-items-center rounded-2xl bg-red-400/10 text-red-300">
             <ShieldAlert className="size-5" />
@@ -221,7 +221,7 @@ export function SystemDiagnosticsClient({ data }: { data: SystemDiagnosticsData 
 
 function SummaryCard({ label, value, status }: { label: string; value: string; status: DiagnosticStatus }) {
   return (
-    <article className="rounded-[22px] border border-white/10 bg-white/[0.045] p-5 shadow-sm">
+    <article className="tech-card rounded-[22px] border border-white/10 bg-white/[0.045] p-5 shadow-sm">
       <div className="flex items-center justify-between gap-3">
         <span className="text-sm font-medium text-slate-400">{label}</span>
         <StatusIcon status={status} />

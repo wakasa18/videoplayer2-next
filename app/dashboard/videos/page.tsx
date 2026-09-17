@@ -3,7 +3,7 @@ import {
   Eye,
   Film,
   SearchX,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import Link from "next/link";
 
 import { VideoCard } from "@/components/videos/video-card";
@@ -38,7 +38,7 @@ export default async function VideosPage({ searchParams }: Props) {
   if (!result) {
     return (
       <main className="grid min-h-[68vh] place-items-center">
-        <section className="w-full max-w-2xl rounded-[28px] border border-amber-300/25 bg-white/[0.045] p-8 shadow-sm">
+        <section className="tech-card w-full max-w-2xl rounded-[28px] border border-amber-300/25 bg-white/[0.045] p-8 shadow-sm">
           <span className="grid size-14 place-items-center rounded-2xl bg-amber-400/10 text-amber-300"><AlertTriangle className="size-7" /></span>
           <h1 className="mt-5 text-2xl font-semibold text-slate-100">Videos needs database setup</h1>
           <p className="mt-3 text-sm leading-6 text-slate-400">{loadError}</p>
@@ -54,7 +54,7 @@ export default async function VideosPage({ searchParams }: Props) {
         <div className="tech-scanline" aria-hidden="true" />
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-cyan-400/10 px-3 py-1.5 text-xs font-semibold text-cyan-300"><Film className="size-4" />Private video library</div>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary"><Film className="size-4" />Private video library</div>
             <h1 className="text-3xl font-semibold tracking-[-.03em] text-slate-100 sm:text-4xl">{filters.favorite ? "Starred videos" : "Videos"}</h1>
             <p className="mt-3 text-sm leading-6 text-slate-400 sm:text-base">Upload, stream, organize, download, and safely recycle private videos stored in Supabase.</p>
           </div>
@@ -79,7 +79,7 @@ export default async function VideosPage({ searchParams }: Props) {
         ) : <EmptyState filtered={Boolean(filters.q || filters.category || filters.favorite)} />}
         <Pagination filters={filters} page={result.page} totalPages={result.totalPages} />
       </section>
-      <p className="text-center text-xs text-slate-500">Data access: {result.accessMode === "service-role" ? "secure server client with owner checks" : "authenticated owner policies"}</p>
+      <p className="text-center text-xs text-slate-500">Data access: {result.accessMode === "service-role" ? "Private owner access" : "Owner-authenticated access"}</p>
     </main>
   );
 }
@@ -88,13 +88,13 @@ function Summary({ label, value }: { label: string; value: string }) {
   return <div className="h-full min-w-0 rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3"><span className="block text-xs font-medium text-slate-400">{label}</span><strong className="mt-1 block truncate text-lg font-semibold text-slate-100">{value}</strong></div>;
 }
 function VideoListRow({ video }: { video: VideoRecord; index: number }) {
-  return <article className="flex items-center gap-4 border-b border-white/10 p-4 last:border-b-0 hover:bg-white/[0.06]"><Link href={`/dashboard/videos/${video.id}`} className="grid size-14 shrink-0 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300"><Film className="size-6" /></Link><Link href={`/dashboard/videos/${video.id}`} className="min-w-0 flex-1"><h3 className="truncate text-sm font-semibold text-slate-100">{video.title}</h3><p className="mt-1 truncate text-xs text-slate-400">{video.original_filename}</p><div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400"><span>{formatBytes(video.file_size)}</span><span>{formatDuration(video.duration_seconds)}</span><span>{formatDate(video.created_at)}</span><span className="inline-flex items-center gap-1"><Eye className="size-3.5" />{video.view_count}</span></div></Link><VideoItemActions video={video} /></article>;
+  return <article className="flex items-center gap-4 border-b border-white/10 p-4 last:border-b-0 hover:bg-white/[0.06]"><Link href={`/dashboard/videos/${video.id}`} className="grid size-14 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"><Film className="size-6" /></Link><Link href={`/dashboard/videos/${video.id}`} className="min-w-0 flex-1"><h3 className="truncate text-sm font-semibold text-slate-100">{video.title}</h3><p className="mt-1 truncate text-xs text-slate-400">{video.original_filename}</p><div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400"><span>{formatBytes(video.file_size)}</span><span>{formatDuration(video.duration_seconds)}</span><span>{formatDate(video.created_at)}</span><span className="inline-flex items-center gap-1"><Eye className="size-3.5" />{video.view_count}</span></div></Link><VideoItemActions video={video} /></article>;
 }
 function EmptyState({ filtered }: { filtered: boolean }) {
-  return <div className="grid min-h-72 place-items-center rounded-[24px] border border-dashed border-cyan-300/20 bg-white/[0.045] p-8 text-center"><div className="max-w-md"><span className="mx-auto grid size-16 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300">{filtered ? <SearchX className="size-7" /> : <Film className="size-7" />}</span><h3 className="mt-5 text-lg font-semibold text-slate-100">{filtered ? "No matching videos" : "Your video library is empty"}</h3><p className="mt-2 text-sm leading-6 text-slate-400">{filtered ? "Clear a filter or try a different search term." : "Upload your first private video to begin."}</p></div></div>;
+  return <div className="grid min-h-72 place-items-center rounded-[24px] border border-dashed border-primary/20 bg-white/[0.045] p-8 text-center"><div className="max-w-md"><span className="mx-auto grid size-16 place-items-center rounded-2xl bg-primary/10 text-primary">{filtered ? <SearchX className="size-7" /> : <Film className="size-7" />}</span><h3 className="mt-5 text-lg font-semibold text-slate-100">{filtered ? "No matching videos" : "Your video library is empty"}</h3><p className="mt-2 text-sm leading-6 text-slate-400">{filtered ? "Clear a filter or try a different search term." : "Upload your first private video to begin."}</p></div></div>;
 }
 function Pagination({ filters, page, totalPages }: { filters: VideoFilters; page: number; totalPages: number }) {
   if (totalPages <= 1) return null;
   const pages = Array.from(new Set([1, page - 1, page, page + 1, totalPages].filter((value) => value >= 1 && value <= totalPages))).sort((a, b) => a - b);
-  return <nav aria-label="Video pages" className="flex flex-wrap justify-center gap-2 pt-3">{page > 1 ? <Link href={buildVideoQuery(filters, { page: page - 1 })} className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-white/[0.06]">Previous</Link> : null}{pages.map((value) => <Link key={value} href={buildVideoQuery(filters, { page: value })} aria-current={value === page ? "page" : undefined} className={`grid min-w-10 place-items-center rounded-full px-3 py-2 text-sm font-semibold ${value === page ? "bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] text-white" : "border border-white/10 bg-white/[0.045] text-slate-200 hover:bg-white/[0.06]"}`}>{value}</Link>)}{page < totalPages ? <Link href={buildVideoQuery(filters, { page: page + 1 })} className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-white/[0.06]">Next</Link> : null}</nav>;
+  return <nav aria-label="Video pages" className="flex flex-wrap justify-center gap-2 pt-3">{page > 1 ? <Link href={buildVideoQuery(filters, { page: page - 1 })} className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-white/[0.06]">Previous</Link> : null}{pages.map((value) => <Link key={value} href={buildVideoQuery(filters, { page: value })} aria-current={value === page ? "page" : undefined} className={`grid min-w-10 place-items-center rounded-full px-3 py-2 text-sm font-semibold ${value === page ? "workspace-primary text-white" : "border border-white/10 bg-white/[0.045] text-slate-200 hover:bg-white/[0.06]"}`}>{value}</Link>)}{page < totalPages ? <Link href={buildVideoQuery(filters, { page: page + 1 })} className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-white/[0.06]">Next</Link> : null}</nav>;
 }

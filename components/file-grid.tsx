@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckSquare } from "lucide-react";
+import { CheckSquare } from "@/components/ui/icons";
 import { useState } from "react";
 
 import { BulkFileActions } from "@/components/bulk-file-actions";

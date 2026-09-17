@@ -1,6 +1,6 @@
 "use client";
 
-import { FolderInput, FolderPen, MoreVertical, Share2, Trash2 } from "lucide-react";
+import { FolderInput, FolderPen, MoreVertical, Share2, Trash2 } from "@/components/ui/icons";
 import { useState } from "react";
 
 import { FolderManagementDialog } from "@/components/folder-management-dialog";
@@ -16,8 +16,8 @@ export function FolderItemActions({ folder }: { folder: FolderSummary }) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild><button type="button" className="grid size-9 place-items-center rounded-full text-slate-400 transition hover:bg-white/10 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/40" aria-label={`Actions for ${folder.name}`}><MoreVertical className="size-5" /></button></DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-52 rounded-2xl border-white/10 bg-[#0b1220]/95 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl">
+        <DropdownMenuTrigger asChild><button type="button" className="grid size-9 place-items-center rounded-full text-slate-400 transition hover:bg-white/10 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40" aria-label={`Actions for ${folder.name}`}><MoreVertical className="size-5" /></button></DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-52 rounded-2xl border-white/10 bg-card/95 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl">
           <DropdownMenuItem onSelect={() => setShareOpen(true)} className={itemClass}><Share2 /> Share folder</DropdownMenuItem>
           <DropdownMenuSeparator className="bg-white/10" />
           <DropdownMenuItem onSelect={() => setMode("rename")} className={itemClass}><FolderPen /> Rename</DropdownMenuItem>
@@ -31,4 +31,4 @@ export function FolderItemActions({ folder }: { folder: FolderSummary }) {
     </>
   );
 }
-const itemClass = "min-h-10 cursor-pointer rounded-xl px-3 text-sm text-slate-300 transition-colors focus:bg-white/[0.07] focus:text-slate-100 [&_svg]:size-4 [&_svg]:text-slate-400 focus:[&_svg]:text-cyan-200";
+const itemClass = "min-h-10 cursor-pointer rounded-xl px-3 text-sm text-slate-300 transition-colors focus:bg-white/[0.07] focus:text-slate-100 [&_.lordicon-icon]:size-4 [&_.lordicon-icon]:text-slate-400 focus:[&_.lordicon-icon]:text-primary";

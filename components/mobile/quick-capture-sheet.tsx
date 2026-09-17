@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera, FileUp, Image, Loader2, ScanLine, Video, X } from "lucide-react";
+import { Camera, FileUp, Image, Loader2, ScanLine, Video, X } from "@/components/ui/icons";
 import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState } from "react";
 
@@ -63,7 +63,7 @@ export function QuickCaptureSheet({ open, onClose }: { open: boolean; onClose: (
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.16 }}
-            onMouseDown={(event) => event.currentTarget === event.target && onClose()}
+            onMouseDown={(event) => event.currentTarget === event.target && !busy && onClose()}
           >
             <motion.section
               role="dialog"
@@ -75,13 +75,13 @@ export function QuickCaptureSheet({ open, onClose }: { open: boolean; onClose: (
               exit={{ y: "100%" }}
               transition={{ type: "spring", stiffness: 430, damping: 38, mass: 0.78 }}
             >
-              <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/15" />
+              <div className="mx-auto mb-3 h-1 w-10 rounded-lg bg-white/15" />
               <header className="flex items-start gap-3">
                 <div className="min-w-0 flex-1">
                   <h2 className="text-lg font-semibold text-slate-100">Quick mobile upload</h2>
                   <p className="mt-1 text-xs text-slate-400">Capture or choose content and save it directly to Important Files.</p>
                 </div>
-                <motion.button type="button" onClick={onClose} whileTap={{ scale: 0.9 }} className="grid size-10 place-items-center rounded-xl border border-white/10 text-slate-400">
+                <motion.button type="button" onClick={onClose} disabled={busy} aria-label="Close quick capture" whileTap={{ scale: 0.9 }} className="grid size-10 place-items-center rounded-xl border border-white/10 text-slate-400 disabled:opacity-50">
                   <X className="size-5" />
                 </motion.button>
               </header>
@@ -91,13 +91,13 @@ export function QuickCaptureSheet({ open, onClose }: { open: boolean; onClose: (
                 <Action icon={Video} label="Record video" onClick={() => videoRef.current?.click()} />
                 <Action icon={Image} label="Gallery" onClick={() => galleryRef.current?.click()} />
                 <Action icon={FileUp} label="Upload file" onClick={() => fileRef.current?.click()} />
-                <motion.button type="button" whileTap={{ scale: 0.975 }} onClick={() => setScannerOpen(true)} className="col-span-2 flex min-h-13 items-center justify-center gap-2 rounded-xl border border-cyan-300/20 bg-cyan-300/[.07] px-3 text-sm font-semibold text-cyan-200">
+                <motion.button type="button" whileTap={{ scale: 0.975 }} onClick={() => setScannerOpen(true)} className="col-span-2 flex min-h-13 items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/[.07] px-3 text-sm font-semibold text-primary">
                   <ScanLine className="size-5" />Scan document to PDF
                 </motion.button>
               </div>
 
               <label className="mt-4 flex items-center gap-3 rounded-xl border border-white/10 bg-white/[.03] p-3">
-                <input type="checkbox" checked={compress} onChange={(event) => setCompress(event.target.checked)} className="size-4 accent-cyan-300" />
+                <input type="checkbox" checked={compress} onChange={(event) => setCompress(event.target.checked)} className="size-4 accent-primary" />
                 <span><strong className="block text-xs text-slate-200">Smart mobile compression</strong><span className="text-[11px] leading-4 text-slate-500">Large camera photos are resized/compressed before upload. Videos stay original when the browser has no safe transcoder and continue through resumable upload.</span></span>
               </label>
 
@@ -110,7 +110,7 @@ export function QuickCaptureSheet({ open, onClose }: { open: boolean; onClose: (
                     exit={{ opacity: 0, y: -4 }}
                     transition={{ duration: 0.16 }}
                   >
-                    {busy ? <Loader2 className="mr-2 inline size-4 animate-spin text-cyan-200" /> : null}{status}
+                    {busy ? <Loader2 className="mr-2 inline size-4 animate-spin text-primary" /> : null}{status}
                   </motion.p>
                 ) : null}
               </AnimatePresence>
@@ -128,4 +128,4 @@ export function QuickCaptureSheet({ open, onClose }: { open: boolean; onClose: (
   </>;
 }
 
-function Action({ icon: Icon, label, onClick }: { icon: typeof Camera; label: string; onClick: () => void }) { return <motion.button type="button" onClick={onClick} whileTap={{ scale: 0.965 }} transition={{ type: "spring", stiffness: 520, damping: 38 }} className="flex min-h-20 flex-col items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[.035] text-sm font-semibold text-slate-200 active:bg-white/[.08]"><Icon className="size-5 text-cyan-200" />{label}</motion.button>; }
+function Action({ icon: Icon, label, onClick }: { icon: typeof Camera; label: string; onClick: () => void }) { return <motion.button type="button" onClick={onClick} whileTap={{ scale: 0.965 }} transition={{ type: "spring", stiffness: 520, damping: 38 }} className="flex min-h-20 flex-col items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[.035] text-sm font-semibold text-slate-200 active:bg-white/[.08]"><Icon className="size-5 text-primary" />{label}</motion.button>; }

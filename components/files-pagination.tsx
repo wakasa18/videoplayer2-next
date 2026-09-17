@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "@/components/ui/icons";
 import Link from "next/link";
 
 import type { FileBrowserFilters } from "@/lib/files/types";
@@ -53,7 +53,7 @@ export function FilesPagination({
               aria-current={item === page ? "page" : undefined}
               className={`grid size-9 place-items-center rounded-full text-sm font-semibold transition ${
                 item === page
-                  ? "bg-cyan-400/10 text-cyan-300"
+                  ? "bg-primary/10 text-primary"
                   : "text-slate-400 hover:bg-white/[0.06]"
               }`}
             >

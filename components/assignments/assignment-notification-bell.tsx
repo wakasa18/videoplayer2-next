@@ -9,7 +9,7 @@ import {
   Loader2,
   Settings2,
   X,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
@@ -37,11 +37,27 @@ export function AssignmentNotificationBell() {
   const [preferences, setPreferences] = useState(EMPTY_PREFERENCES);
   const seenIds = useRef<Set<number>>(new Set());
   const initialized = useRef(false);
+  const feedAbortController = useRef<AbortController | null>(null);
 
   async function loadFeed(showBrowserNotifications = true) {
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      setLoading(false);
+      return;
+    }
+
+    // Never allow polling requests to pile up. This is especially important in
+    // development, where a Next.js recompilation can briefly interrupt an API
+    // request and leave the browser waiting on an obsolete connection.
+    feedAbortController.current?.abort();
+    const controller = new AbortController();
+    feedAbortController.current = controller;
+    const timeout = window.setTimeout(() => controller.abort(), 12_000);
+
     try {
       const response = await fetch("/api/assignments/notifications?limit=12", {
         cache: "no-store",
+        credentials: "same-origin",
+        signal: controller.signal,
       });
       if (!response.ok) return;
       const payload = (await response.json()) as {
@@ -75,20 +91,50 @@ export function AssignmentNotificationBell() {
       seenIds.current = new Set(payload.notifications.map((item) => item.id));
       initialized.current = true;
     } catch (error) {
-      // A request can be interrupted briefly while Next.js recompiles in development.
-      // Keep the current notification state and avoid an unhandled promise rejection.
-      if (!(error instanceof DOMException && error.name === "AbortError")) {
+      // Browser fetches can be interrupted during HMR, navigation, sleep/wake,
+      // or a short network drop. Preserve the current feed and reconnect on
+      // the next poll instead of surfacing a noisy console warning.
+      const wasAborted =
+        controller.signal.aborted ||
+        (error instanceof DOMException && error.name === "AbortError");
+      if (!wasAborted && !(error instanceof TypeError)) {
         console.warn("Unable to refresh assignment notifications.", error);
       }
     } finally {
+      window.clearTimeout(timeout);
+      if (feedAbortController.current === controller) {
+        feedAbortController.current = null;
+      }
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    void loadFeed(false);
-    const timer = window.setInterval(() => void loadFeed(true), 60_000);
-    return () => window.clearInterval(timer);
+    const refresh = (showBrowserNotifications = true) => {
+      if (document.visibilityState !== "visible") return;
+      void loadFeed(showBrowserNotifications);
+    };
+
+    refresh(false);
+    const timer = window.setInterval(() => refresh(true), 60_000);
+    const handleOnline = () => refresh(false);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") refresh(false);
+    };
+    const handleManualRefresh = () => refresh(true);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("damons:refresh-notifications", handleManualRefresh);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("damons:refresh-notifications", handleManualRefresh);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      feedAbortController.current?.abort();
+      feedAbortController.current = null;
+    };
   }, []);
 
   useEffect(() => {
@@ -143,14 +189,16 @@ export function AssignmentNotificationBell() {
     <div className="relative">
       <button
         type="button"
-        aria-label={unreadCount ? `${unreadCount} unread assignment notifications` : "Assignment notifications"}
+        data-no-glass
+        data-liquid-glass
+        aria-label={unreadCount ? `${unreadCount} unread workspace notifications` : "Workspace notifications"}
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className="relative grid size-10 place-items-center rounded-xl border border-white/[0.09] bg-white/[0.035] text-slate-400 transition hover:border-cyan-300/15 hover:bg-white/[0.075] hover:text-slate-100 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/15 sm:size-11"
+        className="topbar-notification relative grid size-10 place-items-center sm:size-11"
       >
-        {unreadCount ? <BellRing className="size-5 text-cyan-300" /> : <Bell className="size-5" />}
+        {unreadCount ? <BellRing className="size-5 text-primary" /> : <Bell className="size-5" />}
         {unreadCount ? (
-          <span className="absolute -right-0.5 -top-0.5 grid min-w-5 place-items-center rounded-full bg-[linear-gradient(135deg,#fb7185,#ef4444)] px-1 text-[10px] font-bold leading-5 text-white">
+          <span className="absolute -right-0.5 -top-0.5 grid min-w-5 place-items-center rounded-full bg-destructive/20 px-1 text-[10px] font-bold leading-5 text-white">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         ) : null}
@@ -161,13 +209,14 @@ export function AssignmentNotificationBell() {
           <>
             <button
               type="button"
+              data-no-glass
               aria-label="Close notifications"
               className="fixed inset-0 z-40 cursor-default bg-transparent"
               onClick={() => setOpen(false)}
             />
             <motion.section
               role="dialog"
-              aria-label="Assignment notifications"
+              aria-label="Workspace notifications"
               initial={{ opacity: 0, y: -8, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
@@ -175,11 +224,11 @@ export function AssignmentNotificationBell() {
               className="tech-menu-surface fixed inset-x-3 top-[calc(68px+env(safe-area-inset-top))] z-[160] max-h-[min(76dvh,620px)] overflow-hidden rounded-[24px] border sm:absolute sm:inset-x-auto sm:right-0 sm:top-12 sm:w-[390px]"
             >
               <header className="flex items-center gap-3 border-b border-white/10 px-4 py-4">
-                <span className="grid size-10 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300">
+                <span className="grid size-10 place-items-center rounded-2xl bg-primary/10 text-primary">
                   <BellRing className="size-5" />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <h2 className="font-semibold text-slate-100">Assignment notifications</h2>
+                  <h2 className="font-semibold text-slate-100">Workspace notifications</h2>
                   <p className="text-xs text-slate-400">{unreadCount} unread</p>
                 </div>
                 <button
@@ -195,9 +244,9 @@ export function AssignmentNotificationBell() {
                 <Link
                   href="/dashboard/assignments/productivity"
                   onClick={() => setOpen(false)}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-300 hover:underline"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
                 >
-                  <Settings2 className="size-3.5" /> Settings and templates
+                  <Settings2 className="size-3.5" /> Reminder settings
                 </Link>
                 <button
                   type="button"
@@ -221,7 +270,7 @@ export function AssignmentNotificationBell() {
                       const content = (
                         <>
                           <span
-                            className={`mt-1 size-2 shrink-0 rounded-full ${notification.read_at ? "bg-transparent" : "bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]"}`}
+                            className={`mt-1 size-2 shrink-0 rounded-full ${notification.read_at ? "bg-transparent" : "workspace-primary"}`}
                           />
                           <span className="min-w-0 flex-1">
                             <strong className="block text-sm font-semibold text-slate-100">

@@ -8,7 +8,7 @@ import {
   FileText,
   FileVideo,
   Presentation,
-} from "lucide-react";
+} from "@/components/ui/icons";
 
 import type { ImportantFile } from "@/lib/files/types";
 import { getFileType } from "@/lib/files/utils";
@@ -28,14 +28,14 @@ const iconMap = {
 
 const colorMap = {
   pdf: "bg-red-400/10 text-red-300 ring-1 ring-inset ring-red-300/20",
-  image: "bg-purple-400/10 text-purple-300 ring-1 ring-inset ring-purple-300/20",
+  image: "bg-primary/10 text-primary ring-1 ring-inset ring-primary/20",
   video: "bg-pink-400/10 text-pink-300 ring-1 ring-inset ring-pink-300/20",
   audio: "bg-emerald-400/10 text-emerald-300 ring-1 ring-inset ring-emerald-300/20",
-  document: "bg-cyan-400/10 text-cyan-300 ring-1 ring-inset ring-cyan-300/20",
+  document: "bg-primary/10 text-primary ring-1 ring-inset ring-primary/20",
   spreadsheet: "bg-emerald-400/10 text-emerald-300 ring-1 ring-inset ring-emerald-300/20",
   presentation: "bg-amber-400/10 text-amber-300 ring-1 ring-inset ring-amber-300/20",
   archive: "bg-white/5 text-slate-300 ring-1 ring-inset ring-white/10",
-  text: "bg-teal-400/10 text-teal-300 ring-1 ring-inset ring-teal-300/20",
+  text: "bg-primary/10 text-primary ring-1 ring-inset ring-primary/20",
   other: "bg-white/5 text-slate-300 ring-1 ring-inset ring-white/10",
 };
 

@@ -1,8 +1,9 @@
 "use client";
 
-import { Clock3, Laptop2, Loader2, LogOut, ShieldAlert, ShieldCheck } from "lucide-react";
+import { Clock3, Laptop2, Loader2, LogOut, ShieldAlert, ShieldCheck } from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { showNotice, confirmAction } from "@/components/ui/confirm-dialog";
 
 import type { LoginHistoryItem, SecuritySession } from "@/lib/security/data";
 
@@ -17,7 +18,7 @@ export function SecurityCenterClient({
   const [busy, setBusy] = useState("");
 
   async function revoke(id: string, current: boolean) {
-    if (!window.confirm(current ? "Sign out this current session?" : "Revoke this session?")) return;
+    if (!(await confirmAction(current ? "Sign out this current session?" : "Revoke this session?"))) return;
     setBusy(id);
     try {
       const response = await fetch(`/api/security/sessions/${id}`, { method: "DELETE" });
@@ -30,7 +31,7 @@ export function SecurityCenterClient({
       }
       router.refresh();
     } catch (error) {
-      window.alert(error instanceof Error ? error.message : "Session could not be revoked.");
+      await showNotice(error instanceof Error ? error.message : "Session could not be revoked.");
     } finally {
       setBusy("");
     }
@@ -44,7 +45,7 @@ export function SecurityCenterClient({
             <h2 className="text-lg font-semibold text-slate-100">Active sessions</h2>
             <p className="mt-1 text-sm text-slate-400">Devices tracked after the Phase 13 secure login flow.</p>
           </div>
-          <span className="grid size-11 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300"><Laptop2 className="size-5" /></span>
+          <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary"><Laptop2 className="size-5" /></span>
         </div>
         <div className="mt-5 space-y-3">
           {sessions.length ? sessions.map((item) => {
@@ -57,7 +58,7 @@ export function SecurityCenterClient({
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <strong className="text-sm text-slate-100">{item.device_label || "Browser session"}</strong>
-                    {item.current ? <span className="rounded-full bg-cyan-400/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-cyan-300">Current</span> : null}
+                    {item.current ? <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">Current</span> : null}
                     {inactive ? <span className="rounded-full bg-red-400/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-red-300">Revoked</span> : null}
                   </div>
                   <p className="mt-1 text-xs text-slate-500">Last active {formatDate(item.last_seen_at)} · Started {formatDate(item.created_at)}</p>
@@ -80,7 +81,7 @@ export function SecurityCenterClient({
             <h2 className="text-lg font-semibold text-slate-100">Login history</h2>
             <p className="mt-1 text-sm text-slate-400">Successful, failed, locked, and revoked access events.</p>
           </div>
-          <span className="grid size-11 place-items-center rounded-2xl bg-violet-400/10 text-violet-300"><Clock3 className="size-5" /></span>
+          <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary"><Clock3 className="size-5" /></span>
         </div>
         <div className="mt-5 max-h-[620px] space-y-2 overflow-y-auto pr-1">
           {history.length ? history.map((item) => <HistoryRow key={item.id} item={item} />) : <p className="rounded-2xl bg-white/[0.035] p-4 text-sm text-slate-400">No login history is available yet.</p>}
@@ -96,7 +97,7 @@ function HistoryRow({ item }: { item: LoginHistoryItem }) {
   return (
     <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-3.5">
       <div className="flex items-center justify-between gap-3">
-        <strong className={`text-xs font-semibold uppercase tracking-wider ${success ? "text-emerald-300" : bad ? "text-red-300" : "text-cyan-300"}`}>{item.status.replaceAll("_", " ")}</strong>
+        <strong className={`text-xs font-semibold uppercase tracking-wider ${success ? "text-emerald-300" : bad ? "text-red-300" : "text-primary"}`}>{item.status.replaceAll("_", " ")}</strong>
         <span className="text-[11px] text-slate-500">{formatDate(item.created_at)}</span>
       </div>
       <p className="mt-1 text-sm text-slate-300">{item.device_label || "Security event"}</p>

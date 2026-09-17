@@ -1,6 +1,6 @@
 "use client";
 
-import { CloudOff, Download, EyeOff } from "lucide-react";
+import { CloudOff, Download, EyeOff } from "@/components/ui/icons";
 import { useEffect, useState } from "react";
 
 import { FileTypeIcon } from "@/components/file-type-icon";
@@ -77,8 +77,8 @@ export function FilePreview({ file, compact = false }: FilePreviewProps) {
 
   if (type === "audio") {
     return (
-      <div className={`grid ${frameClass} place-items-center rounded-2xl bg-gradient-to-br from-[#12203a] to-[#081321] p-8`}>
-        <div className="w-full max-w-xl rounded-[24px] border border-cyan-300/20 bg-white/[0.045] p-8 text-center shadow-sm">
+      <div className={`grid ${frameClass} place-items-center rounded-2xl bg-card p-8`}>
+        <div className="w-full max-w-xl rounded-[24px] border border-primary/20 bg-white/[0.045] p-8 text-center shadow-sm">
           <FileTypeIcon file={file} className="mx-auto size-20 rounded-[24px]" iconClassName="size-9" />
           <h3 className="mt-5 truncate text-lg font-semibold text-slate-100">{file.title}</h3>
           <p className="mt-1 text-sm text-slate-400">{formatBytes(file.file_size)}</p>
@@ -98,7 +98,7 @@ export function FilePreview({ file, compact = false }: FilePreviewProps) {
         <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-white/[0.05] text-slate-400"><EyeOff className="size-7" /></span>
         <h3 className="mt-5 text-lg font-semibold text-slate-100">Preview is not available</h3>
         <p className="mt-2 text-sm leading-6 text-slate-400">This file type cannot be shown safely in the browser. Download it to open it with the appropriate application.</p>
-        {!offline ? <a href={`/api/files/${file.id}/download`} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-white transition hover:brightness-110"><Download className="size-4" />Download file</a> : null}
+        {!offline ? <a href={`/api/files/${file.id}/download`} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-full workspace-primary px-5 text-sm font-semibold text-white transition hover:brightness-110"><Download className="size-4" />Download file</a> : null}
       </div>
     </div>
   );

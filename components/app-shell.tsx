@@ -11,6 +11,7 @@ import { CommandPalette } from "@/components/command-palette";
 import { SessionHeartbeat } from "@/components/security/session-heartbeat";
 import { Sidebar } from "@/components/sidebar";
 import { TopBar } from "@/components/top-bar";
+import { ModalPortal } from "@/components/ui/modal-portal";
 import type { WorkspaceDefaultModule } from "@/lib/workspace/types";
 
 type AppShellProps = {
@@ -54,18 +55,10 @@ export function AppShell({
 
   useEffect(() => {
     if (!mobileOpen) return;
-
-    const closeWithEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMobileOpen(false);
-    };
-
-    document.addEventListener("keydown", closeWithEscape);
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.removeEventListener("keydown", closeWithEscape);
-      document.body.style.overflow = "";
-    };
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const closeOnDesktop = () => { if (desktop.matches) setMobileOpen(false); };
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => desktop.removeEventListener("change", closeOnDesktop);
   }, [mobileOpen]);
 
   function toggleSidebar() {
@@ -82,64 +75,67 @@ export function AppShell({
 
   return (
     <MotionConfig reducedMotion="user">
-    <div className="tech-shell min-h-screen overflow-x-clip text-slate-100">
+    <div className="archive-workspace tech-shell min-h-screen text-slate-100">
       <PerformanceMonitor />
       <SessionHeartbeat />
       <CommandPalette />
       <MobileEnhancements />
+      <div className="relative z-10">
       <TopBar
         userEmail={userEmail}
         displayName={displayName}
         onMenuClick={() => setMobileOpen(true)}
       />
 
-      <div className="relative mx-auto flex max-w-[1720px] gap-4 px-2.5 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-3 sm:px-5 sm:pt-4 lg:gap-5 lg:px-6 lg:pb-8 lg:pt-5">
+      <div className="archive-shell-content">
         <Sidebar
           quickModule={quickModule}
           collapsed={sidebarCollapsed}
           onToggleCollapse={toggleSidebar}
         />
 
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.main
+          <main
             id="main-content"
             tabIndex={-1}
             key={pathname}
             className={
               compactMode
-                ? "tech-page-transition min-w-0 max-w-full flex-1 overflow-x-clip py-1"
-                : "tech-page-transition min-w-0 max-w-full flex-1 overflow-x-clip py-1"
+                ? "archive-main archive-main-compact tech-page-transition min-w-0 flex-1"
+                : "archive-main tech-page-transition min-w-0 flex-1"
             }
-            initial={{ opacity: 0, y: 7 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -3 }}
-            transition={{ duration: 0.19, ease: [0.22, 1, 0.36, 1] }}
           >
             {children}
-          </motion.main>
-        </AnimatePresence>
+          </main>
       </div>
 
-      <div
-        className={`fixed inset-0 z-[110] lg:hidden ${mobileOpen ? "pointer-events-auto" : "pointer-events-none"}`}
-        aria-hidden={!mobileOpen}
-      >
+      </div>
+
+      <ModalPortal>
+      <AnimatePresence>
+      {mobileOpen ? <motion.div key="mobile-navigation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }} className="archive-workspace archive-navigation-overlay tech-modal-overlay fixed inset-0 z-[110] lg:hidden">
         <button
           type="button"
+          data-no-glass
           aria-label="Close navigation"
-          className={`absolute inset-0 bg-[#020611]/78 backdrop-blur-md transition-opacity duration-200 ${
-            mobileOpen ? "opacity-100" : "opacity-0"
-          }`}
+          tabIndex={-1}
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           onClick={() => setMobileOpen(false)}
         />
-        <div
-          className={`relative h-full w-[min(90vw,340px)] p-2.5 pt-[calc(.625rem+env(safe-area-inset-top))] pb-[calc(.625rem+env(safe-area-inset-bottom))] transition-transform duration-[280ms] ease-[cubic-bezier(.16,1,.3,1)] ${
-            mobileOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        <motion.div
+          initial={{ x: "-100%" }}
+          animate={{ x: 0 }}
+          exit={{ x: "-100%" }}
+          transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+          className="tech-modal-surface relative h-full w-[min(86vw,300px)] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Workspace navigation"
         >
           <Sidebar mobile quickModule={quickModule} onNavigate={() => setMobileOpen(false)} />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div> : null}
+      </AnimatePresence>
+      </ModalPortal>
     </div>
     </MotionConfig>
   );

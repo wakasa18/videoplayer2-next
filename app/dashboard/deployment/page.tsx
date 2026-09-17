@@ -1,5 +1,5 @@
 import { DashboardReveal } from "@/components/dashboard-reveal";
-import { AlertTriangle, Rocket, ShieldCheck } from "lucide-react";
+import { AlertTriangle, Rocket, ShieldCheck } from "@/components/ui/icons";
 
 import { DeploymentCutoverClient } from "@/components/deployment/deployment-cutover-client";
 import { getDeploymentDashboardData } from "@/lib/deployment/data";
@@ -17,9 +17,9 @@ export default async function DeploymentPage() {
           <div className="tech-scanline" aria-hidden="true" />
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-cyan-400/10 px-3 py-1.5 text-xs font-semibold text-cyan-300">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
                 <Rocket className="size-4" aria-hidden="true" />
-                Phase 9 production cutover
+                Production deployment
               </div>
               <h1 className="text-3xl font-semibold tracking-[-.03em] text-slate-100 sm:text-4xl">
                 Deployment and launch control
@@ -42,11 +42,11 @@ export default async function DeploymentPage() {
   } catch (error) {
     return (
       <main className="grid min-h-[68vh] place-items-center">
-        <section className="w-full max-w-2xl rounded-[28px] border border-amber-300/25 bg-[#0b1220]/90 p-8 shadow-[0_18px_50px_rgba(0,4,14,0.5)] backdrop-blur-xl">
+        <section className="tech-card w-full max-w-2xl rounded-[28px] border border-amber-300/25 bg-card/90 p-8 shadow-[0_18px_50px_rgba(7, 0, 14, 0.5)] backdrop-blur-xl">
           <span className="grid size-14 place-items-center rounded-2xl bg-amber-400/10 text-amber-300">
             <AlertTriangle className="size-7" aria-hidden="true" />
           </span>
-          <h1 className="mt-5 text-2xl font-semibold text-slate-100">Phase 9 needs database setup</h1>
+          <h1 className="mt-5 text-2xl font-semibold text-slate-100">Deployment needs database setup</h1>
           <p className="mt-3 text-sm leading-6 text-slate-400">
             {error instanceof Error ? error.message : "Deployment controls could not be loaded."}
           </p>

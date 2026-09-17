@@ -1,12 +1,13 @@
 "use client";
 
-import { ClipboardList, FolderOpen, Home, Menu, Plus } from "lucide-react";
+import { ClipboardList, FolderOpen, Home } from "@/components/ui/icons";
 import { MotionConfig, motion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { QuickCaptureSheet } from "@/components/mobile/quick-capture-sheet";
+import { LordIcon, type LordIconName } from "@/components/ui/lord-icon";
 
 const navSpring = {
   type: "spring" as const,
@@ -30,8 +31,8 @@ export function MobileBottomNav() {
           z-[80]
           mx-auto max-w-md
           rounded-[1.35rem]
-          border border-cyan-200/15
-          bg-[#06101e]/[.992]
+          border border-primary/15
+          bg-card/[.992]
           px-1.5 py-1.5
           shadow-[0_18px_52px_rgba(0,0,0,.58)]
           lg:hidden
@@ -50,6 +51,7 @@ export function MobileBottomNav() {
             href="/dashboard"
             label="Home"
             icon={Home}
+            lordicon="home"
             active={pathname === "/dashboard"}
           />
 
@@ -57,11 +59,13 @@ export function MobileBottomNav() {
             href="/dashboard/files"
             label="Files"
             icon={FolderOpen}
+            lordicon="files"
             active={pathname.startsWith("/dashboard/files")}
           />
 
           {/* Smaller center Upload button */}
           <motion.button
+            id="mobile-bottom-upload"
             type="button"
             onClick={() => setUploadOpen(true)}
             className="
@@ -71,7 +75,7 @@ export function MobileBottomNav() {
               flex-col items-center justify-center
               gap-0.5
               text-[9px] font-semibold
-              text-cyan-100
+              text-primary
             "
             whileTap={{ scale: 0.93 }}
             transition={navSpring}
@@ -84,10 +88,10 @@ export function MobileBottomNav() {
                 grid size-10
                 place-items-center
                 rounded-[.8rem]
-                border border-cyan-100/30
-                bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]
+                border border-primary/30
+                workspace-primary
                 text-white
-                shadow-[0_8px_20px_rgba(41,165,255,.28)]
+                shadow-[0_8px_20px_rgba(155, 41, 255, .28)]
               "
               animate={
                 uploadOpen
@@ -106,7 +110,13 @@ export function MobileBottomNav() {
                 "
               />
 
-              <Plus className="relative size-[18px]" />
+              <LordIcon
+                name="upload"
+                size={18}
+                active={uploadOpen}
+                targetId="mobile-bottom-upload"
+                className="relative text-white"
+              />
             </motion.span>
 
             <span className="max-w-full truncate leading-none">
@@ -118,10 +128,12 @@ export function MobileBottomNav() {
             href="/dashboard/assignments"
             label="Tasks"
             icon={ClipboardList}
+            lordicon="assignments"
             active={pathname.startsWith("/dashboard/assignments")}
           />
 
           <motion.button
+            id="mobile-bottom-more"
             type="button"
             onClick={() =>
               window.dispatchEvent(
@@ -145,7 +157,12 @@ export function MobileBottomNav() {
               whileTap={{ rotate: -8 }}
               transition={navSpring}
             >
-              <Menu className="size-[18px]" />
+              <LordIcon
+                name="tools"
+                size={18}
+                targetId="mobile-bottom-more"
+                className="text-slate-400"
+              />
             </motion.span>
 
             <span className="max-w-full truncate">
@@ -168,14 +185,19 @@ function NavItem({
   label,
   icon: Icon,
   active,
+  lordicon,
 }: {
   href: string;
   label: string;
   icon: typeof Home;
   active: boolean;
+  lordicon?: LordIconName;
 }) {
+  const animationTargetId = `mobile-bottom-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+
   return (
     <Link
+      id={animationTargetId}
       href={href}
       aria-current={active ? "page" : undefined}
       className={`
@@ -187,7 +209,7 @@ function NavItem({
         transition-colors duration-200
         ${
           active
-            ? "text-cyan-100"
+            ? "text-primary"
             : "text-slate-500"
         }
       `}
@@ -199,8 +221,8 @@ function NavItem({
             pointer-events-none
             absolute inset-0.5
             rounded-[.9rem]
-            border border-cyan-300/15
-            bg-[linear-gradient(180deg,rgba(38,211,255,.11),rgba(69,99,255,.055))]
+            border border-primary/15
+            bg-primary/10
             shadow-[inset_0_1px_0_rgba(255,255,255,.04)]
           "
           transition={navSpring}
@@ -222,7 +244,16 @@ function NavItem({
           animate={active ? { scale: 1.08 } : { scale: 1 }}
           transition={navSpring}
         >
-          <Icon className="size-[18px]" />
+          {lordicon ? (
+            <LordIcon
+              name={lordicon}
+              size={18}
+              active={active}
+              targetId={animationTargetId}
+            />
+          ) : (
+            <Icon className="size-[18px]" />
+          )}
         </motion.span>
 
         <span className="max-w-full truncate">
@@ -233,7 +264,7 @@ function NavItem({
           className="
             absolute bottom-0.5
             h-0.5 rounded-full
-            bg-cyan-300
+            bg-primary
           "
           animate={
             active

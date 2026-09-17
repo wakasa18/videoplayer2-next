@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Circle, CircleAlert, LoaderCircle, Send } from "lucide-react";
+import { CheckCircle2, Circle, CircleAlert, LoaderCircle, Send } from "@/components/ui/icons";
 import { motion } from "motion/react";
 
 import { AssignmentCard } from "@/components/assignments/assignment-card";
@@ -13,7 +13,7 @@ const columns: Array<{
   accent: string;
 }> = [
   { status: "to_do", icon: Circle, accent: "#80868b" },
-  { status: "in_progress", icon: LoaderCircle, accent: "#1a73e8" },
+  { status: "in_progress", icon: LoaderCircle, accent: "#8fd6c2" },
   { status: "blocked", icon: CircleAlert, accent: "#d93025" },
   { status: "submitted", icon: Send, accent: "#f9ab00" },
   { status: "done", icon: CheckCircle2, accent: "#188038" },

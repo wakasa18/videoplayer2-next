@@ -7,12 +7,13 @@ import {
   MoreVertical,
   Pencil,
   Trash2,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { AssignmentEditorDialog } from "@/components/assignments/assignment-editor-dialog";
 import type { AssignmentItem, AssignmentSubject } from "@/lib/assignments/types";
+import { confirmAction, showNotice } from "@/components/ui/confirm-dialog";
 
 export function AssignmentItemActions({
   assignment,
@@ -28,7 +29,7 @@ export function AssignmentItemActions({
 
   async function run(action: "archive" | "trash" | "status", status?: string) {
     if (busy) return;
-    if (action === "trash" && !window.confirm(`Move “${assignment.title}” to the Recycle Bin?`)) return;
+    if (action === "trash" && !(await confirmAction(`Move “${assignment.title}” to the Recycle Bin?`))) return;
     setBusy(true);
     try {
       const response = await fetch(`/api/assignments/${assignment.id}`, {
@@ -41,7 +42,7 @@ export function AssignmentItemActions({
       setOpen(false);
       router.refresh();
     } catch (error) {
-      window.alert(error instanceof Error ? error.message : "The assignment could not be updated.");
+      (await showNotice(error instanceof Error ? error.message : "The assignment could not be updated."));
     } finally {
       setBusy(false);
     }
@@ -96,7 +97,7 @@ function MenuButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium transition hover:bg-white/[0.06] disabled:opacity-50 ${danger ? "text-red-300" : "text-slate-200"}`}
+      className={`liquid-menu-item flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium disabled:opacity-50 ${danger ? "text-red-300" : "text-slate-200"}`}
     >
       <Icon className="size-4" />
       {label}

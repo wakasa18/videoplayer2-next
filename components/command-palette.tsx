@@ -4,7 +4,6 @@ import {
   Activity,
   BellRing,
   Boxes,
-  Command,
   FileClock,
   FolderOpen,
   Home,
@@ -12,11 +11,12 @@ import {
   Search,
   Settings,
   ShieldCheck,
+
   Upload,
   Video,
   Wrench,
   X,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -42,7 +42,7 @@ const COMMANDS: PaletteCommand[] = [
   { id: "assignments", label: "Assignments", detail: "Open assignment workspace", keywords: "assignments tasks deadline", icon: BellRing, shortcut: "Alt+A", href: "/dashboard/assignments" },
   { id: "reminders", label: "Reminder History", detail: "Review sent and failed reminder emails", keywords: "reminder email failed history cron", icon: BellRing, href: "/dashboard/assignments/reminders" },
   { id: "videos", label: "Videos", detail: "Open video library", keywords: "videos media", icon: Video, shortcut: "Alt+V", href: "/dashboard/videos" },
-  { id: "tools", label: "Archive Tools", detail: "File converter, image toolkit, and ZIP manager", keywords: "tools converter image archive zip extract", icon: Boxes, shortcut: "Alt+T", href: "/dashboard/tools" },
+  { id: "tools", label: "Archive Tools", detail: "File converter, PDF toolkit, image toolkit, and ZIP manager", keywords: "tools converter image archive zip extract", icon: Boxes, shortcut: "Alt+T", href: "/dashboard/tools" },
   { id: "activity", label: "Activity", detail: "Review workspace activity", keywords: "activity audit events", icon: Activity, href: "/dashboard/activity" },
   { id: "security", label: "Security Center", detail: "Sessions and login history", keywords: "security sessions login history devices", icon: ShieldCheck, href: "/dashboard/security" },
   { id: "system", label: "System Health", detail: "Check database, Storage, cron, and email health", keywords: "system health cron smtp database", icon: Wrench, href: "/dashboard/system" },
@@ -62,6 +62,12 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
+  useEffect(() => {
+    const openPalette = () => setOpen(true);
+    window.addEventListener("damons:open-command-palette", openPalette);
+    return () => window.removeEventListener("damons:open-command-palette", openPalette);
+  }, []);
+
   const triggerFileCommand = useCallback((action: "upload" | "new-folder") => {
     if (window.location.pathname.startsWith("/dashboard/files") && !window.location.pathname.startsWith("/dashboard/files/recycle") && !window.location.pathname.startsWith("/dashboard/files/shares")) {
       window.dispatchEvent(new CustomEvent(action === "upload" ? "damons:upload-files" : "damons:new-folder"));
@@ -72,14 +78,11 @@ export function CommandPalette() {
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
+      if (event.defaultPrevented) return;
+      if (!open && document.body.classList.contains("tech-modal-open")) return;
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
         setOpen((value) => !value);
-        return;
-      }
-      if (event.key === "Escape" && open) {
-        event.preventDefault();
-        setOpen(false);
         return;
       }
       if (isTypingTarget(event.target) || event.ctrlKey || event.metaKey) return;
@@ -130,29 +133,20 @@ export function CommandPalette() {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-30 hidden items-center gap-2 rounded-full border border-cyan-300/15 bg-[#0b1322]/92 px-3.5 py-2 text-[11px] font-semibold text-slate-300 shadow-[0_16px_40px_rgba(0,0,0,.35)] backdrop-blur-xl transition hover:border-cyan-300/30 hover:text-cyan-100 xl:inline-flex"
-        aria-label="Open command palette"
-        title="Command palette (Ctrl+K)"
-      >
-        <Command className="size-3.5 text-cyan-300" /> Ctrl+K
-      </button>
       <ModalPortal>
         {open ? (
           <div className="tech-modal-overlay fixed inset-0 z-[140] flex items-start justify-center overflow-y-auto p-3 pt-[10dvh] sm:p-6 sm:pt-[12dvh]" onMouseDown={(event) => { if (event.currentTarget === event.target) setOpen(false); }}>
             <section role="dialog" aria-modal="true" aria-label="Command palette" className="tech-modal-surface w-full max-w-2xl overflow-hidden rounded-[26px] border shadow-[0_30px_100px_rgba(0,0,0,.6)]">
               <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3.5 sm:px-5">
-                <Search className="size-5 shrink-0 text-cyan-300" />
+                <Search className="size-5 shrink-0 text-primary" />
                 <input ref={inputRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search commands, pages, and actions…" className="min-h-10 min-w-0 flex-1 border-0 !bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500" />
-                <button type="button" onClick={() => setOpen(false)} className="grid size-9 place-items-center rounded-xl text-slate-400 hover:bg-white/[.06] hover:text-white"><X className="size-4.5" /></button>
+                <button type="button" onClick={() => setOpen(false)} aria-label="Close command palette" className="grid size-9 place-items-center rounded-xl text-slate-400 hover:bg-white/[.06] hover:text-white"><X className="size-4.5" /></button>
               </div>
               <div className="max-h-[58dvh] overflow-y-auto p-2.5">
                 {commands.length ? commands.map((command) => {
                   const Icon = command.icon;
-                  return <button key={command.id} type="button" onClick={() => run(command)} className="group flex w-full items-center gap-3 rounded-2xl border border-transparent px-3 py-3 text-left transition hover:border-cyan-300/15 hover:bg-cyan-300/[.055]">
-                    <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[.045] text-slate-400 group-hover:text-cyan-200"><Icon className="size-4.5" /></span>
+                  return <button key={command.id} type="button" onClick={() => run(command)} className="group flex w-full items-center gap-3 rounded-2xl border border-transparent px-3 py-3 text-left transition hover:border-primary/15 hover:bg-primary/[.055]">
+                    <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[.045] text-slate-400 group-hover:text-primary"><Icon className="size-4.5" /></span>
                     <span className="min-w-0 flex-1"><strong className="block truncate text-sm font-semibold text-slate-100">{command.label}</strong><small className="mt-0.5 block truncate text-xs text-slate-500">{command.detail}</small></span>
                     {command.shortcut ? <kbd className="hidden rounded-lg border border-white/10 bg-white/[.04] px-2 py-1 text-[10px] font-semibold text-slate-500 sm:inline-flex">{command.shortcut}</kbd> : null}
                   </button>;

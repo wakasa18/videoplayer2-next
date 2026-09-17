@@ -11,7 +11,7 @@ import {
   Star,
   Trash2,
   X,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -79,7 +79,7 @@ export function VideoItemActions({ video, recycled = false }: Props) {
 
   return (
     <div ref={rootRef} className="relative z-20">
-      <button type="button" onClick={() => setOpen((value) => !value)} aria-label={`Actions for ${video.title}`} className="grid size-9 place-items-center rounded-full border border-white/10 bg-black/40 text-slate-300 backdrop-blur transition hover:bg-white/10 hover:text-slate-100">
+      <button type="button" onClick={() => setOpen((value) => !value)} aria-label={`Actions for ${video.title}`} className="grid size-9 place-items-center rounded-lg border border-white/10 bg-black/40 text-slate-300 backdrop-blur transition hover:bg-white/10 hover:text-slate-100">
         <MoreVertical className="size-5" />
       </button>
       <AnimatePresence>
@@ -89,7 +89,7 @@ export function VideoItemActions({ video, recycled = false }: Props) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.97 }}
             transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute right-0 top-11 z-50 w-56 rounded-2xl border border-white/10 bg-[#0b1220]/95 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl"
+            className="tech-menu-surface absolute right-0 top-11 z-50 w-56 rounded-2xl border p-2"
           >
             {recycled ? (
               <>
@@ -100,7 +100,7 @@ export function VideoItemActions({ video, recycled = false }: Props) {
               <>
                 <MenuButton icon={Edit3} label="Edit details" onClick={() => { setOpen(false); setDialog("edit"); }} />
                 <MenuButton icon={Star} label={video.is_favorite ? "Remove from starred" : "Add to starred"} onClick={() => void patch({ action: "favorite", favorite: !video.is_favorite })} />
-                <a href={`/api/videos/${video.id}/download`} className="flex min-h-10 items-center gap-3 rounded-xl px-3 text-sm text-slate-300 transition-colors hover:bg-white/[0.07] hover:text-slate-100"><Download className="size-4 text-slate-400" />Download</a>
+                <a href={`/api/videos/${video.id}/download`} className="liquid-menu-item flex min-h-10 items-center gap-3 rounded-xl px-3 text-sm text-slate-300"><Download className="size-4 text-slate-400" />Download</a>
                 <div className="my-1 border-t border-white/10" />
                 <MenuButton icon={Trash2} label="Move to Recycle Bin" danger onClick={() => { setOpen(false); setDialog("trash"); }} />
               </>
@@ -119,7 +119,7 @@ export function VideoItemActions({ video, recycled = false }: Props) {
                   <h2 className="text-xl font-semibold text-slate-100">{dialog === "edit" ? "Edit video details" : dialog === "trash" ? "Move video to Recycle Bin?" : "Delete video permanently?"}</h2>
                   <p className="mt-2 text-sm leading-6 text-slate-400">{dialog === "edit" ? "Update how this video appears in your private library." : dialog === "trash" ? "You can restore this video later from the Recycle Bin." : "The database record and Supabase Storage object will be permanently removed."}</p>
                 </div>
-                <button type="button" disabled={busy} onClick={() => setDialog(null)} className="grid size-9 shrink-0 place-items-center rounded-full text-slate-400 transition hover:bg-white/10 hover:text-slate-100"><X className="size-5" /></button>
+                <button type="button" disabled={busy} onClick={() => setDialog(null)} aria-label="Close video dialog" className="grid size-9 shrink-0 place-items-center rounded-lg text-slate-400 transition hover:bg-white/10 hover:text-slate-100"><X className="size-5" /></button>
               </div>
               {dialog === "edit" ? (
                 <div className="mt-5 space-y-4">
@@ -128,18 +128,18 @@ export function VideoItemActions({ video, recycled = false }: Props) {
                   <Field label="Category" value={category} onChange={setCategory} placeholder="Optional" />
                   <label className="block text-sm font-medium text-slate-300">
                     Description
-                    <textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={4} className="mt-2 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-cyan-300/45 focus:ring-2 focus:ring-cyan-300/15" />
+                    <textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={4} className="mt-2 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-primary/45 focus:ring-2 focus:ring-primary/15" />
                   </label>
                 </div>
               ) : null}
               {error ? <p className="mt-4 rounded-2xl border border-red-300/20 bg-red-400/10 p-3 text-sm text-red-200">{error}</p> : null}
               <div className="mt-6 flex justify-end gap-3">
-                <button type="button" disabled={busy} onClick={() => setDialog(null)} className="tech-interactive h-11 rounded-full border border-white/10 bg-white/[0.04] px-5 font-semibold text-slate-300 hover:bg-white/[0.07]">Cancel</button>
+                <button type="button" disabled={busy} onClick={() => setDialog(null)} className="tech-interactive h-11 rounded-lg border border-white/10 bg-white/[0.04] px-5 font-semibold text-slate-300 hover:bg-white/[0.07]">Cancel</button>
                 <button
                   type="button"
                   disabled={busy}
                   onClick={() => (dialog === "edit" ? void patch({ action: "metadata", title, originalName, description, category }) : dialog === "trash" ? void patch({ action: "trash" }) : void permanentlyDelete())}
-                  className={`tech-interactive h-11 rounded-full border px-5 font-semibold text-white disabled:opacity-50 ${dialog === "edit" ? "border-cyan-200/20 bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] text-[#04101d] hover:brightness-110" : "border-red-300/20 bg-[linear-gradient(135deg,#fb7185,#ef4444)] hover:brightness-105"}`}
+                  className={`tech-interactive h-11 rounded-lg border px-5 font-semibold text-white disabled:opacity-50 ${dialog === "edit" ? "border-primary/20 workspace-primary text-[#122f29] hover:brightness-110" : "border-red-300/20 bg-destructive/20 hover:brightness-105"}`}
                 >
                   {busy ? "Working…" : dialog === "edit" ? "Save changes" : dialog === "trash" ? "Move to Recycle Bin" : "Delete permanently"}
                 </button>
@@ -154,13 +154,13 @@ export function VideoItemActions({ video, recycled = false }: Props) {
 }
 
 function MenuButton({ icon: Icon, label, onClick, danger = false }: { icon: typeof Edit3; label: string; onClick: () => void; danger?: boolean }) {
-  return <button type="button" onClick={onClick} className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm transition-colors hover:bg-white/[0.07] ${danger ? "text-red-300" : "text-slate-300 hover:text-slate-100"}`}><Icon className="size-4" />{label}</button>;
+  return <button type="button" onClick={onClick} className={`liquid-menu-item flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm ${danger ? "text-red-300" : "text-slate-300"}`}><Icon className="size-4" />{label}</button>;
 }
 function Field({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string }) {
   return (
     <label className="block text-sm font-medium text-slate-300">
       {label}
-      <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="mt-2 h-11 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-sm text-slate-100 outline-none transition focus:border-cyan-300/45 focus:ring-2 focus:ring-cyan-300/15" />
+      <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="mt-2 h-11 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-sm text-slate-100 outline-none transition focus:border-primary/45 focus:ring-2 focus:ring-primary/15" />
     </label>
   );
 }

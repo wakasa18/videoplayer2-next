@@ -7,7 +7,7 @@ import {
   HardDrive,
   History,
   Star,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -68,7 +68,7 @@ export default async function FileDetailsPage({ params }: FileDetailsPageProps) 
         <div className="flex items-center gap-2">
           <a
             href={`/api/files/${file.id}/download`}
-            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-white transition hover:brightness-110"
+            className="inline-flex min-h-11 items-center gap-2 rounded-full workspace-primary px-5 text-sm font-semibold text-white transition hover:brightness-110"
           >
             <Download className="size-4" aria-hidden="true" />
             Download
@@ -77,7 +77,7 @@ export default async function FileDetailsPage({ params }: FileDetailsPageProps) 
         </div>
       </div>
 
-      <section className="rounded-[28px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-7">
+      <section className="tech-card rounded-[28px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-7">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
           <FileTypeIcon
             file={file}
@@ -109,11 +109,11 @@ export default async function FileDetailsPage({ params }: FileDetailsPageProps) 
       </section>
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(300px,.55fr)]">
-        <section className="min-w-0 rounded-[28px] border border-white/10 bg-white/[0.045] p-3 shadow-sm sm:p-5">
+        <section className="tech-card min-w-0 rounded-[28px] border border-white/10 bg-white/[0.045] p-3 shadow-sm sm:p-5">
           <FilePreview file={file} />
         </section>
 
-        <aside className="space-y-4 rounded-[28px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
+        <aside className="tech-card space-y-4 rounded-[28px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.08em] text-slate-400">
               File information
@@ -161,11 +161,11 @@ export default async function FileDetailsPage({ params }: FileDetailsPageProps) 
 
       <section className="tech-panel rounded-[28px] p-5 sm:p-6">
         <div className="flex items-center gap-3">
-          <span className="grid size-10 place-items-center rounded-xl bg-violet-400/10 text-violet-300"><History className="size-5" /></span>
+          <span className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary"><History className="size-5" /></span>
           <div><h2 className="text-lg font-semibold text-slate-100">File activity</h2><p className="text-xs text-slate-400">Owner-only audit trail for this file.</p></div>
         </div>
         <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-          {activity.length ? activity.map((item) => <div key={item.id} className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-3.5"><strong className="block text-xs font-semibold uppercase tracking-wider text-cyan-300">{item.action.replaceAll("_", " ")}</strong><span className="mt-1 block text-xs text-slate-500">{new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila" }).format(new Date(item.created_at))}</span></div>) : <p className="text-sm text-slate-400">No activity has been recorded for this file yet.</p>}
+          {activity.length ? activity.map((item) => <div key={item.id} className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-3.5"><strong className="block text-xs font-semibold uppercase tracking-wider text-primary">{item.action.replaceAll("_", " ")}</strong><span className="mt-1 block text-xs text-slate-500">{new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila" }).format(new Date(item.created_at))}</span></div>) : <p className="text-sm text-slate-400">No activity has been recorded for this file yet.</p>}
         </div>
       </section>
     </main>
@@ -183,7 +183,7 @@ function Detail({
 }) {
   return (
     <div className="flex items-start gap-3 rounded-2xl border border-white/10 p-3.5">
-      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-cyan-400/10 text-cyan-300">
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
         <Icon className="size-4" aria-hidden="true" />
       </span>
       <span className="min-w-0">

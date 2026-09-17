@@ -18,7 +18,7 @@ import {
   SkipForward,
   X,
   XCircle,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
@@ -29,6 +29,7 @@ import type {
   DeploymentSmokeTest,
   DeploymentTestStatus,
 } from "@/lib/deployment/types";
+import { confirmAction } from "@/components/ui/confirm-dialog";
 
 export function DeploymentCutoverClient({ data }: { data: DeploymentDashboardData }) {
   const router = useRouter();
@@ -61,7 +62,7 @@ export function DeploymentCutoverClient({ data }: { data: DeploymentDashboardDat
               body: JSON.stringify(payload),
             });
             await expectSuccess(response, "Release could not be created.");
-            setMessage("Phase 9 release created. Complete preflight checks before deployment.");
+            setMessage("Release created. Complete preflight checks before deployment.");
           })
         }
       />
@@ -89,7 +90,7 @@ export function DeploymentCutoverClient({ data }: { data: DeploymentDashboardDat
       detail = window.prompt("Describe the failure or blocker:", detail) ?? detail;
     } else if (status === "skipped") {
       detail = window.prompt("Why is this test being skipped?", detail) ?? detail;
-    } else if (status === "pass" && detail && !window.confirm("Keep the existing test note?")) {
+    } else if (status === "pass" && detail && !(await confirmAction("Keep the existing test note?"))) {
       detail = "";
     }
     const response = await fetch(
@@ -112,7 +113,7 @@ export function DeploymentCutoverClient({ data }: { data: DeploymentDashboardDat
         <SummaryCard label="System Check" value={data.system.overall === "pass" ? "Ready" : data.system.overall === "warn" ? "Review" : "Blocked"} status={data.system.overall} />
       </section>
 
-      <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
+      <section className="tech-card rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-3">
@@ -145,10 +146,10 @@ export function DeploymentCutoverClient({ data }: { data: DeploymentDashboardDat
         <div className="mt-5 rounded-2xl bg-white/[0.035] p-4">
           <div className="flex items-center justify-between gap-4 text-sm">
             <span className="font-semibold text-slate-200">Required smoke-test progress</span>
-            <span className="font-semibold text-cyan-300">{percent}%</span>
+            <span className="font-semibold text-primary">{percent}%</span>
           </div>
           <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-white/[0.05]">
-            <div className="h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] transition-[width] duration-300 ease-out" style={{ width: `${percent}%` }} />
+            <div className="h-full rounded-full workspace-primary transition-[width] duration-300 ease-out" style={{ width: `${percent}%` }} />
           </div>
         </div>
 
@@ -178,7 +179,7 @@ export function DeploymentCutoverClient({ data }: { data: DeploymentDashboardDat
         <p aria-live="polite" className={`mt-4 text-sm leading-6 ${message.toLowerCase().includes("fail") || message.toLowerCase().includes("could not") ? "text-red-300" : "text-emerald-300"}`}>{message}</p>
       </section>
 
-      <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
+      <section className="tech-card rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-lg font-semibold text-slate-100">Production smoke tests</h2>
@@ -206,7 +207,7 @@ export function DeploymentCutoverClient({ data }: { data: DeploymentDashboardDat
       </section>
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(340px,.95fr)]">
-        <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
+        <section className="tech-card rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
           <h2 className="text-lg font-semibold text-slate-100">Cutover sequence</h2>
           <div className="mt-4 space-y-3 text-sm leading-6 text-slate-200">
             <Step number="1" title="Prepare" text="Build locally, run System Check, back up metadata, and configure Vercel and Supabase production settings." />
@@ -217,12 +218,12 @@ export function DeploymentCutoverClient({ data }: { data: DeploymentDashboardDat
           </div>
         </section>
 
-        <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
+        <section className="tech-card rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
           <h2 className="text-lg font-semibold text-slate-100">Release history</h2>
           {data.events.length ? (
             <ol className="mt-4 space-y-3">
               {data.events.map((event) => (
-                <li key={event.id} className="border-l-2 border-cyan-300/20 pl-4">
+                <li key={event.id} className="border-l-2 border-primary/20 pl-4">
                   <div className="text-sm font-semibold text-slate-200">{event.message}</div>
                   <div className="mt-1 text-xs text-slate-400">{formatDate(event.created_at)}</div>
                 </li>
@@ -238,16 +239,16 @@ export function DeploymentCutoverClient({ data }: { data: DeploymentDashboardDat
 }
 
 function CreateReleasePanel({ busy, message, onCreate }: { busy: string; message: string; onCreate: (payload: Record<string, unknown>) => void }) {
-  const suggested = useMemo(() => `phase9-${new Date().toISOString().slice(0, 10)}`, []);
+  const suggested = useMemo(() => `release-${new Date().toISOString().slice(0, 10)}`, []);
   const [releaseTag, setReleaseTag] = useState(suggested);
   const [environment, setEnvironment] = useState("production");
   const [deploymentUrl, setDeploymentUrl] = useState("");
   const [commitSha, setCommitSha] = useState("");
   const [notes, setNotes] = useState("");
   return (
-    <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-6 shadow-sm sm:p-8">
-      <span className="grid size-14 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300"><Rocket className="size-7" /></span>
-      <h2 className="mt-5 text-2xl font-semibold text-slate-100">Create the Phase 9 release</h2>
+    <section className="tech-card rounded-[24px] border border-white/10 bg-white/[0.045] p-6 shadow-sm sm:p-8">
+      <span className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary"><Rocket className="size-7" /></span>
+      <h2 className="mt-5 text-2xl font-semibold text-slate-100">Create a production release</h2>
       <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">This creates an owner-scoped cutover record and the full production smoke-test checklist. It does not deploy to Vercel automatically.</p>
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         <Field label="Release tag"><input value={releaseTag} onChange={(event) => setReleaseTag(event.target.value)} className={inputClass} /></Field>
@@ -286,7 +287,7 @@ function ReleaseActions({ release, canStartDeployment, canGoLive, busy, onStatus
       {status === "draft" ? <button type="button" disabled={Boolean(busy) || !canStartDeployment} onClick={() => onStatus("ready")} className={primaryButton}><FileCheck2 className="size-4" /> Mark ready</button> : null}
       {status === "ready" ? <><button type="button" disabled={Boolean(busy)} onClick={() => onStatus("draft")} className={secondaryButton}><RotateCcw className="size-4" /> Back to draft</button><button type="button" disabled={Boolean(busy) || !canStartDeployment} onClick={() => onStatus("deploying")} className={primaryButton}><Play className="size-4" /> Start deployment</button></> : null}
       {status === "deploying" ? <><button type="button" disabled={Boolean(busy) || !canGoLive} title={!canGoLive ? "Pass all required tests first" : undefined} onClick={() => onStatus("live")} className={successButton}><Rocket className="size-4" /> Mark live</button><button type="button" disabled={Boolean(busy)} onClick={() => onStatus("failed")} className={dangerButton}><XCircle className="size-4" /> Mark failed</button><button type="button" disabled={Boolean(busy)} onClick={() => onStatus("rolled_back")} className={secondaryButton}><RotateCcw className="size-4" /> Roll back</button></> : null}
-      {status === "live" ? <button type="button" disabled={Boolean(busy)} onClick={() => window.confirm("Roll back this live release?") && onStatus("rolled_back")} className={dangerButton}><RotateCcw className="size-4" /> Record rollback</button> : null}
+      {status === "live" ? <button type="button" disabled={Boolean(busy)} onClick={async () => (await confirmAction("Roll back this live release?")) && onStatus("rolled_back")} className={dangerButton}><RotateCcw className="size-4" /> Record rollback</button> : null}
       {status === "failed" || status === "rolled_back" ? <button type="button" disabled={Boolean(busy)} onClick={() => onStatus("ready")} className={primaryButton}><RefreshCw className="size-4" /> Prepare retry</button> : null}
       {(status === "draft" || status === "ready") ? <button type="button" disabled={Boolean(busy)} onClick={() => onStatus("failed")} className={dangerButton}><X className="size-4" /> Cancel as failed</button> : null}
     </div>
@@ -322,23 +323,23 @@ function TestButton({ label, active, disabled, onClick, icon: Icon, danger = fal
 }
 
 function SummaryCard({ label, value, status }: { label: string; value: string; status: "pass" | "warn" | "fail" }) {
-  return <article className="rounded-[22px] border border-white/10 bg-white/[0.045] p-5 shadow-sm"><div className="flex items-center justify-between gap-3"><span className="text-sm font-medium text-slate-400">{label}</span>{status === "pass" ? <CheckCircle2 className="size-5 text-emerald-300" /> : status === "warn" ? <AlertTriangle className="size-5 text-amber-300" /> : <XCircle className="size-5 text-red-300" />}</div><strong className="mt-3 block truncate text-2xl font-semibold tracking-[-.02em] text-slate-100" title={value}>{value}</strong></article>;
+  return <article className="tech-card rounded-[22px] border border-white/10 bg-white/[0.045] p-5 shadow-sm"><div className="flex items-center justify-between gap-3"><span className="text-sm font-medium text-slate-400">{label}</span>{status === "pass" ? <CheckCircle2 className="size-5 text-emerald-300" /> : status === "warn" ? <AlertTriangle className="size-5 text-amber-300" /> : <XCircle className="size-5 text-red-300" />}</div><strong className="mt-3 block truncate text-2xl font-semibold tracking-[-.02em] text-slate-100" title={value}>{value}</strong></article>;
 }
 
 function StatusBadge({ status }: { status: DeploymentReleaseStatus }) {
-  const styles: Record<DeploymentReleaseStatus, string> = { draft: "bg-white/[0.05] text-slate-400", ready: "bg-cyan-400/10 text-cyan-300", deploying: "bg-amber-400/10 text-amber-300", live: "bg-emerald-400/10 text-emerald-300", failed: "bg-red-400/10 text-red-300", rolled_back: "bg-purple-400/10 text-purple-300" };
+  const styles: Record<DeploymentReleaseStatus, string> = { draft: "bg-white/[0.05] text-slate-400", ready: "bg-primary/10 text-primary", deploying: "bg-amber-400/10 text-amber-300", live: "bg-emerald-400/10 text-emerald-300", failed: "bg-red-400/10 text-red-300", rolled_back: "bg-primary/10 text-primary" };
   return <span className={`rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wide ${styles[status]}`}>{statusLabel(status)}</span>;
 }
 
 function TestIcon({ status }: { status: DeploymentTestStatus }) {
   if (status === "pass") return <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-300" />;
   if (status === "fail") return <XCircle className="mt-0.5 size-5 shrink-0 text-red-300" />;
-  if (status === "skipped") return <SkipForward className="mt-0.5 size-5 shrink-0 text-purple-300" />;
+  if (status === "skipped") return <SkipForward className="mt-0.5 size-5 shrink-0 text-primary" />;
   return <Circle className="mt-0.5 size-5 shrink-0 text-slate-500" />;
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) { return <label className="block"><span className="mb-1.5 block text-sm font-semibold text-slate-200">{label}</span>{children}</label>; }
-function Step({ number, title, text }: { number: string; title: string; text: string }) { return <div className="flex gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-cyan-400/10 text-xs font-bold text-cyan-300">{number}</span><div><div className="font-semibold text-slate-100">{title}</div><p className="text-slate-400">{text}</p></div></div>; }
+function Step({ number, title, text }: { number: string; title: string; text: string }) { return <div className="flex gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">{number}</span><div><div className="font-semibold text-slate-100">{title}</div><p className="text-slate-400">{text}</p></div></div>; }
 
 function groupTests(tests: DeploymentSmokeTest[]): Array<[string, DeploymentSmokeTest[]]> {
   const map = new Map<string, DeploymentSmokeTest[]>();
@@ -350,8 +351,8 @@ function statusLabel(status: DeploymentReleaseStatus): string { return status.re
 function formatDate(value: string | null): string { if (!value) return "Unknown"; const date = new Date(value); return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila" }).format(date); }
 async function expectSuccess(response: Response, fallback: string): Promise<unknown> { const payload = await response.json().catch(() => ({})) as { error?: string }; if (!response.ok) throw new Error(payload.error ?? fallback); return payload; }
 
-const inputClass = "w-full rounded-xl border border-white/10 bg-white/[0.045] px-3.5 py-2.5 text-sm text-slate-100 outline-none transition focus:border-cyan-300/40 focus:ring-2 focus:ring-cyan-300/15";
-const primaryButton = "inline-flex items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] disabled:cursor-not-allowed disabled:opacity-50";
+const inputClass = "w-full rounded-xl border border-white/10 bg-white/[0.045] px-3.5 py-2.5 text-sm text-slate-100 outline-none transition focus:border-primary/40 focus:ring-2 focus:ring-primary/15";
+const primaryButton = "inline-flex items-center justify-center gap-2 rounded-full workspace-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:workspace-primary disabled:cursor-not-allowed disabled:opacity-50";
 const secondaryButton = "inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-50";
 const successButton = "inline-flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50";
 const dangerButton = "inline-flex items-center justify-center gap-2 rounded-full border border-red-300/25 bg-white/[0.045] px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-400/10 disabled:cursor-not-allowed disabled:opacity-50";

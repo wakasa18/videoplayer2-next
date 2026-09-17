@@ -10,7 +10,7 @@ import {
   Paperclip,
   Repeat2,
   StickyNote,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -28,6 +28,7 @@ import {
   recurrenceLabel,
   statusLabel,
 } from "@/lib/assignments/utils";
+import { showNotice } from "@/components/ui/confirm-dialog";
 
 type AssignmentCardProps = {
   assignment: AssignmentItem;
@@ -41,7 +42,7 @@ type AssignmentCardProps = {
 
 const statusClasses = {
   to_do: "bg-white/[0.05] text-slate-400",
-  in_progress: "bg-cyan-400/10 text-cyan-300",
+  in_progress: "bg-primary/10 text-primary",
   blocked: "bg-red-400/10 text-red-300",
   submitted: "bg-amber-400/10 text-amber-300",
   done: "bg-emerald-400/10 text-emerald-300",
@@ -79,20 +80,16 @@ export function AssignmentCard({
       if (!response.ok) throw new Error(payload.error ?? "The assignment could not be updated.");
       router.refresh();
     } catch (error) {
-      window.alert(error instanceof Error ? error.message : "The assignment could not be updated.");
+      (await showNotice(error instanceof Error ? error.message : "The assignment could not be updated."));
     }
   }
 
   const card = (
-    <motion.article
-      initial={{ opacity: 0, y: 14, scale: 0.985 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay: Math.min(index, 8) * 0.018, duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -1 }}
-      className={`group relative overflow-visible rounded-[22px] border bg-white/[0.045] shadow-sm transition-colors hover:border-cyan-300/35 hover:shadow-md ${
+    <article
+      style={{ "--card-reveal-delay": `${Math.min(index, 8) * 18}ms`, borderLeftWidth: 4, borderLeftColor: assignment.subject_color } as React.CSSProperties}
+      className={`tech-card tech-interactive tech-card-reveal group relative overflow-visible rounded-[22px] border bg-white/[0.045] shadow-sm transition-colors hover:border-primary/35 hover:shadow-md ${
         overdue ? "border-red-300/25" : "border-white/10"
-      } ${selected ? "ring-4 ring-cyan-300/15" : ""}`}
-      style={{ borderLeftWidth: 4, borderLeftColor: assignment.subject_color }}
+      } ${selected ? "ring-4 ring-primary/15" : ""}`}
     >
       {manageable ? (
         <div className="absolute right-3 top-3 z-20 flex items-center gap-1">
@@ -101,7 +98,7 @@ export function AssignmentCard({
               type="checkbox"
               checked={selected}
               onChange={(event) => onSelectedChange?.(assignment.id, event.target.checked)}
-              className="size-4 rounded border-white/15 accent-[#1a73e8]"
+              className="size-4 rounded border-white/15 accent-primary"
               aria-label={`Select ${assignment.title}`}
             />
           </label>
@@ -111,7 +108,7 @@ export function AssignmentCard({
 
       <Link
         href={`/dashboard/assignments/${assignment.id}`}
-        className={`block rounded-[22px] focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/15 ${
+        className={`block rounded-[22px] focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/15 ${
           compact ? "p-4" : "p-5"
         } ${manageable ? "pr-24" : ""}`}
       >
@@ -125,10 +122,10 @@ export function AssignmentCard({
               <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${statusClasses[assignment.status]}`}>{statusLabel(assignment.status)}</span>
               <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${priorityClasses[assignment.priority]}`}>{priorityLabel(assignment.priority)}</span>
             </div>
-            <h3 className="mt-3 line-clamp-2 text-base font-semibold leading-6 text-slate-100 group-hover:text-cyan-300">{assignment.title}</h3>
+            <h3 className="mt-3 line-clamp-2 text-base font-semibold leading-6 text-slate-100 group-hover:text-primary">{assignment.title}</h3>
             {!compact && assignment.description ? <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-400">{assignment.description}</p> : null}
           </div>
-          {!manageable ? <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-white/[0.035] text-slate-400 transition group-hover:bg-cyan-400/10 group-hover:text-cyan-300"><FileText className="size-5" /></span> : null}
+          {!manageable ? <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-white/[0.035] text-slate-400 transition group-hover:bg-primary/10 group-hover:text-primary"><FileText className="size-5" /></span> : null}
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-slate-400">
@@ -141,11 +138,11 @@ export function AssignmentCard({
         {assignment.subtask_total > 0 ? (
           <div className="mt-4">
             <div className="mb-1.5 flex items-center justify-between gap-3 text-[11px] font-semibold text-slate-400"><span className="inline-flex items-center gap-1.5"><ListChecks className="size-3.5" />{assignment.subtask_done}/{assignment.subtask_total} subtasks</span><span>{progress}%</span></div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.08]"><motion.span initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ delay: 0.08 + Math.min(index, 6) * 0.015, duration: 0.3 }} className="block h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)]" /></div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.08]"><motion.span initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ delay: 0.08 + Math.min(index, 6) * 0.015, duration: 0.3 }} className="block h-full rounded-full workspace-primary" /></div>
           </div>
         ) : null}
       </Link>
-    </motion.article>
+    </article>
   );
 
   if (!manageable) return card;

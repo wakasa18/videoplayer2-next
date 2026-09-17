@@ -3,8 +3,8 @@
 import { ModalPortal } from "@/components/ui/modal-portal";
 
 import { AnimatePresence, motion } from "motion/react";
-import { FolderPlus, Loader2, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { FolderPlus, Loader2, X } from "@/components/ui/icons";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 type CreateFolderDialogProps = {
@@ -23,14 +23,6 @@ export function CreateFolderDialog({
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (!open) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previous;
-    };
-  }, [open]);
 
   async function createFolder(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -95,7 +87,7 @@ export function CreateFolderDialog({
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-3">
-                <span className="grid size-11 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300">
+                <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary">
                   <FolderPlus className="size-5" aria-hidden="true" />
                 </span>
                 <div>
@@ -109,7 +101,7 @@ export function CreateFolderDialog({
               </div>
               <button
                 type="button"
-                className="grid size-10 place-items-center rounded-full text-slate-400 transition hover:bg-white/[0.06]"
+                className="grid size-10 place-items-center rounded-lg text-slate-400 transition hover:bg-white/[0.06]"
                 aria-label="Close"
                 disabled={submitting}
                 onClick={() => closeDialog()}
@@ -128,7 +120,7 @@ export function CreateFolderDialog({
                   value={name}
                   onChange={(event) => setName(event.target.value)}
                   placeholder="Example: Certificates"
-                  className="min-h-12 rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-sm font-medium text-slate-100 outline-none transition focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15"
+                  className="min-h-12 rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-sm font-medium text-slate-100 outline-none transition focus:border-primary/45 focus:ring-4 focus:ring-primary/15"
                 />
               </label>
 
@@ -147,14 +139,14 @@ export function CreateFolderDialog({
                   type="button"
                   disabled={submitting}
                   onClick={() => closeDialog()}
-                  className="min-h-11 rounded-full border border-white/10 bg-white/[0.045] px-5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] disabled:opacity-60"
+                  className="min-h-11 rounded-lg border border-white/10 bg-white/[0.045] px-5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] disabled:opacity-60"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting || !name.trim()}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg workspace-primary px-5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {submitting ? (
                     <Loader2 className="size-4 animate-spin" aria-hidden="true" />

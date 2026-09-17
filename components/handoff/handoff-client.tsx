@@ -11,7 +11,7 @@ import {
   RefreshCw,
   ShieldCheck,
   XCircle,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { useMemo, useState } from "react";
 
 import type {
@@ -69,7 +69,7 @@ export function HandoffClient({ initialData }: { initialData: HandoffPageData })
   async function signOff() {
     if (signing) return;
     setSigning(true);
-    setMessage("Saving final acceptance...");
+    setMessage("Saving release acceptance...");
     try {
       const response = await fetch("/api/handoff/signoff", {
         method: "POST",
@@ -77,11 +77,11 @@ export function HandoffClient({ initialData }: { initialData: HandoffPageData })
         body: JSON.stringify({ acceptedBy, notes }),
       });
       const payload = (await response.json()) as { error?: string; data?: HandoffPageData };
-      if (!response.ok || !payload.data) throw new Error(payload.error ?? "Final acceptance could not be saved.");
+      if (!response.ok || !payload.data) throw new Error(payload.error ?? "Release acceptance could not be saved.");
       setData(payload.data);
-      setMessage("Final acceptance saved.");
+      setMessage("Release acceptance saved.");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Final acceptance could not be saved.");
+      setMessage(error instanceof Error ? error.message : "Release acceptance could not be saved.");
     } finally {
       setSigning(false);
     }
@@ -92,7 +92,7 @@ export function HandoffClient({ initialData }: { initialData: HandoffPageData })
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `damons-archive-final-handoff-${new Date().toISOString().slice(0, 10)}.json`;
+    anchor.download = `damons-archive-release-handoff-${new Date().toISOString().slice(0, 10)}.json`;
     anchor.click();
     URL.revokeObjectURL(url);
   }
@@ -100,7 +100,7 @@ export function HandoffClient({ initialData }: { initialData: HandoffPageData })
   return (
     <div className="space-y-5">
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <Metric label="Handoff score" value={`${data.readiness.score}%`} tone={data.readiness.status} />
+        <Metric label="Release score" value={`${data.readiness.score}%`} tone={data.readiness.status} />
         <Metric label="Passed" value={String(data.readiness.passed)} tone="ready" />
         <Metric label="Pending" value={String(data.readiness.pending)} tone={data.readiness.pending ? "review" : "ready"} />
         <Metric label="Failed" value={String(data.readiness.failed)} tone={data.readiness.failed ? "blocked" : "ready"} />
@@ -114,10 +114,10 @@ export function HandoffClient({ initialData }: { initialData: HandoffPageData })
             <div>
               <h2 className="text-xl font-semibold text-slate-100">
                 {data.readiness.status === "ready"
-                  ? "Ready for final acceptance"
+                  ? "Ready for release acceptance"
                   : data.readiness.status === "blocked"
-                    ? "Final acceptance is blocked"
-                    : "Final acceptance needs review"}
+                    ? "Release acceptance is blocked"
+                    : "Release acceptance needs review"}
               </h2>
               <p className="mt-1 text-sm leading-6 text-slate-400">
                 Complete every required item, verify the production backup and rollback path, then record the final owner acceptance.
@@ -133,23 +133,23 @@ export function HandoffClient({ initialData }: { initialData: HandoffPageData })
             <strong>Remaining blockers:</strong> {data.readiness.blockers.join(" · ")}
           </div>
         ) : null}
-        <p aria-live="polite" className="mt-3 min-h-5 text-sm text-cyan-200/80">{message}</p>
+        <p aria-live="polite" className="mt-3 min-h-5 text-sm text-primary/80">{message}</p>
       </section>
 
       {groups.map(({ group, label, items }) => (
         <section key={group} className="tech-panel rounded-[24px] p-5 sm:p-6">
           <div className="flex items-center gap-3">
-            <span className="grid size-11 place-items-center rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.08] text-cyan-200">
+            <span className="grid size-11 place-items-center rounded-2xl border border-primary/15 bg-primary/[0.08] text-primary">
               {group === "security" ? <ShieldCheck className="size-5" /> : <FileCheck2 className="size-5" />}
             </span>
             <div>
               <h2 className="text-lg font-semibold text-slate-100">{label}</h2>
-              <p className="text-sm text-slate-500">{items.length} final handoff item{items.length === 1 ? "" : "s"}</p>
+              <p className="text-sm text-slate-500">{items.length} release handoff item{items.length === 1 ? "" : "s"}</p>
             </div>
           </div>
           <div className="mt-5 grid gap-3 xl:grid-cols-2">
             {items.map((item) => (
-              <article key={item.key} className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+              <article key={item.key} className="tech-card rounded-2xl border border-white/10 bg-white/[0.035] p-4">
                 <div className="flex items-start gap-3">
                   <ItemIcon status={item.status} />
                   <div className="min-w-0 flex-1">
@@ -195,15 +195,19 @@ export function HandoffClient({ initialData }: { initialData: HandoffPageData })
 
       <section className="tech-panel rounded-[24px] p-5 sm:p-6">
         <div className="flex items-center gap-3">
-          <span className="grid size-11 place-items-center rounded-2xl bg-indigo-400/10 text-indigo-300"><PenLine className="size-5" /></span>
+          <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary"><PenLine className="size-5" /></span>
           <div>
-            <h2 className="text-lg font-semibold text-slate-100">Final owner acceptance</h2>
-            <p className="text-sm text-slate-500">Record who accepted the production system and any final operational notes.</p>
+            <h2 className="text-lg font-semibold text-slate-100">Release owner acceptance</h2>
+            <p className="text-sm text-slate-500">Record who accepted the production system and any release operational notes.</p>
           </div>
         </div>
         {data.latestSignoff ? (
           <div className="mt-5 rounded-2xl border border-emerald-300/15 bg-emerald-400/[0.07] p-4 text-sm text-emerald-100/90">
-            Accepted by <strong>{data.latestSignoff.acceptedBy}</strong> on {new Date(data.latestSignoff.acceptedAt).toLocaleString()}.
+            Accepted by <strong>{data.latestSignoff.acceptedBy}</strong> on {new Intl.DateTimeFormat("en-PH", {
+              timeZone: "Asia/Manila",
+              dateStyle: "medium",
+              timeStyle: "short",
+            }).format(new Date(data.latestSignoff.acceptedAt)) + " PHT"}.
             {data.latestSignoff.notes ? <p className="mt-2 text-emerald-100/70">{data.latestSignoff.notes}</p> : null}
           </div>
         ) : (
@@ -213,12 +217,12 @@ export function HandoffClient({ initialData }: { initialData: HandoffPageData })
               <input value={acceptedBy} onChange={(event) => setAcceptedBy(event.target.value)} className="mt-2 h-11 w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 text-slate-100" placeholder="System owner or authorized representative" />
             </label>
             <label className="text-sm font-medium text-slate-300">
-              Final notes
+              Release notes
               <input value={notes} onChange={(event) => setNotes(event.target.value)} className="mt-2 h-11 w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 text-slate-100" placeholder="Optional handoff notes" />
             </label>
             <button type="button" onClick={signOff} disabled={signing || data.readiness.status !== "ready" || !acceptedBy.trim()} className="tech-button-primary inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-semibold lg:col-span-2">
               {signing ? <Loader2 className="size-4 animate-spin" /> : <BadgeCheck className="size-4" />}
-              Save final acceptance
+              Save release acceptance
             </button>
           </div>
         )}

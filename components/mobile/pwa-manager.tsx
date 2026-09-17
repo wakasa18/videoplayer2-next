@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, Share, X } from "lucide-react";
+import { Download, Share, X } from "@/components/ui/icons";
 import { useEffect, useState } from "react";
 
 type BeforeInstallPromptEvent = Event & {
@@ -90,9 +90,9 @@ export function PwaManager() {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-x-3 bottom-[calc(6.2rem+env(safe-area-inset-bottom))] z-[85] mx-auto max-w-md rounded-2xl border border-cyan-300/20 bg-[#081425]/96 p-3 shadow-[0_20px_60px_rgba(0,0,0,.55)] backdrop-blur-xl lg:hidden">
+    <div className="fixed inset-x-3 bottom-[calc(6.2rem+env(safe-area-inset-bottom))] z-[85] mx-auto max-w-md rounded-2xl border border-primary/20 bg-card/96 p-3 shadow-[0_20px_60px_rgba(0,0,0,.55)] backdrop-blur-xl lg:hidden">
       <div className="flex items-start gap-3">
-        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-cyan-300/10 text-cyan-200">
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
           {iosHint ? <Share className="size-5" /> : <Download className="size-5" />}
         </span>
         <div className="min-w-0 flex-1">
@@ -106,7 +106,7 @@ export function PwaManager() {
             <button
               type="button"
               onClick={() => void install()}
-              className="mt-2 min-h-9 rounded-full bg-cyan-300 px-4 text-xs font-bold text-[#04111d]"
+              className="mt-2 min-h-9 rounded-full bg-primary px-4 text-xs font-bold text-[#122f29]"
             >
               Install app
             </button>

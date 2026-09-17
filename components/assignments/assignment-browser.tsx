@@ -21,7 +21,7 @@ import {
   Sparkles,
   BellRing,
   Trash2,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -43,6 +43,7 @@ import {
   priorityLabel,
   statusLabel,
 } from "@/lib/assignments/utils";
+import { confirmAction, showNotice } from "@/components/ui/confirm-dialog";
 
 const tabConfig: Array<{
   value: AssignmentTab;
@@ -88,7 +89,7 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
 
   async function runBulk(action: string, status?: string) {
     if (bulkBusy || selectedIds.length === 0) return;
-    if (action === "trash" && !window.confirm(`Move ${selectedIds.length} assignments to the Recycle Bin?`)) return;
+    if (action === "trash" && !(await confirmAction(`Move ${selectedIds.length} assignments to the Recycle Bin?`))) return;
     setBulkBusy(true);
     try {
       const response = await fetch("/api/assignments/bulk", {
@@ -101,7 +102,7 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
       setSelectedIds([]);
       router.refresh();
     } catch (error) {
-      window.alert(error instanceof Error ? error.message : "The selected assignments could not be updated.");
+      (await showNotice(error instanceof Error ? error.message : "The selected assignments could not be updated."));
     } finally {
       setBulkBusy(false);
     }
@@ -116,9 +117,9 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
       >
         <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-cyan-400/10 px-3 py-1.5 text-xs font-semibold text-cyan-300">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
               <Sparkles className="size-4" aria-hidden="true" />
-              Phase 5C · Smart assignment workspace
+              Smart assignment workspace
             </div>
             <h1 className="text-3xl font-semibold tracking-[-.04em] text-slate-100 sm:text-4xl">
               Assignments
@@ -127,9 +128,9 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
               Create and organize assignments with recurring schedules, reusable templates, reminder notifications, subtasks, notes, subjects, and linked files.
             </p>
             <div className="mt-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-              <button type="button" onClick={() => setCreating(true)} className="inline-flex min-h-11 w-full items-center justify-center gap-2 sm:w-auto rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-white transition hover:brightness-110"><Plus className="size-4" />New assignment</button>
+              <button type="button" onClick={() => setCreating(true)} className="inline-flex min-h-11 w-full items-center justify-center gap-2 sm:w-auto rounded-full workspace-primary px-5 text-sm font-semibold text-white transition hover:brightness-110"><Plus className="size-4" />New assignment</button>
               <button type="button" onClick={() => setManagingSubjects(true)} className="inline-flex min-h-11 w-full items-center justify-center gap-2 sm:w-auto rounded-full border border-white/10 bg-white/[0.045] px-5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06]"><Settings2 className="size-4" />Subjects</button>
-              <Link href="/dashboard/assignments/productivity" className="inline-flex min-h-11 w-full items-center justify-center gap-2 sm:w-auto rounded-full border border-cyan-300/20 bg-white/[0.04] px-5 text-sm font-semibold text-cyan-300 transition hover:bg-cyan-400/10"><BellRing className="size-4" />Productivity</Link>
+              <Link href="/dashboard/assignments/productivity" className="inline-flex min-h-11 w-full items-center justify-center gap-2 sm:w-auto rounded-full border border-primary/20 bg-white/[0.04] px-5 text-sm font-semibold text-primary transition hover:bg-primary/10"><BellRing className="size-4" />Productivity</Link>
               <Link href="/dashboard/assignments/archive" className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] sm:w-auto"><Archive className="size-4" />Archive</Link>
               <Link href="/dashboard/assignments/recycle" className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] sm:w-auto"><Trash2 className="size-4" />Recycle Bin</Link>
             </div>
@@ -147,7 +148,7 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
       {result.legacySingleUserMode ? (
         <Notice>
           The existing assignments table does not have an <code>owner_id</code> column.
-          Run the Phase 5B SQL migration before using create, edit, archive, or delete actions.
+          Run database/phase5b_assignment_management.sql before using create, edit, archive, or delete actions.
         </Notice>
       ) : null}
 
@@ -182,7 +183,7 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
                 aria-current={active ? "page" : undefined}
                 className={`flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition ${
                   active
-                    ? "bg-cyan-400/10 text-cyan-300"
+                    ? "bg-primary/10 text-primary"
                     : "text-slate-400 hover:bg-white/[0.06]"
                 }`}
               >
@@ -221,7 +222,7 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
               name="q"
               defaultValue={filters.q}
               placeholder="Search assignments, notes, subtasks…"
-              className="h-11 w-full rounded-2xl border border-white/10 bg-white/[0.045] pl-10 pr-4 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15"
+              className="h-11 w-full rounded-2xl border border-white/10 bg-white/[0.045] pl-10 pr-4 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-primary/45 focus:ring-4 focus:ring-primary/15"
             />
           </label>
 
@@ -270,7 +271,7 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
 
           <button
             type="submit"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-white transition hover:brightness-110 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/15"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-full workspace-primary px-5 text-sm font-semibold text-white transition hover:brightness-110 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/15"
           >
             <Filter className="size-4" aria-hidden="true" />
             Apply
@@ -288,7 +289,7 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
                   aria-current={active ? "page" : undefined}
                   className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
                     active
-                      ? "border-cyan-300/20 bg-cyan-400/10 text-cyan-300"
+                      ? "border-primary/20 bg-primary/10 text-primary"
                       : "border-white/10 bg-white/[0.045] text-slate-400 hover:bg-white/[0.06]"
                   }`}
                 >
@@ -314,7 +315,7 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
                   subjectId: 0,
                   page: 1,
                 })}
-                className="text-sm font-semibold text-cyan-300 hover:underline"
+                className="text-sm font-semibold text-primary hover:underline"
               >
                 Clear filters
               </Link>
@@ -351,14 +352,14 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
       </section>
 
       {filters.view === "list" && selectedIds.length > 0 ? (
-        <div className="sticky top-[calc(4.75rem+env(safe-area-inset-top))] z-30 flex flex-wrap items-center gap-2 rounded-[20px] border border-cyan-300/20 bg-white/[0.045] p-3 shadow-lg">
-          <strong className="mr-auto text-sm text-cyan-300">{selectedIds.length} selected</strong>
+        <div className="sticky top-[calc(4.75rem+env(safe-area-inset-top))] z-30 flex flex-wrap items-center gap-2 rounded-[20px] border border-primary/20 bg-white/[0.045] p-3 shadow-lg">
+          <strong className="mr-auto text-sm text-primary">{selectedIds.length} selected</strong>
           <BulkButton label="Mark in progress" disabled={bulkBusy} onClick={() => runBulk("status", "in_progress")} />
           <BulkButton label="Mark done" disabled={bulkBusy} onClick={() => runBulk("status", "done")} />
           <BulkButton label="Archive" disabled={bulkBusy} onClick={() => runBulk("archive")} />
           <BulkButton label="Recycle" disabled={bulkBusy} danger onClick={() => runBulk("trash")} />
           <button type="button" onClick={() => setSelectedIds([])} className="min-h-9 rounded-full px-3 text-sm font-semibold text-slate-400 hover:bg-white/[0.06]">Clear</button>
-          {bulkBusy ? <Loader2 className="size-4 animate-spin text-cyan-300" /> : null}
+          {bulkBusy ? <Loader2 className="size-4 animate-spin text-primary" /> : null}
         </div>
       ) : null}
 
@@ -383,9 +384,9 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
           </section>
         )
       ) : (
-        <div className="grid min-h-72 place-items-center rounded-[24px] border border-dashed border-cyan-300/20 bg-white/[0.045] p-8 text-center">
+        <div className="grid min-h-72 place-items-center rounded-[24px] border border-dashed border-primary/20 bg-white/[0.045] p-8 text-center">
           <div className="max-w-md">
-            <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300">
+            <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-primary/10 text-primary">
               <SearchX className="size-7" aria-hidden="true" />
             </span>
             <h2 className="mt-5 text-lg font-semibold text-slate-100">
@@ -403,7 +404,7 @@ export function AssignmentBrowser({ result }: { result: AssignmentBrowserResult 
       ) : null}
 
       <p className="text-center text-xs text-slate-500">
-        Data access: {result.accessMode === "service-role" ? "secure server client" : "authenticated policies"}
+        Data access: {result.accessMode === "service-role" ? "private owner service" : "owner-authenticated access"}
       </p>
       <AssignmentEditorDialog open={creating} assignment={null} subjects={result.subjects} onClose={() => setCreating(false)} />
       <SubjectManagerDialog open={managingSubjects} initialSubjects={result.subjects} onClose={() => setManagingSubjects(false)} />
@@ -427,7 +428,7 @@ function Metric({
   tone: "blue" | "amber" | "red" | "green";
 }) {
   const tones = {
-    blue: "bg-cyan-400/10 text-cyan-300",
+    blue: "bg-primary/10 text-primary",
     amber: "bg-amber-400/10 text-amber-300",
     red: "bg-red-400/10 text-red-300",
     green: "bg-emerald-400/10 text-emerald-300",
@@ -491,7 +492,7 @@ function Select({
         name={name}
         defaultValue={defaultValue}
         aria-label={label}
-        className="h-11 w-full rounded-2xl border border-white/10 bg-white/[0.045] px-3 text-sm text-slate-200 outline-none transition focus:border-cyan-300/45 focus:ring-4 focus:ring-cyan-300/15"
+        className="h-11 w-full rounded-2xl border border-white/10 bg-white/[0.045] px-3 text-sm text-slate-200 outline-none transition focus:border-primary/45 focus:ring-4 focus:ring-primary/15"
       >
         {children}
       </select>

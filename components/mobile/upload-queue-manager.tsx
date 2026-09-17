@@ -1,6 +1,6 @@
 "use client";
 
-import { CloudUpload, RefreshCw, WifiOff } from "lucide-react";
+import { CloudUpload, RefreshCw, WifiOff } from "@/components/ui/icons";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { compressMobileUpload } from "@/lib/mobile/compression";
@@ -62,8 +62,8 @@ export function MobileUploadQueueManager() {
   if (!items.length && !processing) return null;
   return (
     <div className="fixed bottom-[calc(5.55rem+env(safe-area-inset-bottom))] left-3 z-[82] lg:bottom-4 lg:left-auto lg:right-4">
-      <button type="button" onClick={() => void processQueue()} className="flex min-h-11 items-center gap-2 rounded-full border border-cyan-300/20 bg-[#071426]/96 px-3.5 text-xs font-semibold text-slate-200 shadow-[0_16px_46px_rgba(0,0,0,.5)] backdrop-blur-xl">
-        {!online ? <WifiOff className="size-4 text-amber-300" /> : processing ? <RefreshCw className="size-4 animate-spin text-cyan-200" /> : <CloudUpload className="size-4 text-cyan-200" />}
+      <button type="button" onClick={() => void processQueue()} className="flex min-h-11 items-center gap-2 rounded-full border border-primary/20 bg-card/96 px-3.5 text-xs font-semibold text-slate-200 shadow-[0_16px_46px_rgba(0,0,0,.5)] backdrop-blur-xl">
+        {!online ? <WifiOff className="size-4 text-amber-300" /> : processing ? <RefreshCw className="size-4 animate-spin text-primary" /> : <CloudUpload className="size-4 text-primary" />}
         {processing ? "Retrying uploads…" : `${items.length} upload${items.length === 1 ? "" : "s"} queued`}
       </button>
     </div>

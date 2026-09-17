@@ -13,7 +13,7 @@ import {
   Loader2,
   Save,
   Share2,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
 import { type FormEvent, type ReactNode, useMemo, useState } from "react";
 
@@ -146,7 +146,7 @@ export function WorkspaceSettingsClient({ data }: { data: WorkspaceSettingsData 
                 These settings are stored privately for your Supabase account.
               </p>
             </div>
-            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-cyan-400/10 text-cyan-300">
+            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
               <Save className="size-5" aria-hidden="true" />
             </span>
           </div>
@@ -237,7 +237,7 @@ export function WorkspaceSettingsClient({ data }: { data: WorkspaceSettingsData 
                     compact_mode: event.target.checked,
                   }))
                 }
-                className="size-4 accent-[#1a73e8]"
+                className="size-4 accent-primary"
               />
               Prefer compact lists
             </label>
@@ -350,7 +350,7 @@ export function WorkspaceSettingsClient({ data }: { data: WorkspaceSettingsData 
       </div>
 
       <div className="space-y-5">
-        <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
+        <section className="tech-card rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="text-lg font-semibold text-slate-100">Storage usage</h2>
@@ -374,7 +374,7 @@ export function WorkspaceSettingsClient({ data }: { data: WorkspaceSettingsData 
             </div>
             <div className="mt-3 h-3 overflow-hidden rounded-full bg-white/[0.04]">
               <div
-                className="h-full rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] transition-[width]"
+                className="h-full rounded-full workspace-primary transition-[width]"
                 style={{ width: `${quotaPercent}%` }}
               />
             </div>
@@ -411,7 +411,7 @@ export function WorkspaceSettingsClient({ data }: { data: WorkspaceSettingsData 
           </div>
         </section>
 
-        <section className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
+        <section className="tech-card rounded-[24px] border border-white/10 bg-white/[0.045] p-5 shadow-sm sm:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="text-lg font-semibold text-slate-100">Metadata backup</h2>
@@ -464,7 +464,7 @@ function StorageStat({
 }) {
   return (
     <div className="flex items-center gap-3 rounded-2xl bg-white/[0.035] p-4">
-      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white/[0.045] text-cyan-300 shadow-sm">
+      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white/[0.045] text-primary shadow-sm">
         <Icon className="size-4" aria-hidden="true" />
       </span>
       <div className="min-w-0">
@@ -478,7 +478,7 @@ function StorageStat({
 }
 
 const inputClass =
-  "h-12 w-full rounded-2xl border border-white/10 bg-white/[0.045] px-4 text-sm font-normal text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-cyan-300/40 focus:ring-4 focus:ring-cyan-300/15 disabled:cursor-not-allowed disabled:text-slate-400";
+  "h-12 w-full rounded-2xl border border-white/10 bg-white/[0.045] px-4 text-sm font-normal text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-primary/40 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:text-slate-400";
 
 const primaryButtonClass =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-full workspace-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:workspace-primary disabled:cursor-not-allowed disabled:opacity-60";

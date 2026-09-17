@@ -15,7 +15,7 @@ import {
   ShieldCheck,
   Trash2,
   XCircle,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
@@ -25,6 +25,7 @@ import type {
   QualityReport,
   QualityStatus,
 } from "@/lib/quality/types";
+import { confirmAction } from "@/components/ui/confirm-dialog";
 
 const groupMeta: Record<
   QualityCheck["group"],
@@ -98,7 +99,7 @@ export function QualityAssuranceClient({ initialData }: { initialData: QualityPa
 
   async function clearHistory() {
     if (clearing || !history.length) return;
-    if (!window.confirm("Clear saved Phase 11 QA history? This does not affect application data.")) return;
+    if (!(await confirmAction("Clear saved QA history? This does not affect application data."))) return;
     setClearing(true);
     setMessage("Clearing QA history...");
     try {
@@ -119,7 +120,7 @@ export function QualityAssuranceClient({ initialData }: { initialData: QualityPa
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `damons-archive-phase11-qa-${new Date(report.generatedAt).toISOString().slice(0, 10)}.json`;
+    link.download = `damons-archive-current-qa-${new Date(report.generatedAt).toISOString().slice(0, 10)}.json`;
     link.click();
     URL.revokeObjectURL(url);
   }
@@ -158,7 +159,7 @@ export function QualityAssuranceClient({ initialData }: { initialData: QualityPa
             </button>
           </div>
         </div>
-        <p aria-live="polite" className="mt-4 min-h-6 text-sm text-cyan-200/80">
+        <p aria-live="polite" className="mt-4 min-h-6 text-sm text-primary/80">
           {message}
         </p>
       </section>
@@ -170,7 +171,7 @@ export function QualityAssuranceClient({ initialData }: { initialData: QualityPa
           return (
             <article key={group.key} className="tech-panel rounded-[24px] p-5 sm:p-6">
               <div className="flex items-center gap-3">
-                <span className="grid size-11 place-items-center rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.08] text-cyan-200">
+                <span className="grid size-11 place-items-center rounded-2xl border border-primary/15 bg-primary/[0.08] text-primary">
                   <Icon className="size-5" aria-hidden="true" />
                 </span>
                 <div>
@@ -209,7 +210,7 @@ export function QualityAssuranceClient({ initialData }: { initialData: QualityPa
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,.9fr)]">
         <section className="tech-panel rounded-[24px] p-5 sm:p-6">
           <div className="flex items-center gap-3">
-            <span className="grid size-11 place-items-center rounded-2xl bg-indigo-400/10 text-indigo-300">
+            <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary">
               <Gauge className="size-5" />
             </span>
             <div>
@@ -220,7 +221,7 @@ export function QualityAssuranceClient({ initialData }: { initialData: QualityPa
           {report.metrics.length ? (
             <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {report.metrics.map((metric) => (
-                <article key={metric.name} className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+                <article key={metric.name} className="tech-card rounded-2xl border border-white/10 bg-white/[0.035] p-4">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs font-semibold uppercase tracking-[.16em] text-slate-500">{metric.name}</span>
                     <StatusIcon status={metric.rating} />
@@ -242,7 +243,7 @@ export function QualityAssuranceClient({ initialData }: { initialData: QualityPa
         <section className="tech-panel rounded-[24px] p-5 sm:p-6">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <span className="grid size-11 place-items-center rounded-2xl bg-violet-400/10 text-violet-300">
+              <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary">
                 <History className="size-5" />
               </span>
               <div>
@@ -334,7 +335,7 @@ function formatMetric(value: number, unit: "ms" | "score") {
 }
 
 const primaryButtonClass =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#24d6ff,#4f68ff)] px-5 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(34,158,255,.2)] transition hover:brightness-110 disabled:opacity-60";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-full workspace-primary px-5 text-sm font-semibold text-white shadow-none transition hover:brightness-110 disabled:opacity-60";
 const secondaryButtonClass =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.08]";
 const iconButtonClass =

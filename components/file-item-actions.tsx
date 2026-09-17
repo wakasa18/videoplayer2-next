@@ -1,6 +1,6 @@
 "use client";
 
-import { CloudDownload, Download, Eye, FilePenLine, FolderInput, Info, MoreVertical, Share2, Star, Trash2, WifiOff } from "lucide-react";
+import { CloudDownload, Download, Eye, FilePenLine, FolderInput, Info, MoreVertical, Share2, Star, Trash2, WifiOff } from "@/components/ui/icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { ImportantFile } from "@/lib/files/types";
 import { cacheFileForOffline, isFileAvailableOffline, removeOfflineFile } from "@/lib/mobile/offline-files";
+import { showNotice } from "@/components/ui/confirm-dialog";
 
 type FileItemActionsProps = {
   file: ImportantFile;
@@ -51,7 +52,7 @@ export function FileItemActions({ file, onPreview }: FileItemActionsProps) {
       if (!response.ok) throw new Error(payload.error ?? "Could not update favorite status.");
       router.refresh();
     } catch (error) {
-      window.alert(error instanceof Error ? error.message : "Could not update favorite status.");
+      (await showNotice(error instanceof Error ? error.message : "Could not update favorite status."));
     } finally {
       setBusy(false);
     }
@@ -70,7 +71,7 @@ export function FileItemActions({ file, onPreview }: FileItemActionsProps) {
         setOfflineReady(true);
       }
     } catch (error) {
-      window.alert(error instanceof Error ? error.message : "Could not update offline access.");
+      (await showNotice(error instanceof Error ? error.message : "Could not update offline access."));
     } finally {
       setOfflineBusy(false);
     }
@@ -80,11 +81,11 @@ export function FileItemActions({ file, onPreview }: FileItemActionsProps) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button type="button" className="grid size-9 place-items-center rounded-full text-slate-400 transition hover:bg-white/10 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/40" aria-label={`Actions for ${file.title}`}>
+          <button type="button" className="grid size-9 place-items-center rounded-full text-slate-400 transition hover:bg-white/10 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40" aria-label={`Actions for ${file.title}`}>
             <MoreVertical className="size-5" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-60 rounded-2xl border-white/10 bg-[#0b1220]/95 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl">
+        <DropdownMenuContent align="end" className="w-60 rounded-2xl border-white/10 bg-card/95 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl">
           {onPreview ? <DropdownMenuItem onSelect={onPreview} className={itemClass}><Eye /> Preview</DropdownMenuItem> : null}
           <DropdownMenuItem asChild className={itemClass}><Link href={`/dashboard/files/${file.id}`}><Info /> Details</Link></DropdownMenuItem>
           <DropdownMenuItem asChild className={itemClass}><a href={`/api/files/${file.id}/download`}><Download /> Download</a></DropdownMenuItem>
@@ -106,4 +107,4 @@ export function FileItemActions({ file, onPreview }: FileItemActionsProps) {
   );
 }
 
-const itemClass = "min-h-10 cursor-pointer rounded-xl px-3 text-sm text-slate-300 transition-colors focus:bg-white/[0.07] focus:text-slate-100 [&_svg]:size-4 [&_svg]:text-slate-400 focus:[&_svg]:text-cyan-200";
+const itemClass = "min-h-10 cursor-pointer rounded-xl px-3 text-sm text-slate-300 transition-colors focus:bg-white/[0.07] focus:text-slate-100 [&_.lordicon-icon]:size-4 [&_.lordicon-icon]:text-slate-400 focus:[&_.lordicon-icon]:text-primary";

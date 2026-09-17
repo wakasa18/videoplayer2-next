@@ -1,4 +1,4 @@
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "@/components/ui/icons";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -42,7 +42,7 @@ export default function Page({
           </Suspense>
           <Link
             href="/auth/login"
-            className="tech-interactive inline-flex min-h-11 items-center justify-center rounded-full border border-cyan-200/20 bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-[#04101d] shadow-[0_10px_24px_rgba(40,137,255,0.23)] hover:brightness-110"
+            className="tech-interactive inline-flex min-h-11 items-center justify-center rounded-full border border-primary/20 workspace-primary px-5 text-sm font-semibold text-[#122f29] shadow-none hover:brightness-110"
           >
             Back to login
           </Link>

@@ -1,4 +1,4 @@
-import { Grid2X2, List, Search, SlidersHorizontal, Star } from "lucide-react";
+import { Grid2X2, List, Search, SlidersHorizontal, Star } from "@/components/ui/icons";
 import Link from "next/link";
 
 import type { FileBrowserFilters } from "@/lib/files/types";
@@ -19,7 +19,7 @@ export function FilesToolbar({ filters, categories }: FilesToolbarProps) {
         <input type="hidden" name="view" value={filters.view} />
 
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-          <label className="flex min-h-12 flex-1 items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition focus-within:border-cyan-300/40 focus-within:bg-white/[0.065] focus-within:ring-2 focus-within:ring-cyan-300/10">
+          <label className="flex min-h-12 flex-1 items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition focus-within:border-primary/40 focus-within:bg-white/[0.065] focus-within:ring-2 focus-within:ring-primary/10">
             <Search className="size-5 shrink-0 text-slate-400" aria-hidden="true" />
             <span className="sr-only">Search files and folders</span>
             <input
@@ -55,7 +55,7 @@ export function FilesToolbar({ filters, categories }: FilesToolbarProps) {
                 href={buildFileQuery(filters, { view: "grid", page: 1 })}
                 className={`grid size-9 place-items-center rounded-full transition ${
                   filters.view === "grid"
-                    ? "bg-cyan-400/15 text-cyan-200"
+                    ? "bg-primary/15 text-primary"
                     : "text-slate-400 hover:bg-white/[0.06] hover:text-slate-200"
                 }`}
                 aria-label="Grid view"
@@ -66,7 +66,7 @@ export function FilesToolbar({ filters, categories }: FilesToolbarProps) {
                 href={buildFileQuery(filters, { view: "list", page: 1 })}
                 className={`grid size-9 place-items-center rounded-full transition ${
                   filters.view === "list"
-                    ? "bg-cyan-400/15 text-cyan-200"
+                    ? "bg-primary/15 text-primary"
                     : "text-slate-400 hover:bg-white/[0.06] hover:text-slate-200"
                 }`}
                 aria-label="List view"
@@ -128,7 +128,7 @@ export function FilesToolbar({ filters, categories }: FilesToolbarProps) {
           <div className="flex items-end gap-2">
             <button
               type="submit"
-              className="tech-interactive inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-cyan-200/20 bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-[#04101d] shadow-[0_10px_24px_rgba(40,137,255,0.23)] hover:brightness-110"
+              className="tech-interactive inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-primary/20 workspace-primary px-5 text-sm font-semibold text-[#122f29] shadow-none hover:brightness-110"
             >
               <SlidersHorizontal className="size-4" aria-hidden="true" />
               Apply
@@ -176,7 +176,7 @@ function FilterSelect({
       <select
         name={name}
         defaultValue={defaultValue}
-        className="min-h-11 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-slate-100 outline-none transition focus:border-cyan-300/45 focus:ring-2 focus:ring-cyan-300/15"
+        className="min-h-11 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-slate-100 outline-none transition focus:border-primary/45 focus:ring-2 focus:ring-primary/15"
       >
         {children}
       </select>

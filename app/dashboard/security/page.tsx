@@ -1,4 +1,4 @@
-import { AlertTriangle, ShieldCheck } from "lucide-react";
+import { AlertTriangle, ShieldCheck } from "@/components/ui/icons";
 
 import { DashboardReveal } from "@/components/dashboard-reveal";
 import { SecurityCenterClient } from "@/components/security/security-center-client";
@@ -28,6 +28,6 @@ export default async function SecurityPage() {
       </main>
     );
   } catch (error) {
-    return <main className="grid min-h-[65vh] place-items-center"><section className="tech-panel w-full max-w-2xl rounded-[28px] p-7"><AlertTriangle className="size-8 text-amber-300" /><h1 className="mt-4 text-2xl font-semibold text-slate-100">Security Center needs Phase 13</h1><p className="mt-3 text-sm leading-6 text-slate-400">{error instanceof Error ? error.message : "Security data could not be loaded."}</p></section></main>;
+    return <main className="grid min-h-[65vh] place-items-center"><section className="tech-panel w-full max-w-2xl rounded-[28px] p-7"><AlertTriangle className="size-8 text-amber-300" /><h1 className="mt-4 text-2xl font-semibold text-slate-100">Security Center setup required</h1><p className="mt-3 text-sm leading-6 text-slate-400">{error instanceof Error ? error.message : "Security data could not be loaded."}</p></section></main>;
   }
 }

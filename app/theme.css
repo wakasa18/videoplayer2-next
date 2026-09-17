@@ -1,0 +1,184 @@
+/* Shared visual system for the workspace, public pages, and portalled dialogs. */
+:root, .dark, body.high-tech-theme {
+  --archive-bg: #10191d;
+  --archive-sidebar: #142025;
+  --archive-surface: #1a282e;
+  --archive-raised: #23363e;
+  --archive-border: #354c55;
+  --archive-text: #ecf4f3;
+  --archive-muted: #b1c3c6;
+  --archive-subtle: #96afb5;
+  --archive-accent: #8fd6c2;
+  --archive-blue: #93b5d5;
+  --archive-green: #8bc9b0;
+  --archive-amber: #e0bb7d;
+  --archive-display: "Bahnschrift", "Aptos Display", var(--font-inter), system-ui, sans-serif;
+  --background: 198 29% 9%;
+  --foreground: 173 27% 94%;
+  --card: 198 28% 14%;
+  --card-foreground: 173 27% 94%;
+  --popover: 198 28% 14%;
+  --popover-foreground: 173 27% 94%;
+  --primary: 163 46% 70%;
+  --primary-foreground: 168 45% 13%;
+  --secondary: 198 28% 19%;
+  --secondary-foreground: 173 27% 94%;
+  --muted: 198 28% 19%;
+  --muted-foreground: 189 16% 74%;
+  --accent: 198 28% 19%;
+  --accent-foreground: 173 27% 94%;
+  --border: 197 23% 27%;
+  --input: 197 23% 27%;
+  --ring: 163 46% 70%;
+  --destructive: 351 65% 65%;
+  --destructive-foreground: 0 0% 100%;
+  --chart-1: 163 46% 70%;
+  --chart-2: 209 44% 71%;
+  --chart-3: 154 36% 67%;
+  --chart-4: 38 61% 68%;
+  --chart-5: 346 45% 72%;
+}
+
+body.high-tech-theme { isolation: isolate; background: var(--archive-bg); color: var(--archive-text); font-family: var(--font-inter), system-ui, sans-serif; }
+body.high-tech-theme::before, body.high-tech-theme::after,
+.tech-shell::before, .tech-scanline, .auth-shell-grid, .auth-shell-vignette { display: none; }
+::selection { background: #8fd6c240; color: var(--archive-text); }
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: var(--archive-bg); }
+::-webkit-scrollbar-thumb { background: #4c6872; border: 2px solid var(--archive-bg); border-radius: 8px; }
+body.high-tech-theme :is(.text-slate-500, .text-slate-600) { color: var(--archive-subtle); }
+body.high-tech-theme :is(a, button, input, textarea, select, summary, [tabindex]):focus-visible { outline: 2px solid var(--archive-accent); outline-offset: 3px; }
+body.high-tech-theme :is(a, button) { -webkit-tap-highlight-color: transparent; }
+
+/* Solid surfaces avoid continuous backdrop compositing. */
+body.high-tech-theme :is(.tech-panel, .tech-panel-soft, .tech-card, [data-spotlight-card], .auth-login-card, .auth-signal-card, .archive-collection, .archive-panel) {
+  --spotlight-alpha: 0 !important;
+  background: var(--archive-surface) !important;
+  border: 1px solid var(--archive-border);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), 0 1px 2px #0002 !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  transition: border-color 120ms ease, color 120ms ease;
+}
+body.high-tech-theme :is(.tech-panel, .tech-panel-soft, .tech-card, [data-spotlight-card])::before,
+body.high-tech-theme :is(.tech-panel, .tech-panel-soft, .tech-card, [data-spotlight-card])::after { display: none !important; }
+.tech-title { background: none; color: var(--archive-text); -webkit-text-fill-color: currentColor; text-shadow: none; }
+.tech-kicker, .auth-kicker { color: var(--archive-muted); border-color: var(--archive-border); background: var(--archive-raised); }
+body.high-tech-theme :is(.tech-logo-pulse, .tech-status-dot, .tech-avatar-pulse) { animation: none; }
+body.high-tech-theme .tech-interactive:hover { transform: none; filter: none; }
+body.high-tech-theme .tech-interactive::after { display: none; }
+body.high-tech-theme :is(.tech-panel, .tech-panel-soft, .tech-card, [data-spotlight-card]):hover { filter: none !important; }
+body.high-tech-theme [class*="backdrop-"] { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+@keyframes archive-content-in { from { opacity: 0; } to { opacity: 1; } }
+body.high-tech-theme .tech-page-transition { animation: archive-content-in 140ms ease-out; }
+body.high-tech-theme .tech-card-reveal { animation: none; }
+
+/* Controls retain their intent: primary, neutral, destructive, and selected. */
+body.high-tech-theme :is(.glass-control, .glass-button) {
+  isolation: auto;
+  background: var(--archive-raised);
+  border: 1px solid var(--archive-border);
+  border-radius: 9px;
+  box-shadow: none;
+  color: var(--archive-text);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+body.high-tech-theme :is(.glass-control, .glass-button):hover:not(:disabled) { background: #2b424a; border-color: #4c6872; transform: none; filter: none; }
+body.high-tech-theme :is(.glass-control-primary, .workspace-primary) {
+  background: var(--archive-accent);
+  border: 1px solid var(--archive-accent);
+  color: #122f29;
+  box-shadow: none;
+}
+body.high-tech-theme :is(.glass-control-primary, .workspace-primary):hover:not(:disabled) { background: #b1e8d7; border-color: #b1e8d7; color: #122f29; }
+body.high-tech-theme .glass-control-danger { background: #562d38; border-color: #78404e; color: #ffd3dc; }
+body.high-tech-theme .glass-control-danger:hover:not(:disabled) { background: #673441; border-color: #9a5365; }
+body.high-tech-theme :is(.glass-control-ghost, .glass-control-link) { background: transparent; border-color: transparent; }
+body.high-tech-theme .glass-control-link { color: var(--archive-accent); }
+body.high-tech-theme :is(.glass-control, .glass-button, .workspace-primary, .liquid-glass-control)::before,
+body.high-tech-theme :is(.glass-control, .glass-button, .workspace-primary, .liquid-glass-control)::after { display: none !important; }
+body.high-tech-theme :is(.glass-button-wrap, .glass-button-shadow) { filter: none; box-shadow: none; }
+body.high-tech-theme button[aria-pressed="true"]:not([data-no-glass]),
+body.high-tech-theme button[role="tab"][aria-selected="true"] { background-color: #8fd6c218; border-color: #8fd6c248; color: var(--archive-accent); }
+body.high-tech-theme button:disabled { cursor: not-allowed; }
+
+body.high-tech-theme :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]), textarea, select) {
+  background-color: var(--archive-bg);
+  border-color: var(--archive-border);
+  color: var(--archive-text);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+body.high-tech-theme :is(input, textarea)::placeholder { color: var(--archive-subtle); }
+body.high-tech-theme :is(input, textarea, select):focus-visible { border-color: var(--archive-accent); }
+body.high-tech-theme :is(input[type="checkbox"], input[type="radio"], input[type="range"]) { accent-color: var(--archive-accent); }
+select option { background: var(--archive-surface); color: var(--archive-text); }
+
+/* Body-level portals inherit these tokens even outside the dashboard shell. */
+body.high-tech-theme :is(.tech-modal-surface, .tech-menu-surface, .liquid-glass-popover) {
+  color: var(--archive-text);
+  background: var(--archive-surface) !important;
+  border: 1px solid var(--archive-border);
+  box-shadow: 0 24px 80px #0006 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+body.high-tech-theme :is(.tech-modal-surface, .tech-menu-surface, .liquid-glass-popover)::before,
+body.high-tech-theme :is(.tech-modal-surface, .tech-menu-surface, .liquid-glass-popover)::after { display: none !important; }
+body.high-tech-theme .tech-modal-overlay {
+  background: #020d18b8 !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  animation: none !important;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+body.high-tech-theme .tech-modal-overlay::before { display: none; }
+body.high-tech-theme .tech-modal-surface {
+  max-height: calc(100dvh - 2.5rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  min-width: 0;
+  border-radius: 14px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: auto;
+}
+/* Flex previews and upload dialogs own their inner scrolling region. */
+body.high-tech-theme .tech-modal-surface.flex.flex-col { overflow: hidden; }
+body.high-tech-theme .tech-modal-surface.flex.flex-col > :is(header, footer) { flex-shrink: 0; }
+body.high-tech-theme .tech-modal-surface :is(header, footer) { background: var(--archive-surface); border-color: var(--archive-border); backdrop-filter: none; }
+body.high-tech-theme .tech-modal-surface :is(h1, h2, h3) { color: var(--archive-text); letter-spacing: -.025em; }
+body.high-tech-theme .tech-modal-surface button[aria-label*="close" i] {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--archive-border);
+  border-radius: 9px !important;
+  color: var(--archive-muted);
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+body.high-tech-theme .tech-modal-surface button[aria-label*="close" i]:hover:not(:disabled) { background: var(--archive-raised); color: var(--archive-text); transform: none !important; }
+body.high-tech-theme :is(.liquid-menu-item, [role="menuitemcheckbox"], [role="menuitemradio"]) { background: transparent; border-color: transparent; color: var(--archive-muted); box-shadow: none; }
+body.high-tech-theme :is(.liquid-menu-item, [role="menuitemcheckbox"], [role="menuitemradio"]):is(:hover, :focus, [data-highlighted]) { background: var(--archive-raised); color: var(--archive-text); }
+body.high-tech-theme .liquid-menu-item.text-red-300 { color: #fda4af; }
+.auth-brand-logo, .auth-signal-icon { background: #8fd6c214; border: 1px solid #8fd6c22a; color: var(--archive-accent); }
+.auth-field-shell { background: var(--archive-bg); border: 1px solid var(--archive-border); }
+.auth-field-shell:focus-within { border-color: var(--archive-accent); }
+.auth-telemetry { color: var(--archive-muted); }
+
+@media (max-width: 639px) {
+  body.high-tech-theme .tech-modal-surface {
+    max-height: calc(100dvh - 1rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
+    border-radius: 14px !important;
+  }
+  body.high-tech-theme .tech-modal-overlay:is(.items-end, .place-items-end) .tech-modal-surface { border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; }
+  body.high-tech-theme .tech-modal-surface :is(input, textarea, select) { font-size: 16px; }
+  body.high-tech-theme .archive-navigation-overlay .tech-modal-surface { border-radius: 0 !important; max-height: 100dvh !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.high-tech-theme *, body.high-tech-theme *::before, body.high-tech-theme *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}

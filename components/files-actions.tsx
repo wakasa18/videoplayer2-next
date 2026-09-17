@@ -1,6 +1,6 @@
 "use client";
 
-import { FolderPlus, FolderUp, Link2, Recycle, Upload } from "lucide-react";
+import { FolderPlus, FolderUp, Link2, Recycle, Upload } from "@/components/ui/icons";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -38,9 +38,9 @@ export function FilesActions({ currentFolder, categories, maxUploadBytes, folder
   }, []);
   return <>
     <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
-      <button type="button" onClick={() => setUploadMode("files")} className="group col-span-2 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#2ad4ff,#4e6cff)] px-5 text-sm font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-md active:translate-y-0 sm:col-auto sm:w-auto"><Upload className="size-4 transition-transform group-hover:-translate-y-0.5" /> Upload files</button>
+      <button type="button" onClick={() => setUploadMode("files")} className="group col-span-2 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full workspace-primary px-5 text-sm font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-md active:translate-y-0 sm:col-auto sm:w-auto"><Upload className="size-4 transition-transform group-hover:-translate-y-0.5" /> Upload files</button>
       <button type="button" onClick={() => setUploadMode("folder")} className={secondaryClass}><FolderUp className="size-4" /> Upload folder</button>
-      <button type="button" disabled={!folderTableAvailable} title={folderTableAvailable ? "Create an empty folder" : "Run the Phase 3B SQL file first"} onClick={() => setFolderOpen(true)} className={`${secondaryClass} disabled:cursor-not-allowed disabled:opacity-50`}><FolderPlus className="size-4" /> New folder</button>
+      <button type="button" disabled={!folderTableAvailable} title={folderTableAvailable ? "Create an empty folder" : "Run database/phase3b_file_management.sql first"} onClick={() => setFolderOpen(true)} className={`${secondaryClass} disabled:cursor-not-allowed disabled:opacity-50`}><FolderPlus className="size-4" /> New folder</button>
       <Link href="/dashboard/files/shares" className={secondaryClass}><Link2 className="size-4" /> Shared links</Link>
       <Link href="/dashboard/files/recycle" className={secondaryClass}><Recycle className="size-4" /> Recycle Bin</Link>
     </div>
